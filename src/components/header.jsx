@@ -1,30 +1,46 @@
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
+import { FiSearch, FiShoppingCart } from "react-icons/fi"; 
 
 export default function Header() {
   return (
-    <header className="w-full bg-sec-2 h-[100px] text-accent px-[30px]">
-      <div className="w-full h-full flex items-center justify-between">
-        
-        <div className="flex items-center mt-10">
-          <img src="CocoSmartLogo.png" className="h-[150px] w-auto object-contain" />
+    <header className="flex items-center justify-between border-b border-stone-200 px-10 py-3 bg-[#f5f3f1]">
+      
+      <div className="flex items-center gap-3 text-accent">
+        <div className="h-8 w-9 bg-accent rounded-full flex items-center justify-center text-white font-bold">
+          C
         </div>
+        <h2 className="text-lg font-bold tracking-[-0.015em]">CocoSmart</h2>
+      </div>
 
-        <nav className="flex gap-[30px] text-lg font-bold">
-          <Link to="/">Home</Link>
-          <Link to="/product">Product</Link>
-          <Link to="/about">About</Link>
-          <Link to="/contact">Contact Us</Link>
-        </nav>
+      <nav className="flex gap-9 text-accent text-sm font-medium">
+        <Link to="/">Home</Link>
+        <Link to="/product">Products</Link>
+        <Link to="/about">About</Link>
+        <Link to="/contact">Contact Us</Link>
+      </nav>
 
-        <div className="flex gap-[10px] mr-8">
-          <button className="bg-primary text-accent font-semibold px-5 py-2 rounded-[15px] shadow-lg hover:scale-105 transition-transform">
-            Sign Up
-          </button>
-          <button className="bg-accent text-white font-semibold px-5 py-2 rounded-[15px] shadow-lg hover:scale-105 transition-transform">
-            Sign In
-          </button>
-        </div>
-        
+      <div className="flex items-center gap-3">
+        <button className="flex h-10 w-10 items-center justify-center rounded-full text-accent hover:bg-stone-300 transition-colors duration-200">
+          <FiSearch size={19} />
+        </button>
+
+        <button className="flex items-center gap-2 rounded-full bg-accent px-3 h-9 text-white font-medium text-sm shadow-md hover:bg-[#111827] active:scale-95 transition-all duration-200">
+          <FiShoppingCart size={15} />
+          
+        </button>
+
+        <Link
+          to="/signup"
+          className="px-4 h-9 flex items-center rounded-full border border-accent text-accent font-medium text-sm shadow-sm hover:bg-accent hover:text-primary active:scale-95 transition-all duration-200"
+        >
+          Sign Up
+        </Link>
+        <Link
+          to="/login"
+          className="px-4 h-9 flex items-center rounded-full bg-accent text-white font-medium text-sm shadow-md hover:bg-primary hover:text-accent active:scale-95 transition-all duration-200"
+        >
+          Sign In
+        </Link>
       </div>
     </header>
   );

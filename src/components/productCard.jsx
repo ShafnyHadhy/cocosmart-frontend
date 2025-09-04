@@ -1,13 +1,24 @@
 export default function ProductCard(props) {
 
-    console.log(props)
+  const product = props.product;
 
   return (
-    <div className="productCard">
-        <h1>{props.name}</h1>
-        <p>{props.price}</p>
-        <img className="productImage" src="https://www.apple.com/assets-www/en_WW/ipad/product_tile/large/ipad_11th_gen_50cc0f42b.png"/>
-        <button>Add to cart</button>
+    <div className="w-[300px] h-[400px] shadow-2xl m-3 flex flex-col p-[10px]">
+        <img className="w-full h-[250px] object-cover" src={product.images[0]}/>
+        <h1 className="text-xl font-bold text-secondary">{product.name}</h1>
+        {
+            product.labelledPrice > product.price?
+            <div className="flex gap-3 items-center">
+              <p className="text-lg text-secondary font-semibold line-through">LKR {product.labelledPrice.toFixed(2)}</p>
+              <p className="text-lg font-semibold text-accent">LKR {product.price.toFixed(2)}</p>
+            </div>:
+            <p className="text-lg font-semibold text-accent">LKR {product.price.toFixed(2)}</p>
+        }
+        <p className="text-sm text-secondary/70">{product.productID}</p>
+        <p className="text-sm text-secondary/70">{product.category}</p>
+        <button className="w-full h-[30px] mt-[5px] border border-accent text-accent hover:bg-accent hover:text-white">
+          View Product
+        </button>
     </div>
   )
 }
