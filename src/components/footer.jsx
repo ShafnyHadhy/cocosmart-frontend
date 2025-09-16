@@ -40,7 +40,7 @@ export default function Footer() {
               <a href="#"><i className="fab fa-twitter text-xl"></i></a>
             </div>
             <p className="text-center text-base text-stone-600">
-              ©2025 CocoSmart. All rights reserved.
+              © 2025 CocoSmart. All rights reserved.
             </p>
           </div>
         </div>

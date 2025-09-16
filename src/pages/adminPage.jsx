@@ -10,6 +10,10 @@ import AdminUpdateProduct from "./admin/adminUpdateProduct";
 import { SiExpensify } from "react-icons/si";
 import AdminExpensePage from "./admin/adminExpensePage";
 import AdminFinancePage from "./admin/adminFinancePage";
+import AdminAddNewExpense from "./admin/adminAddNewExpense";
+import AdminAddNewFinance from "./admin/adminAddNewFinance";
+import AdminUpdateExpense from "./admin/adminUpdateExpense";
+import AdminUpdateFinance from "./admin/adminUpdateFinance";
 
 export default function AdminPage() {
   const location = useLocation();
@@ -60,7 +64,7 @@ export default function AdminPage() {
      <div className="ml-64 flex flex-1 flex-col">
         <header className="sticky top-0 z-10 flex h-16 items-center justify-end whitespace-nowrap border-b border-gray-200 bg-white/80 px-6 backdrop-blur-sm">
           <div className="flex items-center gap-4">
-            <button className="rounded-lg px-4 py-1 text-md font-bold text-gray-500 border-1 border-accent cursor-pointer hover:bg-gray-200 hover:text-accent transition">
+            <button className="rounded-lg px-4 py-1 text-md font-normal text-gray-500 border-1 border-accent cursor-pointer hover:bg-gray-200 hover:text-accent transition">
               Logout
             </button>
             <button className="rounded-full px-3 py-1 font-bold text-white  bg-accent border-1 border-accent cursor-pointer hover:bg-gray-100 hover:text-gray-900 transition">
@@ -79,7 +83,11 @@ export default function AdminPage() {
               <Route path="/add-product" element={<AdminAddNewProduct />} />
               <Route path="/update-product" element={<AdminUpdateProduct />} />
               <Route path="/expenses" element={<AdminExpensePage/>} />
+              <Route path="/add-expense" element={<AdminAddNewExpense/>} />
+              <Route path="/update-expense" element={<AdminUpdateExpense/>} />
               <Route path="/finances" element={<AdminFinancePage/>} />
+              <Route path="/add-finance" element={<AdminAddNewFinance/>} />
+              <Route path="/update-finance" element={<AdminUpdateFinance/>} />
             </Routes>
           </div>
         </main>

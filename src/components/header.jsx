@@ -13,10 +13,10 @@ export default function Header() {
       </div>
 
       <nav className="flex gap-9 text-accent text-sm font-medium">
-        <Link to="/">Home</Link>
-        <Link to="/product">Products</Link>
-        <Link to="/about">About</Link>
-        <Link to="/contact">Contact Us</Link>
+        <Link to="/">HOME</Link>
+        <Link to="/product">PRODUCTS</Link>
+        <Link to="/about">ABOUT</Link>
+        <Link to="/contact">CONTACT</Link>
       </nav>
 
       <div className="flex items-center gap-3">
@@ -24,22 +24,27 @@ export default function Header() {
           <FiSearch size={19} />
         </button>
 
-        <button className="flex items-center gap-2 rounded-full bg-accent px-3 h-9 text-white font-medium text-sm shadow-md hover:bg-[#111827] active:scale-95 transition-all duration-200">
-          <FiShoppingCart size={15} />
+        <button className="flex items-center gap-2 rounded-full px-3 h-9 text-accent font-medium text-sm shadow-md hover:bg-stone-300 active:scale-95 transition-all duration-200">
+          <FiShoppingCart size={17} />
           
         </button>
 
-        <Link
-          to="/signup"
-          className="px-4 h-9 flex items-center rounded-full border border-accent text-accent font-medium text-sm shadow-sm hover:bg-accent hover:text-primary active:scale-95 transition-all duration-200"
-        >
-          Sign Up
-        </Link>
+        {
+          /*
+          <Link
+            to="/signup"
+            className="px-4 h-9 flex items-center rounded-full border border-accent text-accent font-medium text-sm shadow-sm hover:bg-accent hover:text-primary active:scale-95 transition-all duration-200"
+          >
+            Sign Up
+          </Link>
+          */
+        }
+        
         <Link
           to="/login"
-          className="px-4 h-9 flex items-center rounded-full bg-accent text-white font-medium text-sm shadow-md hover:bg-primary hover:text-accent active:scale-95 transition-all duration-200"
+          className="px-4 h-9 flex items-center rounded-full bg-accent text-white font-medium text-sm shadow-md hover:bg-stone-300 hover:text-accent active:scale-95 transition-all duration-200"
         >
-          Sign In
+          LOG IN
         </Link>
       </div>
     </header>

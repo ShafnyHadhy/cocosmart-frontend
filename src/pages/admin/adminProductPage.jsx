@@ -107,7 +107,7 @@ export default function AdminProductPage() {
         <h1 className="text-2xl font-bold text-gray-800">Products</h1>
         <Link
           to="/admin/add-product"
-          className="w-12 h-12 flex items-center justify-center rounded-full bg-accent text-white text-3xl shadow-lg hover:scale-110 transition-transform"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-accent text-white text-3xl shadow-lg hover:scale-110 transition-transform"
         >
           <CiCirclePlus />
         </Link>

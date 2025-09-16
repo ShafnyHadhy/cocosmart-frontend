@@ -37,13 +37,6 @@ useEffect(()=>{
                             )
                         })
                     }
-                    {
-                        products.map((item)=>{
-                            return (
-                                <ProductCard key={item.productID} product={item}/>
-                            )
-                        })
-                    }
                 </div>
             }
         </div>

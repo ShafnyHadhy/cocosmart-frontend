@@ -106,7 +106,7 @@ export default function AdminFinancePage() {
         <h1 className="text-2xl font-bold text-gray-800">Finances</h1>
         <Link
           to="/admin/add-finance"
-          className="w-12 h-12 flex justify-center items-center bg-accent text-white text-3xl rounded-full drop-shadow-md hover:scale-110 transition-transform"
+          className="w-10 h-10 flex justify-center items-center bg-accent text-white text-3xl rounded-full drop-shadow-md hover:scale-110 transition-transform"
           title="Add Finance"
         >
           <CiCirclePlus />
