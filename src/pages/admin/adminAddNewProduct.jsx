@@ -15,6 +15,7 @@ export default function AdminAddNewProduct() {
   const [category, setCategory] = useState("");
   const [stock, setStock] = useState("");
   const [cost, setCost] = useState("");
+  const [isTrending, setIsTrending] = useState("");
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
@@ -69,6 +70,7 @@ export default function AdminAddNewProduct() {
         category,
         stock,
         cost,
+        isTrending,
       };
 
       console.log(product);
@@ -264,6 +266,20 @@ export default function AdminAddNewProduct() {
               {errors.cost && (
                 <p className="text-red-500 text-xs mt-1">{errors.cost}</p>
               )}
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Is Trending
+              </label>
+              <select
+                value={isTrending}
+                onChange={(e) => setIsTrending(e.target.value === "yes")}
+                className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none bg-white"
+              >
+                <option value="">Select Option</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
             </div>
           </div>
         </div>

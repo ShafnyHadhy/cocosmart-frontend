@@ -17,6 +17,7 @@ export default function AdminUpdateProduct() {
   const [category, setCategory] = useState(location.state.category);
   const [stock, setStock] = useState(location.state.stock);
   const [cost, setCost] = useState(location.state.cost);
+  const [isTrending, setIsTrending] = useState(location.state.isTrending);
   const navigate = useNavigate();
 
   async function updateproduct() {
@@ -53,6 +54,7 @@ export default function AdminUpdateProduct() {
         category,
         stock,
         cost,
+        isTrending,
       };
 
       console.log(product);
@@ -224,6 +226,20 @@ export default function AdminUpdateProduct() {
                 placeholder="Unit Cost"
                 className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Is Trending
+              </label>
+              <select
+                value={isTrending}
+                onChange={(e) => setIsTrending(e.target.value === "yes")}
+                className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none bg-white"
+              >
+                <option value="">Select Option</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
             </div>
           </div>
         </div>

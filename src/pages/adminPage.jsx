@@ -14,6 +14,7 @@ import AdminAddNewExpense from "./admin/adminAddNewExpense";
 import AdminAddNewFinance from "./admin/adminAddNewFinance";
 import AdminUpdateExpense from "./admin/adminUpdateExpense";
 import AdminUpdateFinance from "./admin/adminUpdateFinance";
+import AdminOrdersPage from "./admin/adminOrdersPage";
 
 export default function AdminPage() {
   const location = useLocation();
@@ -78,7 +79,7 @@ export default function AdminPage() {
             <Routes>
               <Route path="/" element={<h1 className="text-2xl font-bold text-accent-green">Dashboard</h1>} />
               <Route path="/products" element={<AdminProductPage />} />
-              <Route path="/orders" element={<h1 className="text-2xl font-bold text-accent-green">Orders</h1>} />
+              <Route path="/orders" element={<AdminOrdersPage />} />
               <Route path="/users" element={<h1 className="text-2xl font-bold text-accent-green">Users</h1>} />
               <Route path="/add-product" element={<AdminAddNewProduct />} />
               <Route path="/update-product" element={<AdminUpdateProduct />} />

@@ -126,10 +126,10 @@ export default function AdminProductPage() {
                   <th className="py-3 px-4 text-left">Product ID</th>
                   <th className="py-3 px-4 text-left">Product Name</th>
                   <th className="py-3 px-4 text-left">Price</th>
-                  <th className="py-3 px-4 text-left">Labelled Price</th>
+                  <th className="py-3 px-4 text-left">Labl Price</th>
                   <th className="py-3 px-4 text-left">Stock</th>
                   <th className="py-3 px-4 text-left">Cost</th>
-                  <th className="py-3 px-4 text-left">Category</th>
+                  <th className="py-3 px-4 text-left">Trending</th>
                   <th className="py-3 px-4 text-center rounded-tr-lg">Actions</th>
                 </tr>
               </thead>
@@ -183,8 +183,16 @@ export default function AdminProductPage() {
                       </span>
                     </td>
 
-                    <td className="py-3 px-4 text-gray-600">{item.category}</td>
-
+                    {/* Trending */}
+                    <td className="py-3 px-4">
+                      <span
+                        className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                          item.isTrending ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {item.isTrending ? "Yes" : "No"}
+                      </span>
+                    </td>
                     {/* Action Buttons */}
                     <td className="py-3 px-4">
                       <div className="flex justify-center gap-3">
