@@ -61,6 +61,7 @@ export default function Header() {
           <Link to="/product">Product</Link>
           <Link to="/about">About</Link>
           <Link to="/contact">Contact Us</Link>
+          <Link to="/profile">Profile</Link>
         </nav>
 
         <div className="flex gap-[10px] mr-8">
