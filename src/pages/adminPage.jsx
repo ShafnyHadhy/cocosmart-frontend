@@ -2,6 +2,7 @@ import { BsCart2, BsGraphUpArrow } from "react-icons/bs";
 import { FiBox } from "react-icons/fi";
 import { HiOutlineUsers } from "react-icons/hi";
 import { MdOutlineAttachMoney } from "react-icons/md";
+import { CiDeliveryTruck } from "react-icons/ci";
 import { Link, Route, Routes, useLocation } from "react-router-dom";
 
 import AdminProductPage from "./admin/adminProductPage";
@@ -15,6 +16,14 @@ import AdminAddNewFinance from "./admin/adminAddNewFinance";
 import AdminUpdateExpense from "./admin/adminUpdateExpense";
 import AdminUpdateFinance from "./admin/adminUpdateFinance";
 import AdminOrdersPage from "./admin/adminOrdersPage";
+import DriverPage from "./transport/driverPage";
+import AddDriver from "./transport/addDriver";
+import VehiclePage from "./transport/vehiclePage";
+import AddVehicle from "./transport/addVehicle";
+import DeliveryPage from "./transport/deliveryPage";
+import AddDelivery from "./transport/AddDelivery";
+import FeedbackPage from "./feedback/feedbackPage";
+import UserPage from "./admin/userPage";
 
 export default function AdminPage() {
   const location = useLocation();
@@ -26,6 +35,10 @@ export default function AdminPage() {
     { path: "/admin/users", label: "Users", icon: <HiOutlineUsers /> },
     { path: "/admin/expenses", label: "Expenses", icon: <SiExpensify /> },
     { path: "/admin/finances", label: "Finance", icon: <MdOutlineAttachMoney /> },
+    { path: "/admin/drivers", label: "Drivers", icon: <CiDeliveryTruck /> },
+    { path: "/admin/vehicles", label: "Vehicles", icon: <FiBox /> },
+    { path: "/admin/deliveries", label: "Deliveries", icon: <FiBox /> },
+    { path: "/admin/feedback", label: "Feedback", icon: <FiBox /> }
   ];
 
   return (
@@ -39,6 +52,7 @@ export default function AdminPage() {
           </h1>
         </div>
 
+        {/*<nav className="flex-1 p-4 space-y-2 overflow-hidden">*/}
         <nav className="flex-1 p-4 space-y-2 overflow-hidden">
           {menuItems.map((item) => (
             <Link
@@ -51,6 +65,7 @@ export default function AdminPage() {
                     : "text-gray-600 hover:bg-gray-200 hover:text-gray-900"
                 }`}
             >
+              {/*<span className="text-lg">{item.icon}</span>*/}
               <span className="text-lg">{item.icon}</span>
               {item.label}
             </Link>
@@ -80,7 +95,7 @@ export default function AdminPage() {
               <Route path="/" element={<h1 className="text-2xl font-bold text-accent-green">Dashboard</h1>} />
               <Route path="/products" element={<AdminProductPage />} />
               <Route path="/orders" element={<AdminOrdersPage />} />
-              <Route path="/users" element={<h1 className="text-2xl font-bold text-accent-green">Users</h1>} />
+              {/*<Route path="/users" element={<h1 className="text-2xl font-bold text-accent-green">Users</h1>} />*/}
               <Route path="/add-product" element={<AdminAddNewProduct />} />
               <Route path="/update-product" element={<AdminUpdateProduct />} />
               <Route path="/expenses" element={<AdminExpensePage/>} />
@@ -89,6 +104,14 @@ export default function AdminPage() {
               <Route path="/finances" element={<AdminFinancePage/>} />
               <Route path="/add-finance" element={<AdminAddNewFinance/>} />
               <Route path="/update-finance" element={<AdminUpdateFinance/>} />
+              <Route path="/users" element={<UserPage />} />
+              <Route path="/drivers" element={<DriverPage />} />
+              <Route path="/add-driver" element={<AddDriver />} />
+              <Route path="/vehicles" element={<VehiclePage />} />
+              <Route path="/add-vehicle" element={<AddVehicle />} />
+              <Route path="/deliveries" element={<DeliveryPage />} />
+              <Route path="/deliveries/add" element={<AddDelivery />} />
+              <Route path="/feedback" element={<FeedbackPage />} />
             </Routes>
           </div>
         </main>
