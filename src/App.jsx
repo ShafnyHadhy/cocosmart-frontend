@@ -21,7 +21,6 @@ function App() {
             <Route path="/admin/*" element={<AdminPage/>}/>
             <Route path="/test" element={<TestPage/>}/>
         </Routes>
-
       </div>
     </BrowserRouter>
   )
