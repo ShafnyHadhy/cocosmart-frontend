@@ -1,19 +1,83 @@
 @import "tailwindcss";
 @theme {
-  --color-accent: #414833;
-  --color-primary: #c2c5aa;
-  --color-secondary: #2D3748;
-  --color-sec-2: #fcfaf6;
-  --color-tertiary: #a4ac86;
+  --color-accent: #2a5540; /*green-accent*/
+  --color-primary: #f5f3f1; /*backround*/
+  --color-secondary: #2d3748; /*dark Blue for texts*/
 
-  --seal-brown: #582f0eff;
-  --russet: #7f4f24ff;
-  --raw-umber: #936639ff;
-  --lion: #a68a64ff;
-  --khaki: #b6ad90ff;
-  --sage: #c2c5aaff;
-  --sage-2: #a4ac86ff;
-  --reseda-green: #656d4aff;
-  --ebony: #414833ff;
-  --black-olive: #333d29ff;
+  --color-sec-2: #fcfaf6; /*light cream*/
+  --color-tertiary: #a4ac86; /*dark gray*/
+
+  --green-calm: #2a5540;
+  --earth-brown: #a07a5f;
+  --earth-orange: #d88c4b;
+  --accent-red: #ef4444;
+  --accent-blue: #3b82f6; /*light blue*/
+  --accent-green: #22c55e;
+  --light-gray: #f7f9f9; /*admin-background*/
+  --medium-gray: #e7e9e9;
+}
+
+body {
+  font-family: "Spline Sans", "Noto Sans", sans-serif;
+}
+
+/* Utility classes for CSS variables */
+.bg-light-gray {
+  background-color: var(--light-gray);
+}
+
+.bg-medium-gray {
+  background-color: var(--medium-gray);
+}
+
+.border-medium-gray {
+  border-color: var(--medium-gray);
+}
+
+.text-green-calm {
+  color: var(--green-calm);
+}
+
+.bg-green-calm {
+  background-color: var(--green-calm);
+}
+
+.hover-bg-medium-gray:hover {
+  background-color: var(--medium-gray);
+}
+
+.text-accent-green {
+  color: var(--accent-green);
+}
+
+.text-accent-red {
+  color: var(--accent-red);
+}
+
+.text-accent-blue {
+  color: var(--accent-blue);
+}
+
+.text-earth-orange {
+  color: var(--earth-orange);
+}
+
+.bg-accent-green-20 {
+  background-color: rgba(34, 197, 94, 0.2);
+}
+
+.bg-accent-blue-20 {
+  background-color: rgba(59, 130, 246, 0.2);
+}
+
+.bg-earth-orange-20 {
+  background-color: rgba(216, 140, 75, 0.2);
+}
+
+.bg-accent-red-20 {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+.hover-bg-green-calm-90:hover {
+  background-color: rgba(42, 85, 64, 0.9);
 }
