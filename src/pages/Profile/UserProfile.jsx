@@ -1,210 +1,3 @@
-// import { useState, useEffect } from "react";
-// import axios from "axios";
-// import toast from "react-hot-toast";
-// import { useNavigate } from "react-router-dom";
-// import {
-//   FaUser,
-//   FaMapMarkerAlt,
-//   FaCreditCard,
-//   FaLock,
-//   FaShoppingCart,
-// } from "react-icons/fa";
-
-// import Personal from "./Personal";
-// import Address from "./Address";
-// import Payment from "./Payment";
-// import Security from "./Security";
-// import Orders from "./Orders";
-
-// export default function UserProfile() {
-//   const navigate = useNavigate();
-//   const [user, setUser] = useState(null);
-//   const [selectedSection, setSelectedSection] = useState("personal");
-//   const [orders, setOrders] = useState([]);
-//   const [isEditing, setIsEditing] = useState(false);
-//   const [formData, setFormData] = useState({});
-//   const [securityData, setSecurityData] = useState({
-//     oldPassword: "",
-//     newPassword: "",
-//     confirmPassword: "",
-//   });
-
-//   const sections = [
-//     { id: "personal", label: "Personal", icon: <FaUser /> },
-//     { id: "address", label: "Address", icon: <FaMapMarkerAlt /> },
-//     { id: "payment", label: "Payment", icon: <FaCreditCard /> },
-//     { id: "security", label: "Security", icon: <FaLock /> },
-//     { id: "orders", label: "Orders", icon: <FaShoppingCart /> },
-//   ];
-
-//   const getConfig = (extraHeaders = {}) => {
-//     const token = localStorage.getItem("authToken");
-//     return token
-//       ? { headers: { Authorization: `Bearer ${token}`, ...extraHeaders } }
-//       : { headers: { ...extraHeaders } };
-//   };
-
-//   useEffect(() => {
-//     const fetchUser = async () => {
-//       try {
-//         const email = localStorage.getItem("userEmail");
-//         if (!email) {
-//           toast.error("User not logged in");
-//           navigate("/signup");
-//           return;
-//         }
-
-//         const res = await axios.get(
-//           `http://localhost:5000/api/users/email/${email}`,
-//           getConfig()
-//         );
-//         const u = res.data;
-//         setUser(u);
-//         setFormData({ ...u });
-
-//         const ordersRes = await axios.get(
-//           `http://localhost:5000/api/orders/user/${u._id}`,
-//           getConfig()
-//         );
-//         setOrders(Array.isArray(ordersRes.data) ? ordersRes.data : []);
-//       } catch (err) {
-//         console.error(err);
-//         toast.error("Failed to load profile or orders");
-//       }
-//     };
-//     fetchUser();
-//   }, [navigate]);
-
-//   const handleSectionChange = (id) => {
-//     setSelectedSection(id);
-//     setIsEditing(false);
-//     if (id === "security") {
-//       setSecurityData({
-//         oldPassword: "",
-//         newPassword: "",
-//         confirmPassword: "",
-//       });
-//     }
-//   };
-
-//   const handleLogout = () => {
-//     localStorage.removeItem("userEmail");
-//     localStorage.removeItem("authToken");
-//     toast.success("Logged out successfully");
-//     navigate("/");
-//   };
-
-//   const handleDeleteAccount = async () => {
-//     if (!window.confirm("Are you sure you want to delete your account?"))
-//       return;
-//     try {
-//       await axios.delete(
-//         `http://localhost:5000/api/users/${user._id}`,
-//         getConfig()
-//       );
-//       localStorage.removeItem("userEmail");
-//       localStorage.removeItem("authToken");
-//       toast.success("Account deleted");
-//       navigate("/");
-//     } catch (err) {
-//       console.error(err);
-//       toast.error("Failed to delete account");
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen w-full bg-[var(--color-primary)] flex items-center justify-center p-6">
-//       <div className="max-w-5xl w-full bg-[var(--color-sec-2)] rounded-[24px] overflow-hidden border border-[var(--medium-gray)]">
-//         {/* Banner */}
-//         <div className="w-full h-48 flex items-center justify-between px-8 bg-[var(--color-secondary)]">
-//           <div>
-//             <h1 className="text-xl font-bold text-white">
-//               {user?.firstname} {user?.lastname}
-//             </h1>
-//             <p className="text-sm text-gray-100">{user?.email}</p>
-//           </div>
-//           <div className="flex gap-3">
-//             <button
-//               onClick={handleLogout}
-//               className="px-4 py-2 rounded bg-[var(--green-calm)] text-white"
-//             >
-//               Logout
-//             </button>
-//             <button
-//               onClick={handleDeleteAccount}
-//               className="px-4 py-2 rounded bg-[var(--accent-red)] text-white"
-//             >
-//               Delete Account
-//             </button>
-//           </div>
-//         </div>
-
-//         {/* Sidebar + Content */}
-//         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6">
-//           {/* Sidebar */}
-//           <aside className="md:col-span-1">
-//             <ul className="space-y-2">
-//               {sections.map((s) => (
-//                 <li key={s.id}>
-//                   <button
-//                     onClick={() => handleSectionChange(s.id)}
-//                     className={`w-full px-3 py-2 flex items-center rounded ${
-//                       selectedSection === s.id
-//                         ? "bg-[var(--green-calm)] text-white"
-//                         : "hover:bg-[var(--medium-gray)] text-gray-700"
-//                     }`}
-//                   >
-//                     <span className="mr-2">{s.icon}</span>
-//                     {s.label}
-//                   </button>
-//                 </li>
-//               ))}
-//             </ul>
-//           </aside>
-
-//           {/* Content */}
-//           <main className="md:col-span-3 bg-white rounded-xl p-6">
-//             {!user ? (
-//               <p>Loading...</p>
-//             ) : selectedSection === "personal" ? (
-//               <Personal
-//                 user={user}
-//                 setUser={setUser}
-//                 formData={formData}
-//                 setFormData={setFormData}
-//                 isEditing={isEditing}
-//                 setIsEditing={setIsEditing}
-//               />
-//             ) : selectedSection === "address" ? (
-//               <Address
-//                 user={user}
-//                 setUser={setUser}
-//                 formData={formData}
-//                 setFormData={setFormData}
-//                 isEditing={isEditing}
-//                 setIsEditing={setIsEditing}
-//               />
-//             ) : selectedSection === "payment" ? (
-//               <Payment
-//                 user={user}
-//                 setUser={setUser}
-//                 formData={formData}
-//                 setFormData={setFormData}
-//                 isEditing={isEditing}
-//                 setIsEditing={setIsEditing}
-//               />
-//             ) : selectedSection === "security" ? (
-//               <Security user={user} />
-//             ) : selectedSection === "orders" ? (
-//               <Orders orders={orders} setOrders={setOrders} />
-//             ) : null}
-//           </main>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
 import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -227,13 +20,14 @@ export default function UserProfile() {
   const [orders, setOrders] = useState([]);
   const [profilePic, setProfilePic] = useState(null);
 
+  // ✅ Make sure all code uses the same token key ("authToken")
   const token = localStorage.getItem("authToken");
 
   const getConfig = (extraHeaders = {}) => ({
     headers: token ? { Authorization: `Bearer ${token}`, ...extraHeaders } : {},
   });
 
-  // Fetch user profile
+  // Fetch user profile + orders
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -244,6 +38,7 @@ export default function UserProfile() {
           return;
         }
 
+        // ✅ Fetch user by email
         const res = await axios.get(
           `http://localhost:5000/api/users/email/${email}`,
           getConfig()
@@ -253,7 +48,7 @@ export default function UserProfile() {
         setFormData({ ...u });
         if (u.profileImage) setProfilePic(u.profileImage);
 
-        // fetch orders
+        // Fetch orders for this specific user
         const ordersRes = await axios.get(
           `http://localhost:5000/api/orders/user/${u._id}`,
           getConfig()
@@ -326,7 +121,7 @@ export default function UserProfile() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-[var(--color-primary)] flex items-center justify-center p-6">
+    <div className="min-h-screen w-full bg-[var(--color-primary)] flex items-center justify-center p-8">
       {/* Main Container */}
       <div className="max-w-5xl w-full bg-[var(--color-sec-2)] rounded-[24px] overflow-hidden border border-[var(--medium-gray)]">
         {/* Top Banner with Background + Profile Pic */}

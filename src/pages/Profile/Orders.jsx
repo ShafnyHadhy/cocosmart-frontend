@@ -1,3 +1,4 @@
+// // File: frontend/src/components/Orders.jsx
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -13,6 +14,8 @@ export default function Orders({ user, orders, setOrders }) {
 
   // Fetch orders for the logged-in user
   useEffect(() => {
+    if (!user?._id) return;
+
     const fetchOrders = async () => {
       try {
         const res = await axios.get(
@@ -26,20 +29,24 @@ export default function Orders({ user, orders, setOrders }) {
       }
     };
 
-    if (user?._id) fetchOrders();
+    fetchOrders();
   }, [user, setOrders]);
 
   // Cancel order
-  const cancelOrder = async (id) => {
+  const cancelOrder = async (orderID) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/orders/${id}/cancel`,
-        {},
+        `http://localhost:5000/api/orders/status/${orderID}`,
+        { status: "Cancelled" },
         getConfig()
       );
+
       setOrders((prev) =>
-        prev.map((o) => (o._id === id ? { ...o, status: "Cancelled" } : o))
+        prev.map((o) =>
+          o.orderID === orderID ? { ...o, status: "Cancelled" } : o
+        )
       );
+
       toast.success("Order cancelled!");
     } catch (err) {
       console.error(err);
@@ -51,67 +58,68 @@ export default function Orders({ user, orders, setOrders }) {
     dateStr ? new Date(dateStr).toLocaleDateString() : "-";
 
   const getStatusClass = (status) => {
-    switch (status) {
-      case "Shipped":
-        return "text-blue-600 font-semibold";
-      case "Delivered":
-        return "text-green-600 font-semibold";
-      case "Cancelled":
-        return "text-red-600 font-semibold";
+    switch ((status || "").toLowerCase()) {
+      case "shipped":
+        return "bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium";
+      case "delivered":
+      case "completed":
+        return "bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium";
+      case "cancelled":
+      case "canceled":
+        return "bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium";
       default:
-        return "text-gray-600";
+        return "bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-medium";
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <h2 className="text-2xl font-bold text-gray-800">Order History</h2>
 
       {orders.length === 0 ? (
-        <p>No orders found.</p>
+        <p className="text-gray-500">No orders found.</p>
       ) : (
-        <div className="overflow-x-auto shadow-lg rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-100 text-gray-700">
+        <div className="overflow-x-auto shadow-lg rounded-2xl bg-white">
+          <table className="w-full border-collapse text-sm">
+            <thead className="bg-accent text-white text-end">
               <tr>
-                <th className="px-6 py-3 text-left">Order ID</th>
-                <th className="px-6 py-3 text-left">Date</th>
-                <th className="px-6 py-3 text-left">Status</th>
-                <th className="px-6 py-3 text-left">Amount</th>
-                <th className="px-6 py-3 text-center">Action</th>
+                <th className="py-3 px-4 text-left rounded-tl-2xl">Order ID</th>
+                <th className="py-3 px-4 text-left">Date</th>
+                <th className="py-3 px-4 text-left">Status</th>
+                <th className="py-3 px-4 text-left">Amount</th>
+                <th className="py-3 px-4 text-center rounded-tr-2xl">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
               {orders.map((o, idx) => (
                 <tr
-                  key={o._id}
-                  className={`${
-                    idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  } border-b`}
+                  key={o.orderID}
+                  className={`border-b hover:bg-gray-50 transition-colors ${
+                    idx % 2 === 0 ? "bg-gray-50/50" : "bg-white"
+                  }`}
                 >
-                  <td className="px-6 py-3 font-mono">
-                    #{o._id?.slice(-8).toUpperCase()}
+                  <td className="py-3 px-4 font-mono">{o.orderID}</td>
+                  <td className="py-3 px-4">{formatDate(o.date)}</td>
+                  <td className="py-3 px-4">
+                    <span className={getStatusClass(o.status)}>{o.status}</span>
                   </td>
-                  <td className="px-6 py-3">{formatDate(o.createdAt)}</td>
-                  <td className={`px-6 py-3 ${getStatusClass(o.status)}`}>
-                    {o.status}
-                  </td>
-                  <td className="px-6 py-3">Rs. {o.total?.toFixed(2)}</td>
-                  <td className="px-6 py-3 text-center flex justify-center gap-2">
-                    {/* Cancel button */}
-                    {o.status !== "Delivered" && o.status !== "Cancelled" && (
-                      <button
-                        onClick={() => cancelOrder(o._id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600"
-                      >
-                        Cancel
-                      </button>
-                    )}
-
-                    {/* View order details */}
+                  <td className="py-3 px-4">Rs. {o.total?.toFixed(2)}</td>
+                  <td className="py-3 px-4 flex justify-center gap-2 text-lg">
+                    {o.status !== "Delivered" &&
+                      o.status !== "Completed" &&
+                      o.status !== "Cancelled" && (
+                        <button
+                          onClick={() => cancelOrder(o.orderID)}
+                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs"
+                        >
+                          Cancel
+                        </button>
+                      )}
                     <button
-                      onClick={() => navigate(`/orders/${o._id}`)}
-                      className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600"
+                      onClick={() => navigate(`/orders/${o.orderID}`)}
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-xs"
                     >
                       View
                     </button>

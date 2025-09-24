@@ -20,6 +20,8 @@ import AddDelivery from "./transport/AddDelivery";
 // Feedback Page
 import FeedbackPage from "./feedback/feedbackPage";
 
+import AdminOrdersPage from "./admin/adminOrdersPage";
+
 // User Page
 import UserPage from "./admin/userPage";
 
@@ -108,14 +110,7 @@ export default function AdminPage() {
               />
               <Route path="/products" element={<AdminProductPage />} />
               <Route path="/add-product" element={<AdminAddNewProduct />} />
-              <Route
-                path="/orders"
-                element={
-                  <h1 className="text-2xl font-bold text-accent-green">
-                    Orders
-                  </h1>
-                }
-              />
+              <Route path="/orders" element={<AdminOrdersPage />} />
               <Route path="/users" element={<UserPage />} />
               <Route path="/drivers" element={<DriverPage />} />
               <Route path="/add-driver" element={<AddDriver />} />
