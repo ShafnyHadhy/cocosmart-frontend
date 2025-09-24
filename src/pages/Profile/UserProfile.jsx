@@ -20,7 +20,7 @@ export default function UserProfile() {
   const [orders, setOrders] = useState([]);
   const [profilePic, setProfilePic] = useState(null);
 
-  // ✅ Make sure all code uses the same token key ("authToken")
+  //  Make sure all code uses the same token key ("authToken")
   const token = localStorage.getItem("authToken");
 
   const getConfig = (extraHeaders = {}) => ({
