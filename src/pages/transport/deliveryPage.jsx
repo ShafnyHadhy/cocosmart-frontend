@@ -21,26 +21,31 @@ export default function DeliveryPage() {
   }, []);
 
   const fetchData = async () => {
-    const [deliveryRes, vehicleRes, driverRes] = await Promise.all([
-      axios.get(`${import.meta.env.VITE_API_URL}/api/deliveries`),
-      axios.get(`${import.meta.env.VITE_API_URL}/api/vehicles`),
-      axios.get(`${import.meta.env.VITE_API_URL}/api/drivers`),
-    ]);
-    setDeliveries(deliveryRes.data);
-    setVehicles(vehicleRes.data);
-    setDrivers(driverRes.data);
+    try {
+      const [deliveryRes, vehicleRes, driverRes] = await Promise.all([
+        axios.get(`${import.meta.env.VITE_API_URL}/api/deliveries`),
+        axios.get(`${import.meta.env.VITE_API_URL}/api/vehicles`),
+        axios.get(`${import.meta.env.VITE_API_URL}/api/drivers`),
+      ]);
+      setDeliveries(deliveryRes.data);
+      setVehicles(vehicleRes.data);
+      setDrivers(driverRes.data);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      toast.error("Failed to load data");
+    }
   };
 
   const handleEditClick = (d) => {
     setEditingId(d._id);
     setEditData({
-      orderId: d.orderId || "",
       vehicle: d.vehicle?._id || "",
       driver: d.driver?._id || "",
       route: d.route || "",
       scheduledDate: d.scheduledDate?.split("T")[0] || today,
+      transportCost: d.transportCost || "",
     });
-    setDeletingId(null); // Close any delete confirmation
+    setDeletingId(null);
   };
 
   const handleCancelEdit = () => {
@@ -56,14 +61,16 @@ export default function DeliveryPage() {
       );
       await fetchData();
       handleCancelEdit();
+      toast.success("Delivery updated successfully");
     } catch (err) {
-      toast.error("Failed to save changes");
+      console.error("Error updating delivery:", err);
+      toast.error(err.response?.data?.message || "Failed to save changes");
     }
   };
 
   const confirmDelete = (id) => {
     setDeletingId(id);
-    setEditingId(null); // Close any edit mode
+    setEditingId(null);
   };
 
   const cancelDelete = () => {
@@ -77,8 +84,10 @@ export default function DeliveryPage() {
       );
       await fetchData();
       setDeletingId(null);
+      toast.success("Delivery deleted successfully");
     } catch (err) {
-      toast.error("Failed to delete delivery");
+      console.error("Error deleting delivery:", err);
+      toast.error(err.response?.data?.message || "Failed to delete delivery");
     }
   };
 
@@ -109,20 +118,25 @@ export default function DeliveryPage() {
       return;
     }
 
-    const transportCost = kmValue * 100;
-
     try {
-      await axios.put(
+      const res = await axios.put(
         `${import.meta.env.VITE_API_URL}/api/deliveries/${id}/markDelivered`,
-        {
-          km: kmValue,
-          transportCost,
-          deliveryStatus: "completed",
-        }
+        { km: kmValue }
       );
-      await fetchData();
+
+      setDeliveries((prev) =>
+        prev.map((d) =>
+          d._id === id ? { ...res.data, showKmInput: false, km: "" } : d
+        )
+      );
+
+      toast.success("Delivery marked as completed!");
+      localStorage.setItem("ordersNeedRefresh", "true");
     } catch (err) {
-      toast.error("Failed to mark delivery as completed");
+      console.error("Error marking delivery as completed:", err);
+      toast.error(
+        err.response?.data?.message || "Failed to mark delivery as completed"
+      );
     }
   };
 
@@ -157,23 +171,12 @@ export default function DeliveryPage() {
                   idx % 2 === 0 ? "bg-gray-50" : "bg-white"
                 } hover:bg-gray-100 transition-colors`}
               >
-                <td className="py-3 px-4">
-                  {editingId === d._id ? (
-                    <input
-                      type="text"
-                      value={editData.orderId}
-                      onChange={(e) =>
-                        setEditData({ ...editData, orderId: e.target.value })
-                      }
-                      className="border px-2 py-1 rounded w-full"
-                    />
-                  ) : (
-                    d.orderId || "-"
-                  )}
-                </td>
+                {/* Order ID - read-only */}
+                <td className="py-3 px-4">{d.order?.orderID || "-"}</td>
 
+                {/* Vehicle */}
                 <td className="py-3 px-4">
-                  {editingId === d._id ? (
+                  {editingId === d._id && d.deliveryStatus !== "completed" ? (
                     <select
                       value={editData.vehicle}
                       onChange={(e) =>
@@ -198,8 +201,9 @@ export default function DeliveryPage() {
                   )}
                 </td>
 
+                {/* Driver */}
                 <td className="py-3 px-4">
-                  {editingId === d._id ? (
+                  {editingId === d._id && d.deliveryStatus !== "completed" ? (
                     <select
                       value={editData.driver}
                       onChange={(e) =>
@@ -225,8 +229,9 @@ export default function DeliveryPage() {
                   )}
                 </td>
 
+                {/* Location */}
                 <td className="py-3 px-4">
-                  {editingId === d._id ? (
+                  {editingId === d._id && d.deliveryStatus !== "completed" ? (
                     <input
                       type="text"
                       value={editData.route}
@@ -240,8 +245,9 @@ export default function DeliveryPage() {
                   )}
                 </td>
 
+                {/* Scheduled Date */}
                 <td className="py-3 px-4">
-                  {editingId === d._id ? (
+                  {editingId === d._id && d.deliveryStatus !== "completed" ? (
                     <input
                       type="date"
                       min={today}
@@ -261,26 +267,45 @@ export default function DeliveryPage() {
                   )}
                 </td>
 
+                {/* Status */}
                 <td className="py-3 px-4">
                   {d.deliveryStatus === "completed" ? (
                     <span className="text-green-600 font-semibold">
-                      Completed
+                      Delivered
                     </span>
                   ) : (
                     <span className="text-yellow-600 font-semibold">
-                      Pending
+                      Processing
                     </span>
                   )}
                 </td>
 
+                {/* Transport Cost */}
                 <td className="py-3 px-4">
-                  {d.transportCost ? `Rs. ${d.transportCost}` : "-"}
+                  {editingId === d._id && d.deliveryStatus === "completed" ? (
+                    <input
+                      type="number"
+                      value={editData.transportCost || d.transportCost || ""}
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          transportCost: e.target.value,
+                        })
+                      }
+                      className="border px-2 py-1 rounded w-full"
+                    />
+                  ) : d.transportCost ? (
+                    `Rs. ${d.transportCost}`
+                  ) : (
+                    "-"
+                  )}
                 </td>
 
+                {/* Actions */}
                 <td className="py-3 px-4">
                   <div className="flex flex-row gap-4 justify-center items-center text-lg">
                     {editingId === d._id ? (
-                      <>
+                      <div className="flex gap-2">
                         <button
                           onClick={() => handleSaveEdit(d._id)}
                           className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
@@ -293,7 +318,25 @@ export default function DeliveryPage() {
                         >
                           Cancel
                         </button>
-                      </>
+                      </div>
+                    ) : deletingId === d._id ? (
+                      <div className="flex flex-col items-center gap-2 bg-gray-100 p-2 rounded-lg">
+                        <p className="text-xs text-center">Delete delivery?</p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleDelete(d._id)}
+                            className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
+                          >
+                            Yes
+                          </button>
+                          <button
+                            onClick={cancelDelete}
+                            className="bg-gray-400 text-white px-2 py-1 rounded text-xs hover:bg-gray-500"
+                          >
+                            No
+                          </button>
+                        </div>
+                      </div>
                     ) : d.deliveryStatus !== "completed" && d.showKmInput ? (
                       <>
                         <input
@@ -318,24 +361,6 @@ export default function DeliveryPage() {
                           Cancel
                         </button>
                       </>
-                    ) : deletingId === d._id ? (
-                      <div className="flex flex-col items-center gap-2 bg-gray-100 p-2 rounded-lg">
-                        <p className="text-xs text-center">Delete delivery?</p>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleDelete(d._id)}
-                            className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
-                          >
-                            Yes
-                          </button>
-                          <button
-                            onClick={cancelDelete}
-                            className="bg-gray-400 text-white px-2 py-1 rounded text-xs hover:bg-gray-500"
-                          >
-                            No
-                          </button>
-                        </div>
-                      </div>
                     ) : (
                       <>
                         <FaRegEdit

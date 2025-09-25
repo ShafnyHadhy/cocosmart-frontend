@@ -209,7 +209,7 @@ export default function OrderModal({
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
-                const token = localStorage.getItem("authToken");
+                const token = localStorage.getItem("token");
                 //const token = localStorage.getItem("token");
                 axios
                   .put(

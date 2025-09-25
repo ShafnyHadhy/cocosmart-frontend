@@ -32,28 +32,6 @@ export default function Orders({ user, orders, setOrders }) {
     fetchOrders();
   }, [user, setOrders]);
 
-  // Cancel order
-  const cancelOrder = async (orderID) => {
-    try {
-      await axios.put(
-        `http://localhost:5000/api/orders/status/${orderID}`,
-        { status: "Cancelled" },
-        getConfig()
-      );
-
-      setOrders((prev) =>
-        prev.map((o) =>
-          o.orderID === orderID ? { ...o, status: "Cancelled" } : o
-        )
-      );
-
-      toast.success("Order cancelled!");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to cancel order");
-    }
-  };
-
   const formatDate = (dateStr) =>
     dateStr ? new Date(dateStr).toLocaleDateString() : "-";
 
@@ -107,16 +85,6 @@ export default function Orders({ user, orders, setOrders }) {
                   </td>
                   <td className="py-3 px-4">Rs. {o.total?.toFixed(2)}</td>
                   <td className="py-3 px-4 flex justify-center gap-2 text-lg">
-                    {o.status !== "Delivered" &&
-                      o.status !== "Completed" &&
-                      o.status !== "Cancelled" && (
-                        <button
-                          onClick={() => cancelOrder(o.orderID)}
-                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs"
-                        >
-                          Cancel
-                        </button>
-                      )}
                     <button
                       onClick={() => navigate(`/orders/${o.orderID}`)}
                       className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-xs"

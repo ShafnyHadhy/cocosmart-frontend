@@ -12,14 +12,38 @@ export default function AdminOrdersPage() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (isLoading) {
-      const token = localStorage.getItem("token");
-      if (token == null) {
-        navigate("/login");
-        return;
-      }
+  // useEffect(() => {
+  //   if (isLoading) {
+  //     const token = localStorage.getItem("token");
+  //     if (token == null) {
+  //       navigate("/login");
+  //       return;
+  //     }
 
+  //     axios
+  //       .get(import.meta.env.VITE_API_URL + "/api/orders", {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       })
+  //       .then((response) => {
+  //         console.log(response.data);
+  //         setOrders(response.data.orders);
+  //         setIsLoading(false);
+  //       });
+  //   }
+  // }, [isLoading]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    const refreshNeeded = localStorage.getItem("ordersNeedRefresh") === "true";
+
+    if (isLoading || refreshNeeded) {
       axios
         .get(import.meta.env.VITE_API_URL + "/api/orders", {
           headers: {
@@ -30,6 +54,8 @@ export default function AdminOrdersPage() {
           console.log(response.data);
           setOrders(response.data.orders);
           setIsLoading(false);
+
+          if (refreshNeeded) localStorage.removeItem("ordersNeedRefresh");
         });
     }
   }, [isLoading]);
@@ -94,6 +120,8 @@ export default function AdminOrdersPage() {
                         className={`px-3 py-1 rounded-full text-xs font-medium ${
                           item.status === "Completed"
                             ? "bg-green-100 text-green-700"
+                            : item.status === "Processing"
+                            ? "bg-blue-100 text-blue-700" // ✅ added
                             : item.status === "Pending"
                             ? "bg-yellow-100 text-yellow-700"
                             : item.status === "Cancelled"
