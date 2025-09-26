@@ -3,16 +3,16 @@ import { FiBox } from "react-icons/fi";
 import { SiExpensify } from "react-icons/si";
 import { Link, Route, Routes, useLocation } from "react-router-dom";
 import { FaInvision } from "react-icons/fa";
+import CocoProductDetails from "./inventory/CocoProductDetails";
+import AddCocoProduct from "./inventory/AddCocoProduct";
+import UpdateCocoProduct from "./inventory/UpdateCocoProduct";
 
-export default function TestPage() {
+export default function Inventory() {
   const location = useLocation();
 
   const menuItems = [
-    { path: "/test", label: "Dashboard", icon: <BsGraphUpArrow className="text-[15px]"/> },
-    { path: "", label: "Plantations", icon: <BsCart2 /> },
-    { path: "", label: "Add Plantation", icon: <FiBox /> },
-    { path: "", label: "Inventory", icon: <FaInvision /> },
-    { path: "", label: "Suppliers", icon: <SiExpensify /> },
+    { path: "/inventory", label: "Dashboard", icon: <BsGraphUpArrow className="text-[15px]"/> },
+    { path: "/inventory/cocoProductDetails", label: "CocoProducts", icon: <FiBox /> },
   ];
 
   return (
@@ -22,13 +22,13 @@ export default function TestPage() {
         <div className="flex h-16 items-center gap-2 border-b border-medium-gray px-6">
           <img src="/clogo.png" alt="logo" className="h-13 rounded-md" />
           <h1 className="text-xl font-bold tracking-[-0.015em] text-accent">
-            Plantation
+            Inventory
           </h1>
         </div>
 
         {/*<nav className="flex-1 p-4 space-y-2 overflow-hidden">*/}
         <nav className="flex-1 mt-3 p-4 space-y-3 overflow-hidden">
-          {menuItems.map((item) => (
+          {menuItems.map((item, index) => (
             <Link
               key={item.path}
               to={item.path}
@@ -66,9 +66,11 @@ export default function TestPage() {
         <main className="flex-1 bg-primary p-6 overflow-y-auto">
           <div className="rounded-2xl shadow-md min-h-[400px] bg-light-gray">
             <Routes>
-              <Route path="/" element={<h1>Dashboard</h1>} />
-              
-            </Routes>
+            <Route index element={<h1>Dashboard</h1>} />
+            <Route path="cocoProductDetails" element={<CocoProductDetails />} />
+            <Route path="addCocoProduct" element={<AddCocoProduct />} />
+            <Route path="updateCocoProducts/:id" element={<UpdateCocoProduct />} />
+          </Routes>
           </div>
         </main>
       </div>
