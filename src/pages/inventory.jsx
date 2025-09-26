@@ -3,16 +3,24 @@ import { FiBox } from "react-icons/fi";
 import { SiExpensify } from "react-icons/si";
 import { Link, Route, Routes, useLocation } from "react-router-dom";
 import { FaInvision } from "react-icons/fa";
+
 import CocoProductDetails from "./inventory/CocoProductDetails";
 import AddCocoProduct from "./inventory/AddCocoProduct";
 import UpdateCocoProduct from "./inventory/UpdateCocoProduct";
+
+import PurchasedItemDetails from "./inventory/PurchasedItemDetails";////////////
+import UpdatePurchasedItem from "./inventory/UpdatePurchasedItem";
+import AddPurchasedItem from "./inventory/AddPurchasedItem";
 
 export default function Inventory() {
   const location = useLocation();
 
   const menuItems = [
     { path: "/inventory", label: "Dashboard", icon: <BsGraphUpArrow className="text-[15px]"/> },
-    { path: "/inventory/cocoProductDetails", label: "CocoProducts", icon: <FiBox /> },
+
+    { path: "/inventory/cocoProductDetails", label: "Coco Products", icon: <FiBox /> },
+    { path: "/inventory/purchasedItemDetails", label: "Purchased Items", icon: <FiBox /> },////////////////
+    
   ];
 
   return (
@@ -70,6 +78,9 @@ export default function Inventory() {
             <Route path="cocoProductDetails" element={<CocoProductDetails />} />
             <Route path="addCocoProduct" element={<AddCocoProduct />} />
             <Route path="updateCocoProducts/:id" element={<UpdateCocoProduct />} />
+            <Route path="purchasedItemDetails" element={<PurchasedItemDetails />} />
+            <Route path="updatePurchasedItems/:id" element={<UpdatePurchasedItem />} />
+            <Route path="addPurchasedItem" element={<AddPurchasedItem />} />
           </Routes>
           </div>
         </main>
