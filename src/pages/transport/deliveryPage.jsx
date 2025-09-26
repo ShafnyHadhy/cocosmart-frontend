@@ -188,6 +188,14 @@ export default function DeliveryPage() {
     doc.text("Comprehensive User FeedbaTransportck Analysis", 105, 36, {
       align: "center",
     });
+
+    doc.text(
+      `Generated on: ${now.toLocaleString()}    |    Report ID: ${reportId}`,
+      105,
+      42,
+      { align: "center" }
+    );
+
     // ===== Summary =====
     const completedDeliveries = filteredDeliveries.filter(
       (d) => d.deliveryStatus === "completed"
