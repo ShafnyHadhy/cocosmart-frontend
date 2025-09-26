@@ -102,24 +102,90 @@ const FeedbackPage = () => {
     return matchText && matchRating;
   });
 
-  const generatePDF = () => {
+  //Generate pdf
+  const generateFeedbackReport = () => {
     const doc = new jsPDF();
-    const tableColumn = ["User", "Feedback", "Rating", "Reply"];
-    const tableRows = [];
+    const now = new Date();
+    const reportId = `RPT-${now.getFullYear()}${(now.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}-${now
+      .getHours()
+      .toString()
+      .padStart(2, "0")}${now.getMinutes().toString().padStart(2, "0")}${now
+      .getSeconds()
+      .toString()
+      .padStart(2, "0")}`;
 
+    // ===== Header =====
+    doc.setFontSize(18);
+    doc.text("COCOSMART", 105, 20, { align: "center" });
+    doc.setFontSize(14);
+    doc.text("FEEDBACK REPORT", 105, 28, { align: "center" });
+    doc.setFontSize(10);
+    doc.text("Comprehensive User Feedback Analysis", 105, 36, {
+      align: "center",
+    });
+    doc.text(
+      `Generated on: ${now.toLocaleString()}    |    Report ID: ${reportId}`,
+      105,
+      42,
+      { align: "center" }
+    );
+
+    // ===== Summary =====
+    // ===== Summary =====
+    const ratingCounts = {};
     filteredFeedbacks.forEach((f) => {
-      const row = [
+      ratingCounts[f.rating] = (ratingCounts[f.rating] || 0) + 1;
+    });
+    const totalFeedbacks = filteredFeedbacks.length;
+
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Total Feedbacks: ${totalFeedbacks}`, 14, 50);
+
+    for (let r = 5; r >= 1; r--) {
+      doc.text(`${r} Stars  : ${ratingCounts[r] || 0}`, 14, 56 + (5 - r) * 6);
+    }
+
+    // ===== Tables by Ratings =====
+    let startY = 90;
+    for (let r = 5; r >= 1; r--) {
+      const feedbacksByRating = filteredFeedbacks.filter((f) => f.rating === r);
+      if (feedbacksByRating.length === 0) continue;
+
+      // Table heading above table (centered)
+      doc.setFontSize(12);
+      doc.setTextColor(41, 128, 185);
+      doc.text(` ${r} Star Feedbacks`, 105, startY - 6, { align: "center" });
+
+      const tableColumn = ["User", "Feedback", "Rating", "Reply"];
+      const tableRows = feedbacksByRating.map((f) => [
         f.username,
         f.comment,
         f.rating,
         f.adminReply || "No reply yet",
-      ];
-      tableRows.push(row);
-    });
+      ]);
 
-    doc.autoTable({ head: [tableColumn], body: tableRows, startY: 20 });
-    doc.text("Feedback Report", 14, 15);
-    doc.save("feedback_report.pdf");
+      doc.autoTable({
+        head: [tableColumn],
+        body: tableRows,
+        startY,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+        theme: "grid",
+        margin: { top: 5, bottom: 5 },
+      });
+
+      // Add space between tables
+      startY = doc.lastAutoTable.finalY + 15;
+    }
+
+    doc.save(
+      `feedback_report_${now.getFullYear()}${
+        now.getMonth() + 1
+      }${now.getDate()}.pdf`
+    );
   };
 
   return (
@@ -134,7 +200,7 @@ const FeedbackPage = () => {
         </button>
         <button
           className="flex items-center gap-1 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-          onClick={generatePDF}
+          onClick={generateFeedbackReport}
         >
           <FaFilePdf /> PDF
         </button>

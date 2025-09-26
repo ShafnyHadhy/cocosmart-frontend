@@ -6,7 +6,7 @@ import { CiCirclePlus } from "react-icons/ci";
 import { FaRegEdit, FaSearch, FaFilePdf } from "react-icons/fa";
 import { TfiTrash } from "react-icons/tfi";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 export default function DeliveryPage() {
   const [deliveries, setDeliveries] = useState([]);
@@ -165,39 +165,111 @@ export default function DeliveryPage() {
   });
 
   // Generate PDF
-  const generatePDF = () => {
+  const generateDeliveryReport = () => {
     const doc = new jsPDF();
+
+    // ===== Header =====
+    const now = new Date();
+    const reportId = `RPT-${now.getFullYear()}${(now.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}-${now
+      .getHours()
+      .toString()
+      .padStart(2, "0")}${now.getMinutes().toString().padStart(2, "0")}${now
+      .getSeconds()
+      .toString()
+      .padStart(2, "0")}`;
+
+    doc.setFontSize(18);
+    doc.text("COCOSMART", 105, 20, { align: "center" });
+    doc.setFontSize(14);
+    doc.text("Transport REPORT", 105, 28, { align: "center" });
+    doc.setFontSize(10);
+    doc.text("Comprehensive User FeedbaTransportck Analysis", 105, 36, {
+      align: "center",
+    });
+    // ===== Summary =====
+    const completedDeliveries = filteredDeliveries.filter(
+      (d) => d.deliveryStatus === "completed"
+    );
+    const totalKM = completedDeliveries.reduce(
+      (sum, d) => sum + (d.km ? parseFloat(d.km) : 0),
+      0
+    );
+    const totalFuel = totalKM / 5; // 1L per 5km
+    const totalCost = completedDeliveries.reduce(
+      (sum, d) => sum + (d.transportCost ? parseFloat(d.transportCost) : 0),
+      0
+    );
+
+    // Most active driver
+    const driverCounts = {};
+    filteredDeliveries.forEach((d) => {
+      if (d.driver?.name)
+        driverCounts[d.driver.name] = (driverCounts[d.driver.name] || 0) + 1;
+    });
+    const mostActiveDriver =
+      Object.entries(driverCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "-";
+
+    // Most active vehicle
+    const vehicleCounts = {};
+    filteredDeliveries.forEach((d) => {
+      if (d.vehicle?.vehicleId)
+        vehicleCounts[d.vehicle.vehicleId] =
+          (vehicleCounts[d.vehicle.vehicleId] || 0) + 1;
+    });
+    const mostActiveVehicle =
+      Object.entries(vehicleCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "-";
+
+    doc.text(`Total Deliveries: ${filteredDeliveries.length}`, 14, 50);
+    doc.text(`Total KM: ${totalKM}`, 14, 56);
+    doc.text(`Fuel Used: ${totalFuel.toFixed(2)} L`, 14, 62);
+    doc.text(`Total Transport Cost: Rs. ${totalCost}`, 14, 68);
+    doc.text(`Most Active Driver: ${mostActiveDriver}`, 14, 74);
+    doc.text(`Most Active Vehicle: ${mostActiveVehicle}`, 14, 80);
+
+    // ===== Table =====
     const tableColumn = [
       "Order ID",
       "Vehicle",
       "Driver",
-      "Location",
+      "Route",
       "Scheduled Date",
       "Status",
+      "KM",
+      "Fuel Used (L)",
       "Transport Cost",
     ];
-    const tableRows = [];
+    const tableRows = filteredDeliveries.map((d) => [
+      d.order?.orderID || "-",
+      d.vehicle?.vehicleId || "-",
+      d.driver?.name || "-",
+      d.route || "-",
+      d.scheduledDate ? new Date(d.scheduledDate).toLocaleDateString() : "-",
+      d.deliveryStatus
+        ? d.deliveryStatus.charAt(0).toUpperCase() + d.deliveryStatus.slice(1)
+        : "-",
+      d.km || "-",
+      d.km ? (parseFloat(d.km) / 5).toFixed(2) : "-",
+      d.transportCost ? `Rs. ${d.transportCost}` : "-",
+    ]);
 
-    filteredDeliveries.forEach((d) => {
-      const row = [
-        d.order?.orderID || "-",
-        d.vehicle?.vehicleId || "-",
-        d.driver?.name || "-",
-        d.route || "-",
-        d.scheduledDate ? new Date(d.scheduledDate).toLocaleDateString() : "-",
-        d.deliveryStatus?.charAt(0).toUpperCase() + d.deliveryStatus?.slice(1),
-        d.transportCost ? `Rs. ${d.transportCost}` : "-",
-      ];
-      tableRows.push(row);
-    });
-
-    doc.autoTable({
+    autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
-      startY: 20,
+      startY: 90,
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+      columnStyles: {
+        5: { cellWidth: 25 }, // Status
+      },
     });
-    doc.text("Delivery Report", 14, 15);
-    doc.save("delivery_report.pdf");
+
+    doc.save(
+      `delivery_report_${now.getFullYear()}${
+        now.getMonth() + 1
+      }${now.getDate()}.pdf`
+    );
   };
 
   return (
@@ -211,7 +283,7 @@ export default function DeliveryPage() {
         </button>
         <button
           className="flex items-center gap-1 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-          onClick={generatePDF}
+          onClick={generateDeliveryReport}
         >
           <FaFilePdf /> PDF
         </button>
