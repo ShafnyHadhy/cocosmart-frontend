@@ -172,14 +172,6 @@ export default function SignupPage() {
   // Validate confirm password
   const validateConfirmPassword = (val) => {
     handleInputChange("confirmPassword", val);
-    if (val !== formData.password) {
-      setErrors((prev) => ({
-        ...prev,
-        confirmPassword: "Passwords do not match",
-      }));
-    } else {
-      setErrors((prev) => ({ ...prev, confirmPassword: "" }));
-    }
   };
 
   // Validate phone number input

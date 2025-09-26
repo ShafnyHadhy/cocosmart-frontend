@@ -74,7 +74,7 @@ export default function Security({ user }) {
         { newPassword },
         getConfig()
       );
-      toast.success("Password changed successfully 🎉");
+      toast.success("Password changed successfully");
       setFormData({ oldPassword: "", newPassword: "", confirmPassword: "" });
       setStep(1); // back to verify step
     } catch (err) {
