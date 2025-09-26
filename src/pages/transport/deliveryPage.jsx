@@ -1,18 +1,26 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import { CiCirclePlus } from "react-icons/ci";
-import { FaRegEdit } from "react-icons/fa";
+import { FaRegEdit, FaSearch, FaFilePdf } from "react-icons/fa";
 import { TfiTrash } from "react-icons/tfi";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 export default function DeliveryPage() {
   const [deliveries, setDeliveries] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
-  const [drivers, setDrivers] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({});
   const [deletingId, setDeletingId] = useState(null);
+
+  const [vehicles, setVehicles] = useState([]);
+  const [drivers, setDrivers] = useState([]);
+
+  const [showSearchFields, setShowSearchFields] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchStatus, setSearchStatus] = useState(""); // New: status filter
+
   const navigate = useNavigate();
   const today = new Date().toISOString().split("T")[0];
 
@@ -31,7 +39,7 @@ export default function DeliveryPage() {
       setVehicles(vehicleRes.data);
       setDrivers(driverRes.data);
     } catch (err) {
-      console.error("Error fetching data:", err);
+      console.error(err);
       toast.error("Failed to load data");
     }
   };
@@ -59,12 +67,12 @@ export default function DeliveryPage() {
         `${import.meta.env.VITE_API_URL}/api/deliveries/${id}`,
         editData
       );
-      await fetchData();
-      handleCancelEdit();
       toast.success("Delivery updated successfully");
+      setEditingId(null);
+      fetchData();
     } catch (err) {
-      console.error("Error updating delivery:", err);
-      toast.error(err.response?.data?.message || "Failed to save changes");
+      console.error(err);
+      toast.error("Failed to save changes");
     }
   };
 
@@ -73,21 +81,19 @@ export default function DeliveryPage() {
     setEditingId(null);
   };
 
-  const cancelDelete = () => {
-    setDeletingId(null);
-  };
+  const cancelDelete = () => setDeletingId(null);
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(
         `${import.meta.env.VITE_API_URL}/api/deliveries/${id}`
       );
-      await fetchData();
-      setDeletingId(null);
       toast.success("Delivery deleted successfully");
+      setDeletingId(null);
+      fetchData();
     } catch (err) {
-      console.error("Error deleting delivery:", err);
-      toast.error(err.response?.data?.message || "Failed to delete delivery");
+      console.error(err);
+      toast.error("Failed to delete delivery");
     }
   };
 
@@ -129,25 +135,109 @@ export default function DeliveryPage() {
           d._id === id ? { ...res.data, showKmInput: false, km: "" } : d
         )
       );
-
       toast.success("Delivery marked as completed!");
       localStorage.setItem("ordersNeedRefresh", "true");
     } catch (err) {
-      console.error("Error marking delivery as completed:", err);
-      toast.error(
-        err.response?.data?.message || "Failed to mark delivery as completed"
-      );
+      console.error(err);
+      toast.error("Failed to mark delivery as completed");
     }
+  };
+
+  // Filter deliveries with status
+  const filteredDeliveries = deliveries.filter((d) => {
+    const orderID = d.order?.orderID?.toLowerCase() || "";
+    const vehicleId = d.vehicle?.vehicleId?.toLowerCase() || "";
+    const driverName = d.driver?.name?.toLowerCase() || "";
+    const route = d.route?.toLowerCase() || "";
+    const query = searchQuery.toLowerCase();
+
+    const matchesText =
+      orderID.includes(query) ||
+      vehicleId.includes(query) ||
+      driverName.includes(query) ||
+      route.includes(query);
+
+    const matchesStatus = searchStatus
+      ? d.deliveryStatus?.toLowerCase() === searchStatus.toLowerCase()
+      : true;
+
+    return matchesText && matchesStatus;
+  });
+
+  // Generate PDF
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    const tableColumn = [
+      "Order ID",
+      "Vehicle",
+      "Driver",
+      "Location",
+      "Scheduled Date",
+      "Status",
+      "Transport Cost",
+    ];
+    const tableRows = [];
+
+    filteredDeliveries.forEach((d) => {
+      const row = [
+        d.order?.orderID || "-",
+        d.vehicle?.vehicleId || "-",
+        d.driver?.name || "-",
+        d.route || "-",
+        d.scheduledDate ? new Date(d.scheduledDate).toLocaleDateString() : "-",
+        d.deliveryStatus?.charAt(0).toUpperCase() + d.deliveryStatus?.slice(1),
+        d.transportCost ? `Rs. ${d.transportCost}` : "-",
+      ];
+      tableRows.push(row);
+    });
+
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+    });
+    doc.text("Delivery Report", 14, 15);
+    doc.save("delivery_report.pdf");
   };
 
   return (
     <div className="h-full w-full p-6 bg-sec-2">
-      <button
-        onClick={() => navigate("/admin/deliveries/add")}
-        className="fixed right-[40px] bottom-[40px] text-6xl text-accent drop-shadow-lg hover:scale-110 transition-transform"
-      >
-        <CiCirclePlus />
-      </button>
+      <div className="w-full flex justify-end gap-2 mb-2">
+        <button
+          className="flex items-center gap-1 px-3 py-1 bg-blue-800 text-white rounded hover:bg-blue-600"
+          onClick={() => setShowSearchFields(!showSearchFields)}
+        >
+          <FaSearch /> Search
+        </button>
+        <button
+          className="flex items-center gap-1 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+          onClick={generatePDF}
+        >
+          <FaFilePdf /> PDF
+        </button>
+      </div>
+
+      {showSearchFields && (
+        <div className="flex gap-2 mb-4">
+          <input
+            type="text"
+            placeholder="Search by order, vehicle, driver, route"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border px-2 py-1 rounded w-full"
+          />
+          <select
+            value={searchStatus}
+            onChange={(e) => setSearchStatus(e.target.value)}
+            className="border px-2 py-1 rounded"
+          >
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="processing">Processing</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      )}
 
       <div className="overflow-x-auto shadow-lg rounded-2xl bg-white">
         <table className="w-full border-collapse text-sm">
@@ -164,16 +254,15 @@ export default function DeliveryPage() {
             </tr>
           </thead>
           <tbody>
-            {deliveries.map((d, idx) => (
+            {filteredDeliveries.map((d, idx) => (
               <tr
                 key={d._id}
-                className={`border-b ${
-                  idx % 2 === 0 ? "bg-gray-50" : "bg-white"
-                } hover:bg-gray-100 transition-colors`}
+                className={`border-b hover:bg-gray-50 transition-colors ${
+                  idx % 2 === 0 ? "bg-gray-50/50" : "bg-white"
+                }`}
               >
-                {/* Order ID - read-only */}
+                {/* Order ID */}
                 <td className="py-3 px-4">{d.order?.orderID || "-"}</td>
-
                 {/* Vehicle */}
                 <td className="py-3 px-4">
                   {editingId === d._id && d.deliveryStatus !== "completed" ? (
@@ -305,7 +394,7 @@ export default function DeliveryPage() {
                 <td className="py-3 px-4">
                   <div className="flex flex-row gap-4 justify-center items-center text-lg">
                     {editingId === d._id ? (
-                      <div className="flex gap-2">
+                      <>
                         <button
                           onClick={() => handleSaveEdit(d._id)}
                           className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
@@ -318,7 +407,7 @@ export default function DeliveryPage() {
                         >
                           Cancel
                         </button>
-                      </div>
+                      </>
                     ) : deletingId === d._id ? (
                       <div className="flex flex-col items-center gap-2 bg-gray-100 p-2 rounded-lg">
                         <p className="text-xs text-center">Delete delivery?</p>
@@ -388,6 +477,13 @@ export default function DeliveryPage() {
           </tbody>
         </table>
       </div>
+
+      <button
+        onClick={() => navigate("/admin/deliveries/add")}
+        className="fixed right-[40px] bottom-[40px] text-6xl text-accent drop-shadow-lg hover:scale-110 transition-transform"
+      >
+        <CiCirclePlus />
+      </button>
     </div>
   );
 }

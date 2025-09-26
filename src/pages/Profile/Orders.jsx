@@ -1,4 +1,4 @@
-// // File: frontend/src/components/Orders.jsx
+// File: frontend/src/components/Orders.jsx
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -19,7 +19,7 @@ export default function Orders({ user, orders, setOrders }) {
     const fetchOrders = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/orders/user/${user._id}`,
+          `${import.meta.env.VITE_API_URL}/api/orders/user/${user._id}`,
           getConfig()
         );
         setOrders(res.data || []);
@@ -35,18 +35,22 @@ export default function Orders({ user, orders, setOrders }) {
   const formatDate = (dateStr) =>
     dateStr ? new Date(dateStr).toLocaleDateString() : "-";
 
+  // Status color coding same as AdminOrdersPage
   const getStatusClass = (status) => {
     switch ((status || "").toLowerCase()) {
-      case "shipped":
-        return "bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium";
-      case "delivered":
       case "completed":
-        return "bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium";
+      case "delivered":
+        return "bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium";
+      case "processing":
+      case "shipped":
+        return "bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium";
+      case "pending":
+        return "bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium";
       case "cancelled":
       case "canceled":
-        return "bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium";
+        return "bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-medium";
       default:
-        return "bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-medium";
+        return "bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-medium";
     }
   };
 
@@ -80,13 +84,14 @@ export default function Orders({ user, orders, setOrders }) {
                 >
                   <td className="py-3 px-4 font-mono">{o.orderID}</td>
                   <td className="py-3 px-4">{formatDate(o.date)}</td>
-                  <td className="py-3 px-4">
+                  <td className="py-3 px-4 text-center">
                     <span className={getStatusClass(o.status)}>{o.status}</span>
                   </td>
                   <td className="py-3 px-4">Rs. {o.total?.toFixed(2)}</td>
                   <td className="py-3 px-4 flex justify-center gap-2 text-lg">
                     <button
-                      onClick={() => navigate(`/orders/${o.orderID}`)}
+                      onClick={() => navigate(`/admin/orders/${o.orderID}`)}
+                      // Navigate to the same view route as AdminOrdersPage
                       className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-xs"
                     >
                       View
