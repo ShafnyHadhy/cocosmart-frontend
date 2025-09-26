@@ -12,6 +12,10 @@ import PurchasedItemDetails from "./inventory/PurchasedItemDetails";////////////
 import UpdatePurchasedItem from "./inventory/UpdatePurchasedItem";
 import AddPurchasedItem from "./inventory/AddPurchasedItem";
 
+import AddSupplier from "./inventory/AddSupplier";
+import SupplierDetails from "./inventory/SupplierDetails";
+import UpdateSupplier from "./inventory/UpdateSupplier";
+
 export default function Inventory() {
   const location = useLocation();
 
@@ -20,6 +24,7 @@ export default function Inventory() {
 
     { path: "/inventory/cocoProductDetails", label: "Coco Products", icon: <FiBox /> },
     { path: "/inventory/purchasedItemDetails", label: "Purchased Items", icon: <FiBox /> },////////////////
+    { path: "/inventory/supplierDetails", label: "Suppliers", icon: <FiBox /> },////////////////
     
   ];
 
@@ -75,12 +80,18 @@ export default function Inventory() {
           <div className="rounded-2xl shadow-md min-h-[400px] bg-light-gray">
             <Routes>
             <Route index element={<h1>Dashboard</h1>} />
-            <Route path="cocoProductDetails" element={<CocoProductDetails />} />
             <Route path="addCocoProduct" element={<AddCocoProduct />} />
-            <Route path="updateCocoProducts/:id" element={<UpdateCocoProduct />} />
+            <Route path="cocoProductDetails" element={<CocoProductDetails />} />
+            <Route path="updateCocoProducts/:id" element={<UpdateCocoProduct />} />            
+            
+            <Route path="addPurchasedItem" element={<AddPurchasedItem />} />
             <Route path="purchasedItemDetails" element={<PurchasedItemDetails />} />
             <Route path="updatePurchasedItems/:id" element={<UpdatePurchasedItem />} />
-            <Route path="addPurchasedItem" element={<AddPurchasedItem />} />
+
+            <Route path="addSupplier" element={<AddSupplier />} />
+            <Route path="supplierDetails" element={<SupplierDetails />} />
+            <Route path="updateSupplier/:id" element={<UpdateSupplier />} />
+            
           </Routes>
           </div>
         </main>
