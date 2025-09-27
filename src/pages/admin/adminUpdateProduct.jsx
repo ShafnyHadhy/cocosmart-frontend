@@ -113,6 +113,11 @@ export default function AdminUpdateProduct() {
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                onKeyPress={(e) => {
+                  if (!/^[a-zA-Z ]$/.test(e.key)) {
+                    e.preventDefault(); // Block invalid character before typing
+                  }
+                }}
                 placeholder="Product Name"
                 className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
               />
@@ -125,6 +130,11 @@ export default function AdminUpdateProduct() {
               <input
                 value={altNames}
                 onChange={(e) => setAltnames(e.target.value)}
+                onKeyPress={(e) => {
+                  if (!/^[a-zA-Z ]$/.test(e.key)) {
+                    e.preventDefault(); // Block invalid character before typing
+                  }
+                }}
                 placeholder="Comma-separated values"
                 className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
               />
@@ -166,7 +176,14 @@ export default function AdminUpdateProduct() {
                 <input
                   type="number"
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  min={0} // only allow positive numbers
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || Number(val) >= 0) setPrice(val); // prevent negative input
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "-" || e.key === "e") e.preventDefault(); // block typing '-' and 'e'
+                  }}
                   placeholder="Price"
                   className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
                 />
@@ -179,7 +196,14 @@ export default function AdminUpdateProduct() {
                 <input
                   type="number"
                   value={labelledPrice}
-                  onChange={(e) => setLabelledPrice(e.target.value)}
+                  min={0} // only allow positive numbers
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || Number(val) >= 0) setLabelledPrice(val)
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "-" || e.key === "e") e.preventDefault(); // block typing '-' and 'e'
+                  }}
                   placeholder="Labelled Price"
                   className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
                 />
@@ -209,7 +233,14 @@ export default function AdminUpdateProduct() {
               <input
                 type="number"
                 value={stock}
-                onChange={(e) => setStock(e.target.value)}
+                min={0} // only allow positive numbers
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || Number(val) >= 0) setStock(val)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "-" || e.key === "e") e.preventDefault(); // block typing '-' and 'e'
+                }}
                 placeholder="Stock Quantity"
                 className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
               />
@@ -222,7 +253,14 @@ export default function AdminUpdateProduct() {
               <input
                 type="number"
                 value={cost}
-                onChange={(e) => setCost(e.target.value)}
+                min={0} // only allow positive numbers
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || Number(val) >= 0) setCost(val)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "-" || e.key === "e") e.preventDefault(); // block typing '-' and 'e'
+                }}
                 placeholder="Unit Cost"
                 className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
               />

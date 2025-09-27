@@ -30,7 +30,7 @@ export default function TestimonialSection() {
   ];
 
   return (
-    <section className="py-20 px-6 md:px-12 lg:px-24 bg-gradient-to-b from-white to-[#f5f3f1]">
+    <section className="py-20 px-6 md:px-12 lg:px-24 bg-gradient-to-b from-white to-primary">
       <div className="text-center mb-12">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}

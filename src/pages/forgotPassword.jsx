@@ -52,7 +52,7 @@ export default function ForgotPassword() {
         <div className="space-y-4">
           {/* Email Input */}
           <div className="relative transform transition-transform duration-300 hover:translate-z-3">
-            <label className="block text-secondary mb-1 font-medium text-sm flex items-center gap-1">
+            <label className="text-secondary mb-1 font-medium text-sm flex items-center gap-1">
               <FaEnvelope className="text-green-calm" />
               Registered Email
             </label>

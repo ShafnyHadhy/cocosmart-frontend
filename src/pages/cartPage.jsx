@@ -14,7 +14,7 @@ function CartItem({ item, onIncrease, onDecrease, onRemove }) {
             <div className="w-[180px]">
                 <h3 className="text-base font-semibold mb-1">{item.name}</h3>
                 <p className="text-xs text-secondary">
-                    LKR {item.price.toFixed(2)}
+                    LKR {item.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
             <button
                 onClick={onRemove}
@@ -40,7 +40,7 @@ function CartItem({ item, onIncrease, onDecrease, onRemove }) {
             </button>
         </div>
         <p className="font-semibold w-30 text-right text-sm text-green-500">
-            LKR {(item.price * item.quantity).toFixed(2)}
+            LKR {(item.price * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </p>
         </div>
     );
@@ -65,7 +65,7 @@ export default function CartPage() {
     };
 
     const subtotal = getTotal();
-    const taxes = subtotal * 0.08; // 8% example
+    const taxes = subtotal * 0.00; // 8% example
     const total = subtotal + taxes;
 
     return (
@@ -109,7 +109,7 @@ export default function CartPage() {
                     <div className="space-y-3">
                         <div className="flex justify-between text-base">
                             <p className="text-secondary text-sm">Subtotal</p>
-                            <p className="font-medium text-sm">LKR {subtotal.toFixed(2)}</p>
+                            <p className="font-medium text-sm">LKR {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                         </div>
                         <div className="flex justify-between text-base">
                             <p className="text-secondary text-sm">Shipping</p>
@@ -117,13 +117,13 @@ export default function CartPage() {
                         </div>
                         <div className="flex justify-between text-base">
                             <p className="text-secondary text-sm">Taxes</p>
-                            <p className="font-medium text-sm">LKR {taxes.toFixed(2)}</p>
+                            <p className="font-medium text-sm">LKR {taxes.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                         </div>
                     </div>
                     <div className="border-t border-gray-200 my-6"></div>
                     <div className="flex justify-between text-md font-bold">
                         <p>Total</p>
-                        <p>LKR {total.toFixed(2)}</p>
+                        <p>LKR {total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                     </div>
                     <Link
                         state={cart}

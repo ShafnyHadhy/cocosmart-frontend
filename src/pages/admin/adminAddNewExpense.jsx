@@ -79,9 +79,13 @@ export default function AdminAddNewExpense() {
               >
                 <option value="">Select Category</option>
                 <option value="Salary">Salary</option>
+                <option value="Wages">Wages</option>
+                <option value="Tax">Tax</option>
                 <option value="Fertilizer">Fertilizer</option>
+                <option value="Goods">Goods</option>
                 <option value="Transport">Transport</option>
                 <option value="Maintenance">Maintenance</option>
+                <option value="Utility">Utility</option>
                 <option value="Other">Other</option>
               </select>
               {errors.category && (
@@ -114,7 +118,14 @@ export default function AdminAddNewExpense() {
               <input
                 type="number"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                min={0}
+                onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || Number(val) >= 0) setAmount(val); // prevent negative input
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "-" || e.key === "e") e.preventDefault(); // block typing '-' and 'e'
+                  }}
                 placeholder="Enter Amount"
                 className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
               />
@@ -122,6 +133,7 @@ export default function AdminAddNewExpense() {
                 <p className="text-red-500 text-xs mt-1">{errors.amount}</p>
               )}
             </div>
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Date
@@ -130,6 +142,7 @@ export default function AdminAddNewExpense() {
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
+                max={new Date().toISOString().split("T")[0]} // disable future dates
                 className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
               />
               {errors.date && (

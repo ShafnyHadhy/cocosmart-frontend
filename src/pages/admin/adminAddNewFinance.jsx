@@ -108,7 +108,14 @@ export default function AdminAddNewFinance() {
               <input
                 type="number"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                min={0}
+                onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || Number(val) >= 0) setAmount(val); // prevent negative input
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "-" || e.key === "e") e.preventDefault(); // block typing '-' and 'e'
+                  }}
                 placeholder="Enter Amount"
                 className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
               />
@@ -125,6 +132,7 @@ export default function AdminAddNewFinance() {
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
+                max={new Date().toISOString().split("T")[0]} // disable future dates
                 className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
               />
               {errors.date && (

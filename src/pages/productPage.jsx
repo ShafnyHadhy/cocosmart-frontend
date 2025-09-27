@@ -13,11 +13,16 @@ import "swiper/css/pagination";
 
 import ProductCard from "../components/productCard";
 import { Loader } from "../components/loader";
+import { BiSearch } from "react-icons/bi";
 
 export default function ProductPage() {
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [trendingProducts, setTrendingProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [userInteracted, setUserInteracted] = useState(false);
 
   // Load all products
   useEffect(() => {
@@ -26,6 +31,7 @@ export default function ProductPage() {
         .get(import.meta.env.VITE_API_URL + "/api/products")
         .then((response) => {
           setProducts(response.data);
+          setFilteredProducts(response.data);
           setIsLoading(false);
         })
         .catch((error) => {
@@ -49,6 +55,38 @@ export default function ProductPage() {
       });
   }, []);
 
+  // Filter products whenever search term or category changes
+  useEffect(() => {
+    let filtered = products;
+
+    if (selectedCategory === "Trending") {
+      filtered = trendingProducts;
+    } else if (selectedCategory !== "All") {
+      filtered = filtered.filter(
+        (p) => p.category.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
+
+    if (searchTerm.trim() !== "") {
+      filtered = filtered.filter((p) =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    setFilteredProducts(filtered);
+
+    // Scroll to products only after user interaction
+    // if (userInteracted) {
+    //   const productSection = document.getElementById("product-grid");
+    //   if (productSection) {
+    //     productSection.scrollIntoView({ behavior: "smooth" });
+    //   }
+    // }
+  }, [searchTerm, selectedCategory, products, trendingProducts, userInteracted]);
+
+  // Categories including Trending
+  const categories = ["All", "Trending", "Oil", "Powder", "Liquid", "Snacks"];
+
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-primary">
       {/* Banner */}
@@ -62,43 +100,48 @@ export default function ProductPage() {
       </section>
 
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-
         {/* Categories & Search */}
         <div className="flex flex-wrap gap-2 mb-8 items-center">
-            <button className="px-4 py-2 rounded-md shadow text-sm font-medium bg-accent text-white">
-                All
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => {
+                setSelectedCategory(cat);
+                setUserInteracted(true);
+              }}
+              className={`px-4 py-2 rounded-md shadow text-sm font-medium transition-colors ${
+                selectedCategory === cat
+                  ? "bg-accent text-white"
+                  : "bg-white hover:bg-white/50"
+              }`}
+            >
+              {cat}
             </button>
-            <button className="px-4 py-2 rounded-md shadow text-sm font-medium bg-white hover:bg-white/50 transition-colors">
-                Coconut Water
-            </button>
-            <button className="px-4 py-2 rounded-md shadow text-sm font-medium bg-white hover:bg-white/50 transition-colors">
-                Coconut Oil
-            </button>
-            <button className="px-4 py-2 rounded-md shadow text-sm font-medium bg-white hover:bg-white/50 transition-colors">
-                Coconut Snacks
-            </button>
-            <button className="px-4 py-2 rounded-md shadow text-sm font-medium bg-white hover:bg-white/50 transition-colors">
-                Coconut Milk
-            </button>
+          ))}
 
-            <div className="hidden ml-auto sm:flex items-center gap-4 rounded-md bg-white px-3 py-2 shadow">
-                <span className="material-symbols-outlined text-secondary">
-                    search
-                </span>
-                <input
-                    className="w-32 bg-transparent text-sm focus:outline-none"
-                    placeholder="Search products..."
-                    type="text"
-                />
-            </div>
+          <div className="ml-auto flex items-center gap-4 rounded-md bg-white px-3 py-2 shadow">
+            <span className="material-symbols-outlined text-secondary">
+              <BiSearch />
+            </span>
+            <input
+              className="w-32 bg-transparent text-sm focus:outline-none"
+              placeholder="Search products..."
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setUserInteracted(true);
+              }}
+            />
+          </div>
         </div>
-        
-        {/* Trending Products */}
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6">Trending Products</h2>
-          {trendingProducts.length > 0 ? (
+
+        {/* Trending Products Carousel */}
+        {selectedCategory === "Trending" && trendingProducts.length > 0 && (
+          <section className="mb-12">
+            <h2 className="text-3xl font-bold mb-6">Trending Products</h2>
             <Swiper
-              modules={[Navigation, Pagination, Autoplay]} // ✅ correct usage
+              modules={[Navigation, Pagination, Autoplay]}
               spaceBetween={24}
               slidesPerView={1}
               breakpoints={{
@@ -117,21 +160,24 @@ export default function ProductPage() {
                 </SwiperSlide>
               ))}
             </Swiper>
-          ) : (
-            <p>No trending products right now.</p>
-          )}
-        </section>
+          </section>
+        )}
 
         {/* All Products */}
         <h2 className="text-3xl font-bold mb-6">Our Products</h2>
         {isLoading ? (
           <Loader />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {products.map((item) => (
+        ) : filteredProducts.length > 0 ? (
+          <div
+            id="product-grid"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
+          >
+            {filteredProducts.map((item) => (
               <ProductCard key={item.productID} product={item} />
             ))}
           </div>
+        ) : (
+          <p className="text-center text-gray-500">No products found.</p>
         )}
       </main>
     </div>

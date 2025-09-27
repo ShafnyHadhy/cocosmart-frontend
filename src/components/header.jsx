@@ -9,7 +9,7 @@ export default function Header() {
         <div className="h-9 w-9 bg-accent rounded-full flex items-center justify-center text-white font-bold">
           C
         </div>
-        <h2 className="text-lg font-bold tracking-[-0.015em]">CocoSmart</h2>
+        <h2 className="text-xl font-bold font-serif tracking-[-0.015em]">CocoSmart</h2>
       </div>
 
       <nav className="flex gap-9 text-accent/90 text-sm font-bold space-x-1">

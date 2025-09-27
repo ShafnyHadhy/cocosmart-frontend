@@ -1,107 +1,77 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { BsCart2, BsGraphUpArrow } from "react-icons/bs";
+import { FiBox } from "react-icons/fi";
+import { SiExpensify } from "react-icons/si";
+import { Link, Route, Routes, useLocation } from "react-router-dom";
+import { FaInvision } from "react-icons/fa";
 
-export default function ProductPage() {
+export default function TestPage() {
+  const location = useLocation();
+
+  const menuItems = [
+    { path: "/test", label: "Dashboard", icon: <BsGraphUpArrow className="text-[15px]"/> },
+    { path: "", label: "Plantations", icon: <BsCart2 /> },
+    { path: "", label: "Add Plantation", icon: <FiBox /> },
+    { path: "", label: "Inventory", icon: <FaInvision /> },
+    { path: "", label: "Suppliers", icon: <SiExpensify /> },
+  ];
+
   return (
-    <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-primary text-[var(--secondary-color)]">
-      
-      {/* Main */}
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Our Products */}
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6">Our Products</h2>
-          <div className="flex flex-wrap gap-2 mb-8">
-            <button className="px-4 py-2 rounded-md shadow text-sm font-medium bg-accent text-white">All</button>
-            <button className="px-4 py-2 rounded-md shadow text-sm font-medium bg-white hover:bg-white/50 transition-colors">Coconut Water</button>
-            <button className="px-4 py-2 rounded-md shadow text-sm font-medium bg-white hover:bg-white/50 transition-colors">Coconut Oil</button>
-            <button className="px-4 py-2 rounded-md shadow text-sm font-medium bg-white hover:bg-white/50 transition-colors">Coconut Snacks</button>
-            <button className="px-4 py-2 rounded-md shadow text-sm font-medium bg-white hover:bg-white/50 transition-colors">Coconut Milk</button>
+    <div className="flex min-h-screen bg-white text-gray-800">
 
-            <div className="hidden ml-105 sm:flex items-center gap-4 rounded-md bg-white px-3 shadow">
-            <span className="material-symbols-outlined text-secondary">search</span>
-            <input
-              className="w-32 bg-transparent text-sm focus:outline-none"
-              placeholder="Search products..."
-              type="text"
-            />
-          </div>
-          </div>
+      <aside className="fixed top-0 left-0 w-64 h-screen flex flex-col bg-white z-20">
+        <div className="flex h-16 items-center gap-2 border-b border-medium-gray px-6">
+          <img src="/clogo.png" alt="logo" className="h-13 rounded-md" />
+          <h1 className="text-xl font-bold tracking-[-0.015em] text-accent">
+            Plantation
+          </h1>
+        </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {/* Product Cards */}
-           
-            <div className="group relative flex flex-col rounded-md bg-white/50 shadow-sm transition-all duration-300 hover:shadow-lg">
-              <div className="relative">
-                <img
-                  alt="CocoSmart Organic Coconut Water"
-                  className="h-auto w-full rounded-t-md object-cover"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuACZMuvhGMfmeSJkiev6a0HwJmfsEJswSqXQlx9cHqDxEgzyrk41MOn-_dE00UlWU4Jay4108et96veLSpAfAHoLXRh_oNtVU-rugkXDCtA5zAtC-dZSp8p_vhZ-7Ab3IzSrDQXPIIQ1owE6h-7R4pqplr_-5EVysunZ3KZ5cpiHRr6Q2WVqOFGl245JWLqaQZbRapARuwrMiU8KtdkAswsyZeMJSZ22evDKWqBFnLLQ3-Hn47qNAopPbt10TG-5N9Lqblblvqe8_w"
-                />
-                <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-white/80 px-2 py-1 text-xs font-semibold">
-                  <span className="material-symbols-outlined text-sm text-yellow-500">star</span> 4.8
-                </div>
-              </div>
-              <div className="flex flex-col p-4 flex-grow">
-                <h3 className="font-bold">CocoSmart Organic Coconut Water</h3>
-                <p className="text-sm text-[var(--secondary-color)]/70 mb-2">Refreshing and hydrating</p>
-                <p className="text-lg font-bold text-[var(--accent-color)] mt-auto">$2.99</p>
-              </div>
-              <div className="p-4 pt-0 w-full">
-                <Link
-                 
-                  className="w-full block rounded-md bg-accent px-4 py-2 text-sm font-bold text-white hover:bg-opacity-90 transition-colors text-center"
-                >
-                  View Product
-                </Link>
-              </div>
-                          </div>
-            {/* Repeat other products similarly */}
-          </div>
-        </section>
-
-        {/* Trending Products */}
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6">Trending Products</h2>
-          <div className="relative">
-            <div className="flex gap-8 overflow-x-auto pb-4 [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {/* Example Trending Product */}
-              <div className="w-64 flex-shrink-0">
-                <div className="group relative flex flex-col rounded-md bg-white/50 shadow-sm transition-all duration-300 hover:shadow-lg">
-                  <img
-                    alt="Trending Product 1"
-                    className="h-auto w-full rounded-t-md object-cover"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuByeBVzPUywpyBuCh7SmwHoMyCByjyOOhHSdfYZ0ZXMVLooGzn9k58P0zLTqHZDo98l2IV_0fHb_ctEyqggmiVKZFZBug_htAWyU0Pqb7n2_5cPwyFZltUgzrsEsoIe4_5Rew34t0H3I3inSiyq2MYcFOcgzH6bbt3AeJ3K_n1TLbd8GUTCnObo8SkGAgwh6jiGVxjmNbbM76qyzzbKJu5DdmIZdMN9N8wG-GeQ0dJxtFWca20MQgPdcAJUE0wdqN55OWsFRPGJOWY"
-                  />
-                  <div className="p-4">
-                    <h3 className="font-bold">CocoSmart Toasted Coconut Clusters</h3>
-                    <p className="text-sm text-[var(--secondary-color)]/70">$6.99</p>
-                  </div>
-                </div>
-              </div>
-              {/* Repeat other trending products */}
-            </div>
-          </div>
-        </section>
-
-        {/* Newsletter Section */}
-        <section className="rounded-md bg-accent p-8 text-center text-white">
-          <h2 className="text-3xl font-bold mb-2">Get 10% off your first order!</h2>
-          <p className="mb-6 max-w-lg mx-auto">Sign up for our newsletter to get exclusive deals, recipes, and more.</p>
-          <form className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
-            <input
-              className="flex-grow rounded-md border border-white/50 px-4 py-2 text-white "
-              placeholder="Enter your email"
-              type="email"
-            />
-            <button
-              className="rounded-md bg-white px-6 py-2 font-bold text-accent hover:bg-opacity-90 transition-colors"
-              type="submit"
+        {/*<nav className="flex-1 p-4 space-y-2 overflow-hidden">*/}
+        <nav className="flex-1 mt-3 p-4 space-y-3 overflow-hidden">
+          {menuItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-all 
+                ${
+                  location.pathname === item.path
+                    ? "bg-green-calm text-white shadow-md scale-[1.02]"
+                    : "text-gray-600 hover:bg-gray-200 hover:text-gray-900"
+                }`}
             >
-              Subscribe
+              {/*<span className="text-lg">{item.icon}</span>*/}
+              <span className="text-lg">{item.icon}</span>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="p-4 border-t border-medium-gray text-sm text-center">
+          ©2025CocoSmart
+        </div>
+      </aside>
+
+     <div className="ml-64 flex flex-1 flex-col">
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-end whitespace-nowrap border-b border-gray-200 bg-white/80 px-6 backdrop-blur-sm">
+          <div className="flex items-center gap-4">
+            <button className="rounded-lg px-4 py-1 text-md font-normal text-gray-500 border-1 border-accent cursor-pointer hover:bg-gray-200 hover:text-accent transition">
+              Logout
             </button>
-          </form>
-        </section>
-      </main>
+            <button className="rounded-full px-3 py-1 font-bold text-white  bg-accent border-1 border-accent cursor-pointer hover:bg-gray-100 hover:text-gray-900 transition">
+              A
+            </button>
+          </div>
+        </header>
+
+        <main className="flex-1 bg-primary p-6 overflow-y-auto">
+          <div className="rounded-2xl shadow-md min-h-[400px] bg-light-gray">
+            <Routes>
+              <Route path="/" element={<h1>Dashboard</h1>} />
+              
+            </Routes>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

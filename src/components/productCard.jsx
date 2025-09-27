@@ -30,12 +30,12 @@ export default function ProductCard({ product }) {
 
         {/* Pricing */}
         {product.labelledPrice > product.price ? (
-          <div className="flex flex-col items-baseline gap-2">
+          <div className="flex flex-col items-baseline gap-1">
             <p className="text-lg font-bold text-green-600">
-              LKR {product.price.toFixed(2)}
+              LKR {product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
             <p className="text-sm text-gray-400 font-semibold line-through">
-              LKR {product.labelledPrice.toFixed(2)}
+              LKR {product.labelledPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
             <span className="ml-auto text-xs font-bold text-red-500 bg-red-100 px-2 py-0.5 rounded-full">
               {Math.round(
@@ -46,7 +46,7 @@ export default function ProductCard({ product }) {
           </div>
         ) : (
           <p className="text-lg font-bold text-green-600">
-            LKR {product.price.toFixed(2)}
+            LKR {product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         )}
       </div>

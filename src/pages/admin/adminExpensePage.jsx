@@ -6,6 +6,7 @@ import { FaRegEdit, FaTimes } from "react-icons/fa";
 import { TfiTrash } from "react-icons/tfi";
 import { Link, useNavigate } from "react-router-dom";
 import { Loader } from "../../components/loader";
+import { RiFilterOffFill } from "react-icons/ri";
 
 function ExpenseDeleteConfirmation({ expenseID, close, refresh }) {
   function deleteExpense() {
@@ -14,14 +15,12 @@ function ExpenseDeleteConfirmation({ expenseID, close, refresh }) {
       .delete(import.meta.env.VITE_API_URL + "/api/expenses/" + expenseID, {
         headers: { Authorization: "Bearer " + token },
       })
-      .then((response) => {
-        console.log(response.data);
+      .then(() => {
         close();
         toast.success("Expense Deleted Successfully!");
         refresh();
       })
-      .catch((error) => {
-        console.error(error);
+      .catch(() => {
         toast.error("Failed to delete the expense!");
       });
   }
@@ -29,21 +28,16 @@ function ExpenseDeleteConfirmation({ expenseID, close, refresh }) {
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex justify-center items-center">
       <div className="w-[420px] bg-white rounded-2xl shadow-lg relative flex flex-col gap-6 p-8">
-        {/* Close Button */}
         <button
           onClick={close}
           className="absolute -right-4 -top-4 w-10 h-10 bg-red-600 rounded-full flex justify-center items-center text-white hover:bg-white hover:text-red-600 border border-red-600 transition"
         >
           <FaTimes size={18} />
         </button>
-
-        {/* Content */}
         <p className="text-lg font-semibold text-gray-800 text-center leading-relaxed">
           Are you sure you want to delete the expense with <br />
           <span className="text-red-600 font-bold">ID: {expenseID}</span>?
         </p>
-
-        {/* Buttons */}
         <div className="flex justify-center gap-6 mt-2">
           <button
             onClick={close}
@@ -63,12 +57,14 @@ function ExpenseDeleteConfirmation({ expenseID, close, refresh }) {
   );
 }
 
-// Main Page
 export default function AdminExpensePage() {
   const [expenses, setExpenses] = useState([]);
   const [isDeleteConfirmVisible, setIsDeleteConfirmVisible] = useState(false);
   const [expenseToBeDeleted, setExpenseToBeDeleted] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [monthFilter, setMonthFilter] = useState(""); // YYYY-MM for month filter
 
   const navigate = useNavigate();
 
@@ -77,17 +73,29 @@ export default function AdminExpensePage() {
       axios
         .get(import.meta.env.VITE_API_URL + "/api/expenses")
         .then((response) => {
-          console.log(response.data);
           setExpenses(response.data);
           setIsLoading(false);
         })
-        .catch((error) => {
-          console.error(error);
+        .catch(() => {
           toast.error("Failed to fetch expenses");
           setIsLoading(false);
         });
     }
   }, [isLoading]);
+
+  // Get unique categories
+  const categories = [...new Set(expenses.map((e) => e.category))];
+
+  // Filtered expenses
+  const filteredExpenses = expenses.filter((expense) => {
+    const matchesCategory = categoryFilter ? expense.category === categoryFilter : true;
+
+    const matchesMonth = monthFilter
+      ? new Date(expense.date).toISOString().slice(0, 7) === monthFilter
+      : true;
+
+    return matchesCategory && matchesMonth;
+  });
 
   return (
     <div className="h-full w-full p-6">
@@ -100,16 +108,49 @@ export default function AdminExpensePage() {
         />
       )}
 
-      {/* Header with Add Button */}
-      <div className="flex items-center justify-between mb-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold text-gray-800">Expenses</h1>
-        <Link
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-medium text-gray-700">Add Expense</label>
+          <Link
           to="/admin/add-expense"
           className="w-10 h-10 flex justify-center items-center bg-accent text-white text-3xl rounded-full drop-shadow-md hover:scale-110 transition-transform"
           title="Add Expense"
         >
           <CiCirclePlus />
         </Link>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row gap-3 items-center mb-4 md:justify-end">
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="p-2 border rounded-lg border-gray-300 text-sm focus:ring-1 focus:ring-accent focus:outline-none"
+        >
+          <option value="">All Categories</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+        <input
+          type="month"
+          value={monthFilter}
+          onChange={(e) => setMonthFilter(e.target.value)}
+          max={new Date().toISOString().slice(0, 7)}
+          className="p-2 border rounded-lg border-gray-300 text-sm focus:ring-1 focus:ring-accent focus:outline-none"
+        />
+        
+        <Link className="p-2 border rounded-lg border-gray-300 text-md hover:bg-gray-100 transition"  title="Clear Filter">
+            <RiFilterOffFill size={18} onClick={() => {
+              setCategoryFilter("");
+              setMonthFilter("");
+            }}/>
+          </Link>
       </div>
 
       {/* Table */}
@@ -130,33 +171,24 @@ export default function AdminExpensePage() {
                 </tr>
               </thead>
               <tbody>
-                {expenses.map((item, index) => (
+                {filteredExpenses.map((item, index) => (
                   <tr
                     key={item.expenseID}
                     className={`transition-colors hover:bg-gray-100 ${
                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
                     }`}
                   >
-                    <td className="py-3 px-4 font-medium text-gray-700">
-                      {item.expenseID}
-                    </td>
-                    <td className="py-3 px-4 font-semibold text-gray-800">
-                      {item.category}
-                    </td>
+                    <td className="py-3 px-4 font-medium text-gray-700">{item.expenseID}</td>
+                    <td className="py-3 px-4 font-semibold text-gray-800">{item.category}</td>
                     <td className="py-3 px-4 text-red-600 font-bold">
-                      Rs. {item.amount}
+                      Rs. {item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                     <td className="py-3 px-4 text-gray-600">{item.description}</td>
-                    <td className="py-3 px-4 text-gray-500">
-                      {new Date(item.date).toLocaleDateString()}
-                    </td>
-                    {/* Actions */}
+                    <td className="py-3 px-4 text-gray-500">{new Date(item.date).toLocaleDateString()}</td>
                     <td className="py-3 px-4">
                       <div className="flex justify-center gap-3">
                         <button
-                          onClick={() => {
-                            navigate("/admin/update-expense", { state: item });
-                          }}
+                          onClick={() => navigate("/admin/update-expense", { state: item })}
                           className="p-2 rounded-full bg-green-100 text-green-600 hover:bg-green-600 hover:text-white transition"
                           title="Edit"
                         >

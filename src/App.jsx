@@ -23,6 +23,7 @@ function App() {
             <Route path="/test" element={<TestPage />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
+            
             {/*<Route path="/product" element={<ProductPage/>}/>*/}
         </Routes>
       </div>

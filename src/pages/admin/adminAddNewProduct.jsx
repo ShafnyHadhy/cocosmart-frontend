@@ -23,6 +23,7 @@ export default function AdminAddNewProduct() {
   function validate() {
     const newErrors = {};
     if (!productID) newErrors.productID = "Product ID is required";
+    if (!/^[A-Z]+\d+$/.test(productID)) newErrors.productID = "Product ID must be letters followed by numbers (e.g., ABC123)";
     if (!name) newErrors.name = "Product name is required";
     if (!description) newErrors.description = "Description is required";
     if (images.length === 0) newErrors.images = "At least one image is required";
@@ -111,7 +112,11 @@ export default function AdminAddNewProduct() {
               </label>
               <input
                 value={productID}
-                onChange={(e) => setProductId(e.target.value)}
+                onChange={(e) => {
+                  // Allow only letters and numbers
+                  const formattedValue = e.target.value.replace(/[^a-zA-Z0-9]/g, "");
+                  setProductId(formattedValue.toUpperCase()); // force uppercase
+                }}
                 placeholder="Unique Product ID"
                 className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
               />
@@ -127,6 +132,11 @@ export default function AdminAddNewProduct() {
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                onKeyPress={(e) => {
+                  if (!/^[a-zA-Z ]$/.test(e.key)) {
+                    e.preventDefault(); // Block invalid character before typing
+                  }
+                }}
                 placeholder="Product Name"
                 className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
               />
@@ -142,6 +152,11 @@ export default function AdminAddNewProduct() {
               <input
                 value={altNames}
                 onChange={(e) => setAltnames(e.target.value)}
+                onKeyPress={(e) => {
+                  if (!/^[a-zA-Z ]$/.test(e.key)) {
+                    e.preventDefault(); // Block invalid character before typing
+                  }
+                }}
                 placeholder="Comma-separated values"
                 className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
               />
@@ -189,7 +204,14 @@ export default function AdminAddNewProduct() {
                 <input
                   type="number"
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  min={0} // only allow positive numbers
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || Number(val) >= 0) setPrice(val); // prevent negative input
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "-" || e.key === "e") e.preventDefault(); // block typing '-' and 'e'
+                  }}
                   placeholder="Price"
                   className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
                 />
@@ -205,7 +227,14 @@ export default function AdminAddNewProduct() {
                 <input
                   type="number"
                   value={labelledPrice}
-                  onChange={(e) => setLabelledPrice(e.target.value)}
+                  min={0} // only allow positive numbers
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || Number(val) >= 0) setLabelledPrice(val)
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "-" || e.key === "e") e.preventDefault(); // block typing '-' and 'e'
+                  }}
                   placeholder="Labelled Price"
                   className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
                 />
@@ -243,7 +272,14 @@ export default function AdminAddNewProduct() {
               <input
                 type="number"
                 value={stock}
-                onChange={(e) => setStock(e.target.value)}
+                min={0} // only allow positive numbers
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || Number(val) >= 0) setStock(val)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "-" || e.key === "e") e.preventDefault(); // block typing '-' and 'e'
+                }}
                 placeholder="Stock Quantity"
                 className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
               />
@@ -259,7 +295,14 @@ export default function AdminAddNewProduct() {
               <input
                 type="number"
                 value={cost}
-                onChange={(e) => setCost(e.target.value)}
+                min={0} // only allow positive numbers
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || Number(val) >= 0) setCost(val)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "-" || e.key === "e") e.preventDefault(); // block typing '-' and 'e'
+                }}
                 placeholder="Unit Cost"
                 className="w-full p-3 border rounded-xl border-gray-300 focus:ring-2 focus:ring-accent focus:outline-none"
               />

@@ -16,10 +16,10 @@ export default function HomeBody() {
         className="flex min-h-[480px] flex-col items-center justify-center rounded-xl gap-6 bg-cover bg-center bg-no-repeat p-6"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.5)), url('/cocbg.jpg')",
+            "linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.7)), url('/cocbg.jpg')",
         }}
       >
-        <h1 className="text-4xl md:text-5xl font-black text-white text-center drop-shadow-lg">
+        <h1 className="text-4xl md:text-5xl font-black text-white text-center drop-shadow-lg font-serif">
           Embrace the Essence of Coconut
         </h1>
         <h2 className="text-base md:text-lg text-white text-center max-w-2xl opacity-90">
@@ -29,13 +29,13 @@ export default function HomeBody() {
         <div className="flex gap-4">
           <Link
             to="product"
-            className="mt-4 rounded-full bg-primary px-6 py-2 font-bold text-[#122118] hover:scale-105 transition"
+            className="mt-4 rounded-full bg-primary px-6 py-2 font-bold font-sans text-[#122118] hover:scale-105 transition"
           >
             Shop Now
           </Link>
           <Link
             to="about"
-            className="mt-4 rounded-full border border-white px-6 py-2 font-bold text-white hover:bg-white hover:text-[#122118] transition"
+            className="mt-4 rounded-full border border-white px-6 py-2 font-bold font-sans text-white hover:bg-white hover:text-[#122118] transition"
           >
             Learn More
           </Link>

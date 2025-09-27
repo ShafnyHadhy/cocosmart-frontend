@@ -66,10 +66,7 @@ return (
                             { name: "Diana", rating: 4, comment: "The packaging is neat and eco-friendly. Would recommend." },
                             { name: "Ethan", rating: 5, comment: "Tastes just like fresh coconuts from the beach." },
                             { name: "Farah", rating: 3, comment: "Good flavor, but I prefer it chilled for better taste." },
-                            { name: "Gihan", rating: 5, comment: "I use it daily after my runs, feels so energizing!" },
-                            { name: "Hana", rating: 4, comment: "Nice product, though I wish it came in larger bottles." },
-                            { name: "Isuru", rating: 5, comment: "Best coconut oil I've tried—smells amazing and pure." }
-
+                            { name: "Gihan", rating: 5, comment: "I use it daily after my runs, feels so energizing!" }
                         ].map((review, index) => (
                             <div key={index} className="rounded-md border border-gray-300 p-4" >
                                 <div className="flex items-center justify-between">
@@ -104,10 +101,10 @@ return (
                     {product.labelledPrice > product.price ? (
                     <div className="flex items-baseline gap-3 mb-6">
                         <p className="text-2xl font-bold text-green-600">
-                        LKR {product.price.toFixed(2)}
+                        LKR {product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                         <p className="text-md font-medium text-gray-400 line-through">
-                        LKR {product.labelledPrice.toFixed(2)}
+                        LKR {product.labelledPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                         <span className="ml-auto text-sm font-bold text-red-600 bg-red-100 px-2 py-1 rounded-full">
                         {Math.round(
@@ -117,7 +114,7 @@ return (
                     </div>
                     ) : (
                     <p className="text-2xl font-bold text-green-600 mb-6">
-                        LKR {product.price.toFixed(2)}
+                        LKR {product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                     )}
 
@@ -161,10 +158,10 @@ return (
                                 </span>
                                 <span className="col-span-2">100% Pure Coconut Water</span>
                             </div>
-                            <div className="grid grid-cols-3 gap-4 p-4">
+                            {/* <div className="grid grid-cols-3 gap-4 p-4">
                                 <span className="font-medium text-[var(--tertiary-color)]">Volume</span>
                                 <span className="col-span-2">500ml</span>
-                            </div>
+                            </div> */}
                             <div className="grid grid-cols-3 gap-4 p-4">
                                 <span className="font-medium text-[var(--tertiary-color)]">
                                 Packaging
@@ -230,7 +227,7 @@ return (
                     {[
                     { name: "Coconut Milk", price: "LKR 500.00", img: "/img1.1.png" },
                     { name: "Coconut Oil", price: "LKR 700.00", img: "/img1.2.png" },
-                    { name: "Dried Coconut", price: "LKR 1200.00", img: "/img1.3.png" },
+                    { name: "Dried Coconut", price: "LKR 1,200.00", img: "/img1.3.png" },
                     { name: "Coconut Sugar", price: "LKR 800.00", img: "/img1.4.png" },
                     ].map((product, index) => (
                     <div
