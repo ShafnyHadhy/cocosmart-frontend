@@ -174,7 +174,7 @@ export default function UserProfile() {
             {/* Logout Button */}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-2 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700 transition-all"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-red-600 text-white hover:bg-red-700 hover:scale-110 transition"
               title="Logout"
             >
               <FaPowerOff className="text-xl" /> {/* bigger icon */}
@@ -183,7 +183,7 @@ export default function UserProfile() {
             {/* Deactivate / Delete Account Button */}
             <button
               onClick={handleDeleteAccount}
-              className="flex items-center gap-2 px-2 py-2 rounded-xl bg-gray-400 text-black hover:bg-gray-700 transition-all"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-400 text-black hover:bg-gray-700 hover:scale-110 transition"
               title="Deactivate Account"
             >
               <RiDeleteBin5Line className="text-xl" />{" "}

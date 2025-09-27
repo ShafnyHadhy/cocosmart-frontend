@@ -135,23 +135,25 @@ export default function VehiclePage() {
 
   return (
     <div className="h-full w-full p-6 bg-sec-2">
-      {/* Add Vehicle Button */}
-      <Link
-        to="/admin/add-vehicle"
-        className="fixed right-[40px] bottom-[40px] text-6xl text-accent drop-shadow-lg hover:scale-110 transition-transform"
-      >
-        <CiCirclePlus />
-      </Link>
-
-      {/* Top Search Button */}
-      <div className="w-full flex justify-end gap-2 mb-2">
+      {/* Top Action Buttons (Search + Add Vehicle) */}
+      <div className="w-full flex justify-end gap-3 mb-4">
+        {/* Search Button */}
         <button
-          className="flex items-center gap-1 px-1 py-1 bg-gray-400 text-black rounded hover:bg-gray-600"
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 text-black hover:bg-gray-600 hover:scale-110 transition"
           onClick={() => setShowSearchFields(!showSearchFields)}
           title="Search Vehicle"
         >
           <FaSearch size={20} />
         </button>
+
+        {/* Add Vehicle Button */}
+        <Link
+          to="/admin/add-vehicle"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-accent text-white shadow-lg hover:scale-110 transition-transform"
+          title="Add Vehicle"
+        >
+          <CiCirclePlus size={24} />
+        </Link>
       </div>
 
       {/* Search Fields */}

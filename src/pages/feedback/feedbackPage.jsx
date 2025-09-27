@@ -223,7 +223,7 @@ const FeedbackPage = () => {
 
       <div className="w-full flex justify-end gap-2 mb-2">
         <button
-          className="flex items-center gap-1 px-1 py-1 bg-gray-400 text-black rounded hover:bg-gray-600"
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 text-black hover:bg-gray-600 hover:scale-110 transition"
           onClick={() => setShowSearchFields(!showSearchFields)}
           title="Search Feedback"
         >
@@ -232,7 +232,7 @@ const FeedbackPage = () => {
 
         {/* PDF icon clickable */}
         <button
-          className="flex items-center gap-1 px-1 py-1 bg-yellow-500 text-black rounded hover:bg-yellow-600"
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-500 text-black hover:bg-yellow-600 hover:scale-110 transition"
           title="Generate Report"
           onClick={generateFeedbackReport}
         >

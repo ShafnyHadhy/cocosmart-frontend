@@ -284,23 +284,32 @@ export default function DeliveryPage() {
 
   return (
     <div className="h-full w-full p-6 bg-sec-2">
-      <div className="w-full flex justify-end gap-2 mb-2">
+      <div className="w-full flex justify-end gap-3 mb-4">
         {/* Search Button */}
         <button
-          className="flex items-center gap-1 px-1 py-1 bg-gray-400 text-black rounded hover:bg-gray-600"
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 text-black hover:bg-gray-600 hover:scale-110 transition"
           onClick={() => setShowSearchFields(!showSearchFields)}
           title="Search Delivery"
         >
           <FaSearch size={20} />
         </button>
 
-        {/* PDF Button styled like Search */}
+        {/* PDF Button */}
         <button
-          className="flex items-center gap-1 px-1 py-1 bg-yellow-500 text-black rounded hover:bg-yellow-600"
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-500 text-black hover:bg-yellow-600 hover:scale-110 transition"
           title="Generate PDF"
           onClick={generateDeliveryReport}
         >
           <FaRegFilePdf size={20} />
+        </button>
+
+        {/* Add Delivery Button */}
+        <button
+          onClick={() => navigate("/admin/deliveries/add")}
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-accent text-white shadow-lg hover:scale-110 transition-transform"
+          title="Add Delivery"
+        >
+          <CiCirclePlus size={24} />
         </button>
       </div>
 
@@ -565,13 +574,6 @@ export default function DeliveryPage() {
           </tbody>
         </table>
       </div>
-
-      <button
-        onClick={() => navigate("/admin/deliveries/add")}
-        className="fixed right-[40px] bottom-[40px] text-6xl text-accent drop-shadow-lg hover:scale-110 transition-transform"
-      >
-        <CiCirclePlus />
-      </button>
     </div>
   );
 }

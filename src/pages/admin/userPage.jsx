@@ -102,9 +102,11 @@ const UserPage = () => {
 
   return (
     <div className="h-full w-full p-6 bg-sec-2">
-      <div className="w-full flex justify-end gap-2 mb-2">
+      {/* Top Action Buttons (Search + Add User) */}
+      <div className="w-full flex justify-end gap-3 mb-4">
+        {/* Search Button */}
         <button
-          className="flex items-center gap-1 px-1 py-1 bg-gray-400 text-black rounded hover:bg-gray-600"
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 text-black hover:bg-gray-600 hover:scale-110 transition"
           onClick={() => setShowSearchFields(!showSearchFields)}
           title="Search Users"
         >

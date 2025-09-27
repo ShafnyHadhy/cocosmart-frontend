@@ -157,23 +157,28 @@ const DriverPage = () => {
 
   return (
     <div className="h-full w-full p-6 bg-sec-2">
-      {/* Add Driver Button */}
-      <Link
-        to="/admin/add-driver"
-        className="fixed right-[40px] bottom-[40px] text-6xl text-accent drop-shadow-lg hover:scale-110 transition-transform"
-      >
-        <CiCirclePlus />
-      </Link>
+      {/* Header with Search + Add side by side */}
+      <div className="w-full flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold text-gray-800">Drivers</h1>
+        <div className="flex items-center gap-3">
+          {/* Search Button */}
+          <button
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 text-black hover:bg-gray-600 hover:scale-110 transition"
+            onClick={() => setShowSearchFields(!showSearchFields)}
+            title="Search Driver"
+          >
+            <FaSearch size={20} />
+          </button>
 
-      {/* Top Search Button */}
-      <div className="w-full flex justify-end gap-2 mb-2">
-        <button
-          className="flex items-center gap-1 px-1 py-1 bg-gray-400 text-black rounded hover:bg-gray-600"
-          onClick={() => setShowSearchFields(!showSearchFields)}
-          title="Search Driver"
-        >
-          <FaSearch size={20} />
-        </button>
+          {/* Add Driver Button */}
+          <Link
+            to="/admin/add-driver"
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-accent text-white shadow-lg hover:scale-110 transition-transform"
+            title="Add Driver"
+          >
+            <CiCirclePlus size={24} />
+          </Link>
+        </div>
       </div>
 
       {/* Search fields */}
