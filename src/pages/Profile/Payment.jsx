@@ -103,7 +103,7 @@ export default function Payment({
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="text-green-600 hover:text-green-800 transition-colors duration-200"
+            className="text-[#5c4033] hover:text-black transition-colors duration-200"
             title="Edit Payment" // tooltip text
           >
             <FaEdit size={24} /> {/* edit icon */}

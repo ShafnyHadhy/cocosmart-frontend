@@ -92,7 +92,7 @@ export default function Orders({ user, orders, setOrders }) {
                   <td className="py-3 px-4 flex justify-center gap-2 text-lg">
                     <button
                       onClick={() => navigate(`/orders/${o.orderID}`)}
-                      className="text-blue-600 hover:text-blue-800 transition-colors"
+                      className="text-[#5c4033] hover:text-black transition-colors"
                       title="View Orders"
                     >
                       <FaRegEye size={20} />

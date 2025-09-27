@@ -81,7 +81,7 @@ export default function Address({
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="text-green-600 hover:text-green-800 transition-colors duration-200"
+            className="text-[#5c4033] hover:text-black transition-colors duration-200"
             title="Edit Address" // tooltip
           >
             <FaEdit size={24} />
