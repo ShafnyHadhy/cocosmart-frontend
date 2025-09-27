@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { FaStar, FaRegEdit, FaSearch, FaFilePdf } from "react-icons/fa";
+import { FaStar, FaRegEdit, FaSearch, FaRegFilePdf } from "react-icons/fa";
 import { TfiTrash } from "react-icons/tfi";
+import { LuReplyAll } from "react-icons/lu";
+
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
@@ -218,21 +220,25 @@ const FeedbackPage = () => {
   return (
     <div className="h-full w-full p-6 bg-sec-2 min-h-screen">
       {/* Top buttons */}
+
       <div className="w-full flex justify-end gap-2 mb-2">
         <button
-          className="flex items-center gap-1 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="flex items-center gap-1 px-1 py-1 bg-gray-400 text-black rounded hover:bg-gray-600"
           onClick={() => setShowSearchFields(!showSearchFields)}
+          title="Search Feedback"
         >
-          <FaSearch /> Search
+          <FaSearch size={20} />
         </button>
+
+        {/* PDF icon clickable */}
         <button
-          className="flex items-center gap-1 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+          className="flex items-center gap-1 px-1 py-1 bg-yellow-500 text-black rounded hover:bg-yellow-600"
+          title="Generate Report"
           onClick={generateFeedbackReport}
         >
-          <FaFilePdf /> PDF
+          <FaRegFilePdf size={20} />
         </button>
       </div>
-
       {/* Search fields */}
       {showSearchFields && (
         <div className="flex gap-2 mb-4">
@@ -257,7 +263,6 @@ const FeedbackPage = () => {
           </select>
         </div>
       )}
-
       <div className="overflow-x-auto shadow-lg rounded-2xl bg-white">
         <table className="w-full border-collapse text-sm">
           <thead className="bg-accent text-white text-end">
@@ -322,12 +327,12 @@ const FeedbackPage = () => {
                           {f.adminReply || "No reply yet"}
                         </span>
                         {!f.adminReply && (
-                          <button
+                          <LuReplyAll
+                            title="Reply Feedback"
+                            className="cursor-pointer text-blue-600 hover:text-blue-800"
+                            size={22} // makes it a bit bigger
                             onClick={() => startReply(f._id)}
-                            className="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600 w-fit"
-                          >
-                            Reply
-                          </button>
+                          />
                         )}
                       </div>
                     )}
@@ -357,10 +362,12 @@ const FeedbackPage = () => {
                       ) : (
                         <>
                           <FaRegEdit
+                            title="Edit Reply"
                             className="cursor-pointer hover:text-yellow-500 transition-colors"
                             onClick={() => startReply(f._id, f.adminReply)}
                           />
                           <TfiTrash
+                            title="Delete Feedback"
                             className="cursor-pointer hover:text-red-600 transition-colors"
                             onClick={() => confirmDelete(f._id)}
                           />

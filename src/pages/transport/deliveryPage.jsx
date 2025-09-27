@@ -3,7 +3,9 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { CiCirclePlus } from "react-icons/ci";
-import { FaRegEdit, FaSearch, FaFilePdf } from "react-icons/fa";
+import { FaRegEdit, FaSearch, FaRegFilePdf } from "react-icons/fa";
+import { IoCheckmarkDoneSharp } from "react-icons/io5";
+
 import { TfiTrash } from "react-icons/tfi";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -283,17 +285,22 @@ export default function DeliveryPage() {
   return (
     <div className="h-full w-full p-6 bg-sec-2">
       <div className="w-full flex justify-end gap-2 mb-2">
+        {/* Search Button */}
         <button
-          className="flex items-center gap-1 px-3 py-1 bg-blue-800 text-white rounded hover:bg-blue-600"
+          className="flex items-center gap-1 px-1 py-1 bg-gray-400 text-black rounded hover:bg-gray-600"
           onClick={() => setShowSearchFields(!showSearchFields)}
+          title="Search Delivery"
         >
-          <FaSearch /> Search
+          <FaSearch size={20} />
         </button>
+
+        {/* PDF Button styled like Search */}
         <button
-          className="flex items-center gap-1 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+          className="flex items-center gap-1 px-1 py-1 bg-yellow-500 text-black rounded hover:bg-yellow-600"
+          title="Generate PDF"
           onClick={generateDeliveryReport}
         >
-          <FaFilePdf /> PDF
+          <FaRegFilePdf size={20} />
         </button>
       </div>
 
@@ -533,20 +540,21 @@ export default function DeliveryPage() {
                     ) : (
                       <>
                         <FaRegEdit
+                          title="Edit Delivery"
                           className="cursor-pointer hover:text-green-600 transition-colors text-xl"
                           onClick={() => handleEditClick(d)}
                         />
                         <TfiTrash
+                          title="Delete Delivery"
                           className="cursor-pointer hover:text-red-600 transition-colors text-xl"
                           onClick={() => confirmDelete(d._id)}
                         />
                         {d.deliveryStatus !== "completed" && (
-                          <button
+                          <IoCheckmarkDoneSharp
+                            className="text-green-500 text-2xl cursor-pointer hover:text-green-700 transition-colors"
+                            title="Mark Delivered"
                             onClick={() => handleMarkDelivery(d._id)}
-                            className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-                          >
-                            Mark Delivered
-                          </button>
+                          />
                         )}
                       </>
                     )}

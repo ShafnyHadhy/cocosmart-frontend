@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { FaRegEye } from "react-icons/fa";
 
 export default function Orders({ user, orders, setOrders }) {
   const navigate = useNavigate();
@@ -90,10 +91,11 @@ export default function Orders({ user, orders, setOrders }) {
                   <td className="py-3 px-4">Rs. {o.total?.toFixed(2)}</td>
                   <td className="py-3 px-4 flex justify-center gap-2 text-lg">
                     <button
-                      onClick={() => navigate(`/orders/${o.orderID}`)} // <-- updated route
-                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-xs"
+                      onClick={() => navigate(`/orders/${o.orderID}`)}
+                      className="text-blue-600 hover:text-blue-800 transition-colors"
+                      title="View Orders"
                     >
-                      View
+                      <FaRegEye size={20} />
                     </button>
                   </td>
                 </tr>

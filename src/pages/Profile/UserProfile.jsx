@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { FaPowerOff } from "react-icons/fa";
+import { RiDeleteBin5Line } from "react-icons/ri";
 
 // Import subcomponents
 import Personal from "./Personal";
@@ -38,7 +40,7 @@ export default function UserProfile() {
           return;
         }
 
-        // ✅ Fetch user by email
+        // Fetch user by email
         const res = await axios.get(
           `http://localhost:5000/api/users/email/${email}`,
           getConfig()
@@ -168,19 +170,24 @@ export default function UserProfile() {
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex space-x-4">
+            {/* Logout Button */}
             <button
               onClick={handleLogout}
-              className="px-4 py-2 rounded-xl bg-[var(--green-calm)] text-white"
+              className="flex items-center gap-2 px-2 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700 transition-all"
+              title="Logout"
             >
-              Logout
+              <FaPowerOff className="text-xl" /> {/* bigger icon */}
             </button>
+
+            {/* Deactivate / Delete Account Button */}
             <button
               onClick={handleDeleteAccount}
-              className="px-4 py-2 rounded-xl bg-[var(--accent-red)] text-white"
+              className="flex items-center gap-2 px-2 py-2 rounded-xl bg-gray-400 text-black hover:bg-gray-700 transition-all"
+              title="Deactivate Account"
             >
-              Delete Account
+              <RiDeleteBin5Line className="text-xl" />{" "}
+              {/* same size as logout icon */}
             </button>
           </div>
         </div>

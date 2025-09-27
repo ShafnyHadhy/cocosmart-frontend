@@ -1,5 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { FaEdit } from "react-icons/fa";
 
 export default function Payment({
   user,
@@ -95,26 +96,30 @@ export default function Payment({
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Payment Details</h2>
+        <h2 className="text-2xl font-bold text-gray-800">
+          Personal Information
+        </h2>
+
         {!isEditing ? (
           <button
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-lg font-medium"
             onClick={() => setIsEditing(true)}
+            className="text-green-600 hover:text-green-800 transition-colors duration-200"
+            title="Edit Payment" // tooltip text
           >
-            Edit
+            <FaEdit size={24} /> {/* edit icon */}
           </button>
         ) : (
           <div className="flex space-x-3">
             <button
-              className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2.5 rounded-lg font-medium"
               onClick={handleCancel}
+              className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2.5 rounded-lg font-medium transition-colors duration-200"
             >
               Cancel
             </button>
             <button
               disabled={saving}
-              className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-6 py-2.5 rounded-lg font-medium"
-              onClick={validateAndSave}
+              onClick={saveChanges}
+              className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-6 py-2.5 rounded-lg font-medium transition-colors duration-200"
             >
               {saving ? "Saving..." : "Save Changes"}
             </button>

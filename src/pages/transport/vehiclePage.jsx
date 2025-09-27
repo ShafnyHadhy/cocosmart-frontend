@@ -146,10 +146,11 @@ export default function VehiclePage() {
       {/* Top Search Button */}
       <div className="w-full flex justify-end gap-2 mb-2">
         <button
-          className="flex items-center gap-1 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="flex items-center gap-1 px-1 py-1 bg-gray-400 text-black rounded hover:bg-gray-600"
           onClick={() => setShowSearchFields(!showSearchFields)}
+          title="Search Vehicle"
         >
-          <FaSearch /> Search
+          <FaSearch size={20} />
         </button>
       </div>
 
@@ -334,10 +335,12 @@ export default function VehiclePage() {
                     ) : (
                       <>
                         <FaRegEdit
+                          title="Edit Vehicle"
                           className="cursor-pointer hover:text-green-600 transition-colors"
                           onClick={() => handleEditClick(v)}
                         />
                         <TfiTrash
+                          title="Delete Vehicle"
                           className="cursor-pointer hover:text-red-600 transition-colors"
                           onClick={() => confirmDelete(v._id)}
                         />

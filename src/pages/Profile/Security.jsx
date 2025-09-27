@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { FaEdit } from "react-icons/fa";
 
 export default function Security({ user }) {
   const [step, setStep] = useState(1); // 1 = verify old password, 2 = set new password

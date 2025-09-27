@@ -1,5 +1,6 @@
 import axios from "axios";
 import toast from "react-hot-toast";
+import { FaEdit } from "react-icons/fa";
 
 export default function Address({
   user,
@@ -80,9 +81,10 @@ export default function Address({
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors"
+            className="text-green-600 hover:text-green-800 transition-colors duration-200"
+            title="Edit Address" // tooltip
           >
-            Edit Address
+            <FaEdit size={24} />
           </button>
         ) : (
           <div className="flex space-x-3">

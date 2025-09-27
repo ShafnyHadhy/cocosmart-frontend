@@ -168,10 +168,11 @@ const DriverPage = () => {
       {/* Top Search Button */}
       <div className="w-full flex justify-end gap-2 mb-2">
         <button
-          className="flex items-center gap-1 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="flex items-center gap-1 px-1 py-1 bg-gray-400 text-black rounded hover:bg-gray-600"
           onClick={() => setShowSearchFields(!showSearchFields)}
+          title="Search Driver"
         >
-          <FaSearch /> Search
+          <FaSearch size={20} />
         </button>
       </div>
 
@@ -369,10 +370,12 @@ const DriverPage = () => {
                     ) : (
                       <>
                         <FaRegEdit
+                          title="Edit Driver"
                           className="cursor-pointer hover:text-green-600 transition-colors"
                           onClick={() => handleEditClick(driver)}
                         />
                         <TfiTrash
+                          title="Delete Driver"
                           className="cursor-pointer hover:text-red-600 transition-colors"
                           onClick={() => confirmDelete(driver._id)}
                         />

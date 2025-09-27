@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { FaEdit } from "react-icons/fa";
 
 export default function Personal({
   user,
@@ -133,12 +134,14 @@ export default function Personal({
         <h2 className="text-2xl font-bold text-gray-800">
           Personal Information
         </h2>
+
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors duration-200"
+            className="text-green-600 hover:text-green-800 transition-colors duration-200"
+            title="Edit Information" // tooltip text
           >
-            Edit Information
+            <FaEdit size={24} /> {/* edit icon */}
           </button>
         ) : (
           <div className="flex space-x-3">
@@ -158,7 +161,6 @@ export default function Personal({
           </div>
         )}
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* First Name */}
         <div className="flex flex-col">
