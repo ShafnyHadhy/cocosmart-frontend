@@ -102,9 +102,12 @@ const FeedbackPage = () => {
     return matchText && matchRating;
   });
 
-  //Generate pdf
+  // Generate PDF
   const generateFeedbackReport = () => {
     const doc = new jsPDF();
+    const logoImg = new Image();
+    logoImg.src = "/clogo.png";
+
     const now = new Date();
     const reportId = `RPT-${now.getFullYear()}${(now.getMonth() + 1)
       .toString()
@@ -118,47 +121,51 @@ const FeedbackPage = () => {
 
     // ===== Header =====
     doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
     doc.text("COCOSMART", 105, 20, { align: "center" });
-    doc.setFontSize(14);
-    doc.text("FEEDBACK REPORT", 105, 28, { align: "center" });
+
     doc.setFontSize(10);
-    doc.text("Comprehensive User Feedback Analysis", 105, 36, {
+    doc.setFont("helvetica", "normal");
+    doc.text("Comprehensive User Feedback Analysis", 105, 38, {
       align: "center",
-    });
+    }); // moved down
+
+    doc.text("123/C, Main Street, Colombo 01, Sri Lanka", 105, 46, {
+      align: "center",
+    }); // moved down
+
+    // Generated on / Report ID below address
+    doc.setFontSize(10);
     doc.text(
-      `Generated on: ${now.toLocaleString()}    |    Report ID: ${reportId}`,
+      `Generated on: ${now.toLocaleString()} | Report ID: ${reportId}`,
       105,
-      42,
+      54, // moved down
       { align: "center" }
     );
 
-    // ===== Summary =====
-    // ===== Summary =====
-    const ratingCounts = {};
-    filteredFeedbacks.forEach((f) => {
-      ratingCounts[f.rating] = (ratingCounts[f.rating] || 0) + 1;
-    });
-    const totalFeedbacks = filteredFeedbacks.length;
-
-    doc.setFontSize(11);
+    // ===== Add FEEDBACK REPORT heading again before table =====
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 0, 0);
-    doc.text(`Total Feedbacks: ${totalFeedbacks}`, 14, 50);
+    doc.text("FEEDBACK REPORT", 105, 62, { align: "center" }); // startY for tables below this
 
-    for (let r = 5; r >= 1; r--) {
-      doc.text(`${r} Stars  : ${ratingCounts[r] || 0}`, 14, 56 + (5 - r) * 6);
-    }
+    // ===== Filter feedbacks by rating =====
+    const ratings = [5, 4, 3, 2, 1];
+    let startY = 70; // space below repeated heading
 
-    // ===== Tables by Ratings =====
-    let startY = 90;
-    for (let r = 5; r >= 1; r--) {
-      const feedbacksByRating = filteredFeedbacks.filter((f) => f.rating === r);
-      if (feedbacksByRating.length === 0) continue;
+    ratings.forEach((rating) => {
+      const feedbacksByRating = feedbacks.filter((f) => f.rating === rating);
+      if (feedbacksByRating.length === 0) return;
 
-      // Table heading above table (centered)
+      // Table heading
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
       doc.setTextColor(41, 128, 185);
-      doc.text(` ${r} Star Feedbacks`, 105, startY - 6, { align: "center" });
+      doc.text(`${rating} Star Feedbacks`, 105, startY, { align: "center" });
 
+      startY += 6; // small gap before table
+
+      // Prepare table data
       const tableColumn = ["User", "Feedback", "Rating", "Reply"];
       const tableRows = feedbacksByRating.map((f) => [
         f.username,
@@ -167,20 +174,40 @@ const FeedbackPage = () => {
         f.adminReply || "No reply yet",
       ]);
 
+      // Add table
       doc.autoTable({
         head: [tableColumn],
         body: tableRows,
         startY,
-        styles: { fontSize: 9 },
-        headStyles: { fillColor: [41, 128, 185], textColor: 255 },
         theme: "grid",
+        styles: { fontSize: 9, lineWidth: 0.1, lineColor: [0, 0, 0] },
+        headStyles: {
+          fillColor: [42, 85, 64],
+          textColor: 255,
+          halign: "center",
+        },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
         margin: { top: 5, bottom: 5 },
       });
 
-      // Add space between tables
-      startY = doc.lastAutoTable.finalY + 15;
+      startY = doc.lastAutoTable.finalY + 15; // space between tables
+    });
+
+    // ===== Footer =====
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text("Prepared by: Admin | Approved by: Manager", 15, 290, {
+        align: "left",
+      });
+      doc.text(`Report ID: ${reportId} | Page ${i} of ${pageCount}`, 200, 290, {
+        align: "right",
+      });
     }
 
+    // Save PDF
     doc.save(
       `feedback_report_${now.getFullYear()}${
         now.getMonth() + 1
