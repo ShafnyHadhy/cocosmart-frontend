@@ -90,8 +90,7 @@ export default function Orders({ user, orders, setOrders }) {
                   <td className="py-3 px-4">Rs. {o.total?.toFixed(2)}</td>
                   <td className="py-3 px-4 flex justify-center gap-2 text-lg">
                     <button
-                      onClick={() => navigate(`/admin/orders/${o.orderID}`)}
-                      // Navigate to the same view route as AdminOrdersPage
+                      onClick={() => navigate(`/orders/${o.orderID}`)} // <-- updated route
                       className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-xs"
                     >
                       View

@@ -11,7 +11,7 @@ export default function Personal({
   setIsEditing,
 }) {
   const [saving, setSaving] = useState(false);
-  const [emailError, setEmailError] = useState("");
+  const [errors, setErrors] = useState({});
 
   // Config helper
   const getConfig = (extraHeaders = {}) => {
@@ -22,104 +22,96 @@ export default function Personal({
     return { headers };
   };
 
-  // Email live validation
+  // Validation
+  const handleFirstnameChange = (val) => {
+    const filteredVal = val.replace(/[^a-zA-Z\s]/g, "");
+    setFormData((prev) => ({ ...prev, firstname: filteredVal }));
+    setErrors((prev) => ({
+      ...prev,
+      firstname:
+        val && !/^[a-zA-Z\s]+$/.test(val)
+          ? "Only letters and spaces allowed"
+          : "",
+    }));
+  };
+
+  const handleLastnameChange = (val) => {
+    const filteredVal = val.replace(/[^a-zA-Z\s]/g, "");
+    setFormData((prev) => ({ ...prev, lastname: filteredVal }));
+    setErrors((prev) => ({
+      ...prev,
+      lastname:
+        val && !/^[a-zA-Z\s]+$/.test(val)
+          ? "Only letters and spaces allowed"
+          : "",
+    }));
+  };
+
   const handleEmailChange = (val) => {
     const lowerVal = val.toLowerCase();
     setFormData((prev) => ({ ...prev, email: lowerVal }));
-
-    if (lowerVal && !/^[a-z]/.test(lowerVal)) {
-      setEmailError("Email must start with a lowercase letter");
+    if (!lowerVal) {
+      setErrors((prev) => ({ ...prev, email: "Email is required" }));
+    } else if (!/^[a-z]/.test(lowerVal)) {
+      setErrors((prev) => ({
+        ...prev,
+        email: "Email must start with a lowercase letter",
+      }));
+    } else if (
+      !/^[a-z][a-z0-9._%+-]*@[a-z0-9-]+(\.[a-z]{2,})+$/.test(lowerVal)
+    ) {
+      setErrors((prev) => ({
+        ...prev,
+        email: "Enter a valid email (e.g., user@example.com)",
+      }));
     } else {
-      setEmailError("");
+      setErrors((prev) => ({ ...prev, email: "" }));
     }
-  };
-
-  // Final email validation
-  const validateEmailFinal = (email) => {
-    if (!email) return "Email is required";
-
-    if (!/^[a-z]/.test(email))
-      return "Email must start with a lowercase letter";
-
-    const emailRegex = /^[a-z][a-z0-9._%+-]*@[a-z0-9-]+(\.[a-z]{2,})+$/;
-    if (!emailRegex.test(email))
-      return "Please enter a valid email (e.g., user@example.com)";
-
-    return "";
   };
 
   // Input handler
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    if (name === "firstname" || name === "lastname") {
-      // Allow only letters & spaces
-      if (/^[a-zA-Z\s]*$/.test(value)) {
-        setFormData((prev) => ({ ...prev, [name]: value }));
-      }
-    } else if (name === "phone") {
-      // Allow only digits, max 10 characters
+    if (name === "firstname") handleFirstnameChange(value);
+    else if (name === "lastname") handleLastnameChange(value);
+    else if (name === "email") handleEmailChange(value);
+    else if (name === "phone") {
       let digits = value.replace(/\D/g, "").slice(0, 10);
-
-      // Ensure it starts with 0
-      if (!digits.startsWith("0") && digits.length > 0) {
+      if (!digits.startsWith("0") && digits.length > 0)
         digits = "0" + digits.slice(1);
-      }
-
       setFormData((prev) => ({ ...prev, phone: digits }));
-    } else if (name === "email") {
-      handleEmailChange(value);
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  // Save changes with validations
+  // Save changes
   const saveChanges = async () => {
-    if (!user || !user._id) {
-      toast.error("No user to update");
-      return;
+    if (!user || !user._id) return toast.error("No user to update");
+
+    if (errors.firstname || errors.lastname || errors.email) {
+      return toast.error("Please fix validation errors before saving");
+    }
+    if (!formData.firstname || !formData.lastname || !formData.email) {
+      return toast.error("First name, last name, and email are required");
+    }
+    if (formData.phone && !/^0\d{9}$/.test(formData.phone)) {
+      return toast.error("Phone must start with 0 and be 10 digits");
     }
 
     try {
       setSaving(true);
-
-      const { firstname, lastname, email, phone } = formData;
-
-      // Name validation
-      if (!/^[a-zA-Z\s]{2,50}$/.test(firstname || ""))
-        return toast.error(
-          "First name must contain only letters and spaces (2–50 chars)"
-        );
-      if (!/^[a-zA-Z\s]{2,50}$/.test(lastname || ""))
-        return toast.error(
-          "Last name must contain only letters and spaces (2–50 chars)"
-        );
-
-      // Email validation
-      const emailValidationMsg = validateEmailFinal(email);
-      if (emailValidationMsg) return toast.error(emailValidationMsg);
-
-      // Phone validation
-      if (phone && !/^0\d{9}$/.test(phone)) {
-        return toast.error("Phone must start with 0 and be 10 digits");
-      }
-
-      // Save to backend
       const res = await axios.put(
         `http://localhost:5000/api/users/${user._id}`,
         formData,
         getConfig()
       );
-
       setUser(res.data.user);
       setFormData({ ...res.data.user });
       setIsEditing(false);
       toast.success("Profile updated successfully!");
     } catch (err) {
-      console.error("Save changes error:", err);
-      const errorMessage = err.response?.data?.message || "Update failed";
-      toast.error(errorMessage);
+      toast.error(err.response?.data?.message || "Update failed");
     } finally {
       setSaving(false);
     }
@@ -128,6 +120,7 @@ export default function Personal({
   const handleCancel = () => {
     if (user) setFormData({ ...user });
     setIsEditing(false);
+    setErrors({});
   };
 
   useEffect(() => {
@@ -184,6 +177,9 @@ export default function Personal({
             placeholder="Enter your first name"
             className="border border-gray-300 rounded-lg px-4 py-3 disabled:bg-gray-100"
           />
+          {errors.firstname && (
+            <p className="text-red-500 text-xs mt-1">{errors.firstname}</p>
+          )}
         </div>
 
         {/* Last Name */}
@@ -203,6 +199,9 @@ export default function Personal({
             placeholder="Enter your last name"
             className="border border-gray-300 rounded-lg px-4 py-3 disabled:bg-gray-100"
           />
+          {errors.lastname && (
+            <p className="text-red-500 text-xs mt-1">{errors.lastname}</p>
+          )}
         </div>
 
         {/* Email */}
@@ -219,15 +218,13 @@ export default function Personal({
             type="email"
             value={formData.email || ""}
             disabled={!isEditing}
-            onChange={(e) => handleEmailChange(e.target.value)}
-            onBlur={() =>
-              setEmailError(validateEmailFinal(formData.email || ""))
-            }
+            onChange={handleChange}
+            onBlur={handleEmailChange}
             placeholder="Enter your email address"
             className="border border-gray-300 rounded-lg px-4 py-3 disabled:bg-gray-100"
           />
-          {emailError && (
-            <p className="text-red-500 text-xs mt-1">{emailError}</p>
+          {errors.email && (
+            <p className="text-red-500 text-xs mt-1">{errors.email}</p>
           )}
         </div>
 
