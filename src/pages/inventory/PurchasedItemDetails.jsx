@@ -4,11 +4,16 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import Swal from "sweetalert2";
+import UpdatePurchasedItemModal from "./UpdatePurchasedItemModal.jsx";
+
+
 
 // ===== Shared helpers & constants =====
 // Works in both Vite (import.meta.env.VITE_API_URL) and CRA (process.env.VITE_API_URL)
 const API_BASE =
-  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_URL) ||
+  (typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    import.meta.env.VITE_API_URL) ||
   (typeof process !== "undefined" && process.env && process.env.VITE_API_URL) ||
   "http://localhost:5000";
 
@@ -17,9 +22,12 @@ const LOW_STOCK_BY_ROL = (it) => Number(it.quantity || 0) < Number(it.ROL || 0);
 const EXPIRY_SOON_DAYS = 30;
 
 const fmt2 = (n) => {
-  const v = Number(n);
-  return Number.isFinite(v) ? v.toFixed(2) : "0.00";
+  const v = Number(String(n).replace(/,/g, "")); // be safe if API sends "1,000.00"
+  return Number.isFinite(v)
+    ? new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v)
+    : "0.00";
 };
+
 
 const daysUntil = (iso) => {
   if (!iso) return null;
@@ -39,13 +47,47 @@ const isExpiringSoonOrExpired = (it) => {
   return d <= soon; // includes already expired
 };
 
+function getFilenameFromDisposition(disposition) {
+  if (!disposition) return null;
+  const m = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/i.exec(disposition);
+  return m && m[1] ? m[1].replace(/["']/g, "") : null;
+}
+
 async function fetchHandler() {
   const res = await axios.get(LIST_URL);
   return res.data; // expects { purchasedItems: [...] }
 }
 
+//handle pdf download
+async function handleDownloadPurchasedPdf() {
+  try {
+    const url = `${API_BASE}/api/purchasedItems/report/pdf`;
+    const res = await axios.get(url, { responseType: "blob" });
+
+    const blob = new Blob([res.data], { type: "application/pdf" });
+    const suggested = getFilenameFromDisposition(
+      res.headers["content-disposition"]
+    );
+    const fallback = `purchased-items-inventory-${new Date()
+      .toISOString()
+      .slice(0, 10)}.pdf`;
+    const fileName = suggested || fallback;
+
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(link.href);
+  } catch (e) {
+    console.error(e);
+    alert("Sorry, could not download the Purchased Items report.");
+  }
+}
+
 // ===== Row component (inlined) =====
-function DisplayPurchasedItem({ item, onDelete }) {
+function DisplayPurchasedItem({ item, onDelete, onEdit  }) {
   const {
     _id,
     item_id,
@@ -99,12 +141,23 @@ function DisplayPurchasedItem({ item, onDelete }) {
 
     setLoading(true);
     try {
-      await axios.delete(`${API_BASE}/api/purchasedItems/${encodeURIComponent(_id)}`);
+      await axios.delete(
+        `${API_BASE}/api/purchasedItems/${encodeURIComponent(_id)}`
+      );
       onDelete?.(_id);
-      Swal.fire({ icon: "success", title: "Deleted!", timer: 1200, showConfirmButton: false });
+      Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        timer: 1200,
+        showConfirmButton: false,
+      });
     } catch (err) {
       console.error(err?.response?.data || err.message);
-      Swal.fire({ icon: "error", title: "Delete failed", text: err?.response?.data?.message || "Try again." });
+      Swal.fire({
+        icon: "error",
+        title: "Delete failed",
+        text: err?.response?.data?.message || "Try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -112,33 +165,44 @@ function DisplayPurchasedItem({ item, onDelete }) {
 
   return (
     <tr className={rowClass}>
-      <td className={`${cellClass} font-mono font-semibold text-indigo-600 bg-indigo-50/30`}>{item_id}</td>
+      <td
+        className={`${cellClass} font-mono font-semibold text-indigo-600 bg-indigo-50/30`}
+      >
+        {item_id}
+      </td>
       <td className={cellClass}>{item_name}</td>
       <td className={cellClass}>{category}</td>
       <td className={cellClass}>{item_unit}</td>
-      <td className={`${cellClass} text-right font-semibold text-emerald-700`}>{fmt2(unit_cost)}</td>
+      <td className={`${cellClass} text-right font-semibold text-emerald-700`}>
+        {fmt2(unit_cost)}
+      </td>
       <td className={`${cellClass} text-right`}>{ROL}</td>
       <td className={`${cellClass} text-right font-semibold`}>{quantity}</td>
       <td className={cellClass}>
         {expire_date ? String(expire_date).slice(0, 10) : ""}
         {isExpired && (
-          <span className="ml-2 inline-block rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">Expired</span>
+          <span className="ml-2 inline-block rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+            Expired
+          </span>
         )}
         {isExpiringSoon && !isExpired && (
-          <span className="ml-2 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">Expiring soon</span>
+          <span className="ml-2 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+            Expiring soon
+          </span>
         )}
       </td>
       <td className={cellClass}>{supplier}</td>
       <td className={`${cellClass} w-[120px]`}>
         <div className="flex items-center justify-center gap-2">
-          <Link
-            to={`/inventory/updatePurchasedItems/${_id}`}
+           <button
+            type="button"
+            onClick={() => onEdit?.(item)}
             className="text-green-700 transition-transform hover:scale-110 focus:scale-110 focus:outline-none print:hidden"
             title="Edit"
           >
             <FiEdit2 size={18} aria-hidden="true" />
             <span className="sr-only">Edit</span>
-          </Link>
+          </button>
 
           <button
             type="button"
@@ -163,16 +227,18 @@ export default function PurchasedItemDetails() {
   const [searchQuery, setSearchQuery] = useState("");
   const [noResults, setNoResults] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("all");
+const [openEdit, setOpenEdit] = useState(false);
+const [selected, setSelected] = useState(null);
 
-  useEffect(() => {
-    fetchHandler()
-      .then((data) => {
-        const list = data.purchasedItems || data.items || [];
-        setItems(list);
-        setAllItems(list);
-      })
-      .catch((err) => console.error("Fetch purchased items failed:", err));
-  }, []);
+const fetchItems = async () => {
+   const { data } = await axios.get(LIST_URL);
+  // shape tolerant:
+  const list = data?.items || data?.purchasedItems || data;
+  const safe = Array.isArray(list) ? list : [];
+ setItems(safe);
+ setAllItems(safe);
+};
+useEffect(() => { fetchItems(); }, []);
 
   const handleDeleteFromState = (id) => {
     setItems((prev) => prev.filter((p) => p._id !== id));
@@ -188,11 +254,16 @@ export default function PurchasedItemDetails() {
     let list = [...allItems];
 
     if (selectedFilter === "restock") list = list.filter(LOW_STOCK_BY_ROL);
-    else if (selectedFilter === "expiring") list = list.filter(isExpiringSoonOrExpired);
+    else if (selectedFilter === "expiring")
+      list = list.filter(isExpiringSoonOrExpired);
 
     if (q) {
       list = list.filter((item) =>
-        Object.values(item).some((field) => String(field ?? "").toLowerCase().includes(q))
+        Object.values(item).some((field) =>
+          String(field ?? "")
+            .toLowerCase()
+            .includes(q)
+        )
       );
     }
 
@@ -206,17 +277,29 @@ export default function PurchasedItemDetails() {
       <div className="mb-6 rounded-3xl border border-white/40 bg-white/20 p-8 shadow-xl backdrop-blur-xl">
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div className="min-w-[240px]">
-            <h1 className="m-0 text-4xl font-bold tracking-tight text-white drop-shadow-sm sm:text-5xl">Purchased Items</h1>
-            <p className="m-0 text-base text-white/80">Manage purchased stock, ROL and expiry</p>
+            <h1 className="m-0 text-4xl font-bold tracking-tight text-white drop-shadow-sm sm:text-5xl">
+              Purchased Items
+            </h1>
+            <p className="m-0 text-base text-white/80">
+              Manage purchased stock, ROL and expiry
+            </p>
           </div>
           <div className="flex gap-4">
             <div className="rounded-2xl border border-white/40 bg-white/90 px-6 py-4 text-center shadow-sm">
-              <div className="text-2xl font-extrabold text-slate-800 sm:text-3xl">{totalItems}</div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Items</div>
+              <div className="text-2xl font-extrabold text-slate-800 sm:text-3xl">
+                {totalItems}
+              </div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Total Items
+              </div>
             </div>
             <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-center shadow-sm">
-              <div className="text-2xl font-extrabold text-red-600 sm:text-3xl">{lowStockCount}</div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-red-700">Below ROL</div>
+              <div className="text-2xl font-extrabold text-red-600 sm:text-3xl">
+                {lowStockCount}
+              </div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-red-700">
+                Below ROL
+              </div>
             </div>
           </div>
         </div>
@@ -257,13 +340,22 @@ export default function PurchasedItemDetails() {
           >
             Add Item
           </Link>
+
+          <button
+            className="rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            onClick={handleDownloadPurchasedPdf}
+          >
+            Download Report
+          </button>
         </div>
       </div>
 
       {/* Table */}
       <div className="rounded-2xl border border-white/50 bg-white/90 p-2 shadow-sm backdrop-blur-md">
         {noResults ? (
-          <div className="py-12 text-center text-lg font-medium text-slate-500">No Items Found</div>
+          <div className="py-12 text-center text-lg font-medium text-slate-500">
+            No Items Found
+          </div>
         ) : (
           <div className="overflow-x-auto rounded-xl">
             {items.length === 0 ? (
@@ -272,7 +364,18 @@ export default function PurchasedItemDetails() {
               <table className="w-full border-separate text-sm [border-spacing:0]">
                 <thead className="bg-[#2a5540] text-white">
                   <tr>
-                    {["ITEM ID","NAME","CATEGORY","UNIT","UNIT COST","ROL","QTY","EXPIRY","SUPPLIER","ACTIONS"].map((h) => (
+                    {[
+                      "ITEM ID",
+                      "NAME",
+                      "CATEGORY",
+                      "UNIT",
+                      "UNIT COST",
+                      "ROL",
+                      "QTY",
+                      "EXPIRY",
+                      "SUPPLIER",
+                      "ACTIONS",
+                    ].map((h) => (
                       <th
                         key={h}
                         className="relative border-b border-white/10 px-4 py-4 text-left text-[11px] font-bold uppercase tracking-wider first:rounded-tl-xl last:rounded-tr-xl"
@@ -285,14 +388,28 @@ export default function PurchasedItemDetails() {
                 </thead>
                 <tbody className="bg-white/90">
                   {items.map((it) => (
-                    <DisplayPurchasedItem key={it._id} item={it} onDelete={handleDeleteFromState} />
+                    <DisplayPurchasedItem
+                      key={it._id}
+                      item={it}
+                      onDelete={handleDeleteFromState}
+                      onEdit={(row) => { setSelected(row); setOpenEdit(true); }}
+                    />
                   ))}
                 </tbody>
               </table>
+              
             )}
           </div>
         )}
       </div>
+ <UpdatePurchasedItemModal
+   key={selected ? selected._id : "empty"}   
+   open={openEdit}
+   onClose={() => setOpenEdit(false)}
+   item={selected}
+   onUpdated={fetchItems}
+ />
     </div>
   );
+  
 }

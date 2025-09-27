@@ -53,7 +53,7 @@ async function fetchHandler() {
 
 async function handleDownloadPdf() {
   try {
-    const url = `${API_BASE}/cocoProducts/report/pdf`;
+    const url = `${API_BASE}/api/cocoProducts/report/pdf`;
     const res = await axios.get(url, { responseType: "blob" });
     const blob = new Blob([res.data], { type: "application/pdf" });
     const suggested = getFilenameFromDisposition(res.headers["content-disposition"]);

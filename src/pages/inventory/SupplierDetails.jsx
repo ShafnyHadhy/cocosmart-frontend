@@ -4,6 +4,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import Swal from "sweetalert2";
+import UpdateSupplierModal from "./UpdateSupplierModal.jsx";
 
 // ===== Shared helpers & constants =====
 // Works in both Vite (import.meta.env.VITE_API_URL) and CRA (process.env.VITE_API_URL)
@@ -21,7 +22,7 @@ async function fetchHandler() {
 }
 
 // ===== Row component (inlined) =====
-function DisplaySupplier({ supplier, onDelete }) {
+function DisplaySupplier({ supplier, onDelete, onEdit }) {
   const { _id, sup_id, sup_name, email, contact, address } = supplier || {};
   const [loading, setLoading] = useState(false);
 
@@ -77,14 +78,18 @@ function DisplaySupplier({ supplier, onDelete }) {
       <td className={cellClass}>{address}</td>
       <td className={`${cellClass} w-[120px]`}>
         <div className="flex items-center justify-center gap-2">
-          <Link
-            to={`/inventory/updateSupplier/${_id}`}
-            className="text-green-700 transition-transform hover:scale-110 focus:scale-110 focus:outline-none print:hidden"
-            title="Edit"
-          >
-            <FiEdit2 size={18} aria-hidden="true" />
-            <span className="sr-only">Edit</span>
-          </Link>
+          
+
+ <button
+    type="button"
+    onClick={() => onEdit?.(supplier)}
+    className="text-green-700 transition-transform hover:scale-110 focus:scale-110 focus:outline-none print:hidden"
+    title="Edit"
+  >
+    <FiEdit2 size={18} aria-hidden="true" />
+    <span className="sr-only">Edit</span>
+  </button>
+
 
           <button
             type="button"
@@ -108,6 +113,17 @@ export default function SupplierDetails() {
   const [allSuppliers, setAllSuppliers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [noResults, setNoResults] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+const [selected, setSelected] = useState(null);
+
+const fetchSuppliers = async () => {
+  const { data } = await axios.get("http://localhost:5000/api/suppliers");
+  const list = data?.suppliers || data; // shape-tolerant
+  setSuppliers(Array.isArray(list) ? list : []);
+};
+
+useEffect(() => { fetchSuppliers(); }, []);
+
 
   useEffect(() => {
     fetchHandler()
@@ -216,15 +232,28 @@ export default function SupplierDetails() {
                   </tr>
                 </thead>
                 <tbody className="bg-white/90">
-                  {suppliers.map((s) => (
-                    <DisplaySupplier key={s._id} supplier={s} onDelete={handleDeleteFromState} />
-                  ))}
-                </tbody>
+  {suppliers.map((s) => (
+    <DisplaySupplier
+      key={s._id}
+      supplier={s}
+      onDelete={handleDeleteFromState}
+      onEdit={(row) => { setSelected(row); setOpenEdit(true); }}  // ← here
+    />
+  ))}
+</tbody>
               </table>
             )}
           </div>
         )}
       </div>
+      <UpdateSupplierModal
+  key={selected ? selected._id : "empty"}  // force remount per supplier
+  open={openEdit}
+  onClose={() => setOpenEdit(false)}
+  supplier={selected}
+  onUpdated={fetchSuppliers}               // call your list refresher
+/>
+
     </div>
   );
 }
