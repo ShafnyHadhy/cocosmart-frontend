@@ -78,9 +78,20 @@ export default function LoginPage() {
 
   // JSX: Login Page UI
   return (
-    <div className="min-h-screen w-full bg-primary flex items-center justify-center p-4">
+    <div
+      className="min-h-screen w-full flex items-center justify-center p-4 relative"
+      style={{
+        backgroundImage: `url('/1122.jpeg')`, // make sure A2.png is in the public folder
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      {/* Blurred overlay */}
+      <div className="absolute inset-0 bg-black/20 backdrop-blur-[6px]"></div>
+
       {/* Main Container */}
-      <div className="flex flex-col md:flex-row w-full max-w-4xl rounded-3xl overflow-hidden shadow-lg border border-medium-gray">
+      <div className="relative flex flex-col md:flex-row w-full max-w-4xl rounded-3xl overflow-hidden shadow-lg border border-medium-gray">
         {/* Left Section - Image */}
         <div className="w-full md:w-3/5">
           <img

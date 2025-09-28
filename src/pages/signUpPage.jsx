@@ -269,13 +269,24 @@ export default function SignupPage() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full bg-primary flex items-center justify-center p-4">
+    <div
+      className="min-h-screen w-full flex items-center justify-center p-4 relative"
+      style={{
+        backgroundImage: `url('/1122.jpeg')`, // make sure A2.png is in the public folder
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      {/* Blurred overlay */}
+      <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"></div>
+
       {/* Main Container */}
-      <div className="flex flex-col md:flex-row w-full max-w-5xl rounded-3xl overflow-hidden shadow-lg border border-medium-gray">
+      <div className="relative flex flex-col md:flex-row w-full max-w-5xl rounded-3xl overflow-hidden shadow-lg border border-medium-gray z-10">
         {/* Left Section - Image */}
         <div className="w-full md:w-3/5">
           <img
-            src="/ff.jpg"
+            src="/r2.png"
             alt="CocoSmart Visual"
             className="w-full h-full object-cover"
           />

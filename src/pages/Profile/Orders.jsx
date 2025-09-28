@@ -43,10 +43,11 @@ export default function Orders({ user, orders, setOrders }) {
       case "delivered":
         return "bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium";
       case "processing":
+        return "bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium";
       case "shipped":
-        return "bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium";
+        return "bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium";
       case "pending":
-        return "bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium";
+        return "bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-medium";
       case "cancelled":
       case "canceled":
         return "bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-medium";
@@ -88,11 +89,13 @@ export default function Orders({ user, orders, setOrders }) {
                   <td className="py-3 px-4 text-center">
                     <span className={getStatusClass(o.status)}>{o.status}</span>
                   </td>
-                  <td className="py-3 px-4">Rs. {o.total?.toFixed(2)}</td>
+                  <td className="py-3 px-4 text-blue-800 font-semibold">
+                    Rs. {o.total?.toFixed(2)}
+                  </td>
                   <td className="py-3 px-4 flex justify-center gap-2 text-lg">
                     <button
                       onClick={() => navigate(`/orders/${o.orderID}`)}
-                      className="text-[#5c4033] hover:text-black transition-colors"
+                      className="text-[#5c4033] hover:text-[#5c4033]-800 transition-colors transition-transform duration-200 text-xl hover:scale-125"
                       title="View Orders"
                     >
                       <FaRegEye size={20} />

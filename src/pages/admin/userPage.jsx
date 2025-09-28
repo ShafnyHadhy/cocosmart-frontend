@@ -234,12 +234,12 @@ const UserPage = () => {
                       <>
                         <FaRegEdit
                           title="Edit User" //
-                          className="cursor-pointer hover:text-green-600 transition-colors"
+                          className="cursor-pointer text-[#5c4033] text-xl transition-transform duration-200 hover:text-[#5c4033]-600 hover:scale-125"
                           onClick={() => handleEditClick(user)}
                         />
                         <TfiTrash
                           title="Delete User" //
-                          className="cursor-pointer hover:text-red-600 transition-colors"
+                          className="cursor-pointer text-red-600 hover:text-red-900 transition-transform duration-200 text-xl hover:scale-125"
                           onClick={() => confirmDelete(user._id)}
                         />
                       </>

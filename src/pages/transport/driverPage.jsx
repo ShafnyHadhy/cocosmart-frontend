@@ -376,12 +376,12 @@ const DriverPage = () => {
                       <>
                         <FaRegEdit
                           title="Edit Driver"
-                          className="cursor-pointer hover:text-green-600 transition-colors"
+                          className="cursor-pointer text-[#5c4033] text-xl transition-transform duration-200 hover:text-[#5c4033]-600 hover:scale-125"
                           onClick={() => handleEditClick(driver)}
                         />
                         <TfiTrash
                           title="Delete Driver"
-                          className="cursor-pointer hover:text-red-600 transition-colors"
+                          className="cursor-pointer text-red-600 hover:text-red-900 transition-transform duration-200 text-xl hover:scale-125"
                           onClick={() => confirmDelete(driver._id)}
                         />
                       </>
