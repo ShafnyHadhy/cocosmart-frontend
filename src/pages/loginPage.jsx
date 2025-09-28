@@ -21,6 +21,10 @@ export default function LoginPage() {
       const user = response.data.user;
       if (user.role === "admin") {
         navigate("/admin");
+      } else if (user.role === "hr") {
+        navigate("/hr");
+      } else if (user.role === "worker") {
+        navigate("/worker");
       } else {
         navigate("/");
       }
