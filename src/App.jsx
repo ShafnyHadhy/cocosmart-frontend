@@ -5,6 +5,7 @@ import HomePage from './pages/homePage'
 import LoginPage from './pages/loginPage'
 import { Toaster } from 'react-hot-toast'
 import PlantationManage from './pages/plantationManage'
+import ChatBotPage from './pages/chatbotDash'
 
 function App() {
   return (
@@ -16,10 +17,10 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/admin/*" element={<AdminPage />} />
         <Route path="/plant/*" element={<PlantationManage />} />
-      
-
-
+        {/* <Route path="/chatbot" element={<ChatBotPage />} /> */}
       </Routes>
+
+       <ChatBotPage />
     </div>
   )
 }
