@@ -152,7 +152,7 @@ export default function AddDriver() {
     setErrors((prev) => ({ ...prev, [field]: validators[field](value) }));
   };
 
-  // Submit handler
+  // Submit handler (Database Connection)
   const handleAddDriver = async () => {
     const newErrors = {};
     Object.keys(formData).forEach((field) => {
@@ -164,7 +164,7 @@ export default function AddDriver() {
       toast.error("Please fix the errors in the form");
       return;
     }
-
+    // Step 2: Send POST request to backend
     setIsSubmitting(true);
     try {
       await axios.post(`${import.meta.env.VITE_API_URL}/api/drivers`, {

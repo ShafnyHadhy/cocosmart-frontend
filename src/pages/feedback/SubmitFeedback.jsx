@@ -3,7 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { FaStar, FaLeaf } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import "../../styles/3dEffects.css";
+//import "../../styles/3dEffects.css";
 
 export default function SubmitFeedback() {
   const [username, setUsername] = useState("");
