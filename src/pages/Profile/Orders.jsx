@@ -7,7 +7,7 @@ import { FaRegEye } from "react-icons/fa";
 
 export default function Orders({ user, orders, setOrders }) {
   const navigate = useNavigate();
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem("token");
 
   const getConfig = () => ({
     headers: { Authorization: `Bearer ${token}` },
@@ -76,31 +76,40 @@ export default function Orders({ user, orders, setOrders }) {
               </tr>
             </thead>
             <tbody>
-              {orders.map((o, idx) => (
-                <tr
-                  key={o.orderID}
-                  className={`border-b hover:bg-gray-50 transition-colors ${
-                    idx % 2 === 0 ? "bg-gray-50/50" : "bg-white"
-                  }`}
-                >
-                  <td className="py-3 px-4 font-mono">{o.orderID}</td>
-                  <td className="py-3 px-4">{formatDate(o.date)}</td>
-                  <td className="py-3 px-4 text-center">
-                    <span className={getStatusClass(o.status)}>{o.status}</span>
-                  </td>
-                  <td className="py-3 px-4">Rs. {o.total?.toFixed(2)}</td>
-                  <td className="py-3 px-4 flex justify-center gap-2 text-lg">
-                    <button
-                      onClick={() => navigate(`/orders/${o.orderID}`)}
-                      className="text-[#5c4033] hover:text-black transition-colors"
-                      title="View Orders"
-                    >
-                      <FaRegEye size={20} />
-                    </button>
+              {Array.isArray(orders) && orders.length > 0 ? (
+                orders.map((o, idx) => (
+                  <tr
+                    key={o.orderID}
+                    className={`border-b hover:bg-gray-50 transition-colors ${
+                      idx % 2 === 0 ? "bg-gray-50/50" : "bg-white"
+                    }`}
+                  >
+                    <td className="py-3 px-4 font-mono">{o.orderID}</td>
+                    <td className="py-3 px-4">{formatDate(o.date)}</td>
+                    <td className="py-3 px-4 text-center">
+                      <span className={getStatusClass(o.status)}>{o.status}</span>
+                    </td>
+                    <td className="py-3 px-4">Rs. {o.total?.toFixed(2)}</td>
+                    <td className="py-3 px-4 flex justify-center gap-2 text-lg">
+                      <button
+                        onClick={() => navigate(`/orders/id/${o.orderID}`)} //navigate(`/orders/id/${o.orderID}`) /orders/${o.orderID}
+
+                        className="text-[#5c4033] hover:text-black transition-colors"
+                        title="View Orders"
+                      >
+                        <FaRegEye size={20} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="py-4 text-center text-gray-500">
+                    No orders found.
                   </td>
                 </tr>
-              ))}
-            </tbody>
+              )}
+            </tbody> 
           </table>
         </div>
       )}

@@ -30,6 +30,7 @@ import UserPage from "./admin/userPage";
 import Dashboard from "./admin/adminTest";
 import { BiMenu } from "react-icons/bi";
 import { RxDashboard } from "react-icons/rx";
+import { IoMdNotificationsOutline } from "react-icons/io";
 
 export default function AdminPage() {
   const location = useLocation();
@@ -99,7 +100,11 @@ export default function AdminPage() {
                 </div>
             </div>
             
-            <div className="flex items-center space-x-3 pl-3 border-l border-slate-200">
+            <div className="flex items-center space-x-3 pl-3">
+              <Link className="p-2">
+                  <IoMdNotificationsOutline size={22}/>
+              </Link>
+             
               <img src="/admin.jpg" alt="User" className="h-8 w-8 rounded-full ring-2 ring-accent object-cover"/>
               <div className="hidden md:block">
                 <p className="text-sm font-medium text-slate-500">

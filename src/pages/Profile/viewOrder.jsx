@@ -31,7 +31,7 @@ export default function ViewOrder() {
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
 
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem("token");
   const getConfig = () => ({
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -40,7 +40,7 @@ export default function ViewOrder() {
     const fetchOrder = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/orders/${orderID}`,
+          `${import.meta.env.VITE_API_URL}/api/orders/id/${orderID}`,
           getConfig()
         );
         setOrder(res.data);

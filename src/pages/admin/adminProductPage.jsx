@@ -9,6 +9,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Loader } from "../../components/loader";
 import { FaTimes } from "react-icons/fa";
 import { RiFilterOffFill } from "react-icons/ri";
+import { BsSendPlus } from "react-icons/bs";
 
 function ProductDeleteConfirmation({ productID, close, refresh }) {
   function deleteProduct() {
@@ -125,6 +126,11 @@ export default function AdminProductPage() {
 
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-3 items-center mb-4 md:justify-end">
+        <div className="flex items-center justify-start">
+          <Link className="p-2 border rounded-lg border-gray-300 text-md hover:bg-gray-100 transition"  title="Send Request">
+            <BsSendPlus />
+          </Link>
+        </div>
         <input
           type="text"
           placeholder="Search by ID or Name..."
@@ -156,12 +162,12 @@ export default function AdminProductPage() {
         </select>
         
         <Link className="p-2 border rounded-lg border-gray-300 text-md hover:bg-gray-100 transition"  title="Clear Filter">
-            <RiFilterOffFill size={18} onClick={() => {
-              setCategoryFilter("");
-              setStockFilter("");
-              setSearchTerm("");
-            }}/>
-          </Link>
+          <RiFilterOffFill size={18} onClick={() => {
+            setCategoryFilter("");
+            setStockFilter("");
+            setSearchTerm("");
+          }}/>
+        </Link>
       </div>
 
       {/* Table */}

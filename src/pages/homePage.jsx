@@ -30,7 +30,7 @@ export default function HomePage() {
         <Route path="checkout" element={<CheckoutPage/>}/>
         <Route path="feedback" element={<SubmitFeedback />} />
         <Route path="profile" element={<UserProfile />} />
-        <Route path="orders/:orderID" element={<ViewOrder />} />
+        <Route path="orders/id/:orderID" element={<ViewOrder />} />
         <Route path="*" element={<h1>404 not found</h1>} />
       </Routes>
       

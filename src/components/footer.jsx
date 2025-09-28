@@ -14,7 +14,7 @@ export default function Footer() {
             {/* Company Info */}
             <div className="flex flex-col items-center md:items-start gap-2 text-center md:text-left">
               <img src="/clogo.png" alt="CocoSmart Logo" className="w-16 h-16" />
-              <h1 className="text-2xl font-bold">CocoSmart Pvt Ltd.</h1>
+              <h1 className="text-2xl font-bold text-black">CocoSmart Pvt Ltd.</h1>
               <p className="text-sm mb-5">Smart Solutions for Coconut Plantations</p>
               <p className="text-sm ">123 Coconut Street, Kurunegala, Sri Lanka</p>
               <p className="text-sm ">Email: info@cocosmart.com</p>

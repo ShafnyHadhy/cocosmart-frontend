@@ -5,10 +5,8 @@ export default function Header() {
   return (
     <header className="flex items-center justify-between border-b border-stone-300 px-10 py-4 bg-[#f5f3f1]">
       
-      <div className="flex items-center gap-3 text-accent">
-        <div className="h-9 w-9 bg-accent rounded-full flex items-center justify-center text-white font-bold">
-          C
-        </div>
+      <div className="flex flex-row items-center gap-2 text-accent">
+        <img src="/clogo.png" alt="logo" className="h-15 rounded-md object-contain" />
         <h2 className="text-xl font-bold font-serif tracking-[-0.015em]">CocoSmart</h2>
       </div>
 

@@ -23,7 +23,7 @@ export default function UserProfile() {
   const [profilePic, setProfilePic] = useState(null);
 
   //  Make sure all code uses the same token key ("authToken")
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem("token");
 
   const getConfig = (extraHeaders = {}) => ({
     headers: token ? { Authorization: `Bearer ${token}`, ...extraHeaders } : {},
@@ -55,7 +55,8 @@ export default function UserProfile() {
           `http://localhost:5000/api/orders/user/${u._id}`,
           getConfig()
         );
-        setOrders(Array.isArray(ordersRes.data) ? ordersRes.data : []);
+          const data = ordersRes.data;
+          setOrders(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
         toast.error("Failed to load profile or orders");
@@ -105,7 +106,7 @@ export default function UserProfile() {
         getConfig()
       );
       localStorage.removeItem("userEmail");
-      localStorage.removeItem("authToken");
+      localStorage.removeItem("token");
       toast.success("Account deleted successfully");
       navigate("/");
     } catch (err) {
