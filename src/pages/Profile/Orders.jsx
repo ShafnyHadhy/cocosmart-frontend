@@ -41,16 +41,16 @@ export default function Orders({ user, orders, setOrders }) {
     switch ((status || "").toLowerCase()) {
       case "completed":
       case "delivered":
-        return "bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium";
+        return "bg-green-100 text-green-800 px-3 py-1 rounded-full";
       case "processing":
-        return "bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium";
+        return "bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full  ";
       case "shipped":
-        return "bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium";
+        return "bg-green-100 text-green-800 px-3 py-1 rounded-full";
       case "pending":
-        return "bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-medium";
+        return "bg-red-100 text-red-800 px-5 py-1 rounded-full";
       case "cancelled":
       case "canceled":
-        return "bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-medium";
+        return "bg-red-100 text-red-800 px-3 py-1 rounded-full";
       default:
         return "bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-medium";
     }
@@ -65,12 +65,12 @@ export default function Orders({ user, orders, setOrders }) {
       ) : (
         <div className="overflow-x-auto shadow-lg rounded-2xl bg-white">
           <table className="w-full border-collapse text-sm">
-            <thead className="bg-accent text-white text-end">
+            <thead className="bg-accent text-white">
               <tr>
                 <th className="py-3 px-4 text-left rounded-tl-2xl">Order ID</th>
                 <th className="py-3 px-4 text-left">Date</th>
-                <th className="py-3 px-4 text-left">Status</th>
-                <th className="py-3 px-4 text-left">Amount</th>
+                <th className="py-3 px-4 text-center">Status</th>
+                <th className="py-3 px-4 text-right">Amount</th>
                 <th className="py-3 px-4 text-center rounded-tr-2xl">
                   Actions
                 </th>
@@ -84,12 +84,12 @@ export default function Orders({ user, orders, setOrders }) {
                     idx % 2 === 0 ? "bg-gray-50/50" : "bg-white"
                   }`}
                 >
-                  <td className="py-3 px-4 font-mono">{o.orderID}</td>
-                  <td className="py-3 px-4">{formatDate(o.date)}</td>
+                  <td className="py-3 px-4 font-mono text-left">{o.orderID}</td>
+                  <td className="py-3 px-4 text-left">{formatDate(o.date)}</td>
                   <td className="py-3 px-4 text-center">
                     <span className={getStatusClass(o.status)}>{o.status}</span>
                   </td>
-                  <td className="py-3 px-4 text-blue-800 font-semibold">
+                  <td className="py-3 px-4 text-right text-blue-800 font-semibold">
                     Rs. {o.total?.toFixed(2)}
                   </td>
                   <td className="py-3 px-4 flex justify-center gap-2 text-lg">

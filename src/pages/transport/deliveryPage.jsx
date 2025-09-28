@@ -455,11 +455,11 @@ export default function DeliveryPage() {
                 {/* Status */}
                 <td className="py-3 px-4">
                   {d.deliveryStatus === "completed" ? (
-                    <span className="text-green-600 font-semibold">
+                    <span className="bg-green-100 text-green-800 px-5 py-1 rounded-full font-semibold">
                       Delivered
                     </span>
                   ) : (
-                    <span className="text-yellow-600 font-semibold">
+                    <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full  font-semibold">
                       Processing
                     </span>
                   )}
