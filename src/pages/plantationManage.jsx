@@ -2,20 +2,26 @@ import { BsCart2, BsGraphUpArrow } from "react-icons/bs";
 import { FiBox } from "react-icons/fi";
 import { SiExpensify } from "react-icons/si";
 import { Link, Route, Routes, useLocation } from "react-router-dom";
-import { FaInvision } from "react-icons/fa";
+import { FaCloudRain, FaInvision } from "react-icons/fa";
 import Plantations from "./Plantations/Plantations";
 import PlantationsGallery from "./Plantations/PlantationsGallery";
 import AddPlantation from "./Plantations/AddPlantation";
 import Plantation from "./Plantations/Plantation";
 import UpdatePlantation from "./Plantations/UpdatePlantation";
+import { GiPalmTree } from "react-icons/gi";
+import { IoMdAddCircle } from "react-icons/io";
+import { RiDashboardFill } from "react-icons/ri";
+
 
 export default function PlantationManage() {
   const location = useLocation();
 
   const menuItems = [
-    { path: "/plant", label: "Dashboard", icon: <BsGraphUpArrow className="text-[15px]"/> }, //<MdSpaceDashboard />
-    { path: "/plant/plantations", label: "Plantations", icon: <BsCart2 /> }, //<RiPlantFill />
-    { path: "/plant/addplantation", label: "Add Plantation", icon: <FiBox /> }, //<IoMdAddCircle />
+    { path: "/plant", label: "Dashboard", icon: <RiDashboardFill /> }, //<MdSpaceDashboard />
+    { path: "/plant/plantations", label: "Plantations", icon: <GiPalmTree />}, //<RiPlantFill />
+    { path: "/plant/addplantation", label: "Add Plantation", icon: <IoMdAddCircle /> }, //<IoMdAddCircle />
+    { path: "/plant/weather", label: "Weather", icon: <FaCloudRain />}, //<RiPlantFill />
+
    
   ];
 
@@ -24,7 +30,7 @@ export default function PlantationManage() {
 
       <aside className="fixed top-0 left-0 w-64 h-screen flex flex-col bg-white z-20">
         <div className="flex h-16 items-center gap-2 border-b border-medium-gray px-6">
-          <img src="/clogo.png" alt="logo" className="h-13 rounded-md" />
+          <img src="/cocsmart.png" alt="logo" className="h-13 rounded-md" />
           <h1 className="text-xl font-bold tracking-[-0.015em] text-accent">
             Plantations
           </h1>
@@ -75,7 +81,6 @@ export default function PlantationManage() {
               <Route path="/addplantation" element={<AddPlantation />} />
               <Route path="/plantation" element={<Plantation />} />
               <Route path="/viewplantations/:plotID" element={<UpdatePlantation />} />
-
             </Routes>
           </div>
         </main>

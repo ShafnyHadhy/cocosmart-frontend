@@ -4,6 +4,10 @@ import axios from "axios";
 import Nav from "../../components/Nav/Nav";
 import { useReactToPrint } from "react-to-print";
 import "./Plantations.css";
+import { IoIosSearch } from "react-icons/io";
+import { FaDownload } from "react-icons/fa";
+import { FaWhatsapp } from "react-icons/fa";
+
 
 const URL = "http://localhost:5000/api/plots/";
 
@@ -59,28 +63,34 @@ function Plantations() {
     window.open(whatsAppUrl, "_blank");
   };
 
-  const isPositiveInteger = (value) => {
-    return Number.isInteger(Number(value)) && Number(value) > 0;
-  };
-
   const currentDateTime = new Date().toLocaleString();
   const reportId = `RPT-${new Date().getFullYear()}${(
     "0" +
     (new Date().getMonth() + 1)
   ).slice(-2)}${("0" + new Date().getDate()).slice(-2)}-001`;
 
+  // ✅ Calculate totals
+  const totalPlots = plantations.length;
+  const totalHarvest = plantations.reduce(
+    (sum, plantation) => sum + (Number(plantation.harvest) || 0),
+    0
+  );
+
   return (
     <div>
 
-
       {/* Search */}
-      <div className="search-bar">
+      <div className="search-bar relative">
+        <IoIosSearch className="absolute left-108 top-2/3 transform -translate-y-1/2 text-gray-500" />
         <input
           type="text"
-          placeholder="Search Plantation Details"
+          placeholder="      Search Plantation Details"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10 pr-3 py-2 border rounded w-full"
         />
+
+        
         <button onClick={handleSearch}>Search</button>
       </div>
 
@@ -89,15 +99,18 @@ function Plantations() {
       ) : (
         <div ref={componentRef} className="plantations-container">
           {/* PDF HEADER */}
-          <div className="pdf-header only-print">
-            <h1>COCOSMART - PLANTATION REPORT</h1>
-            <h3>Comprehensive Coconut Plantation Management Analysis</h3>
-            <p>
-              <b>Generated on:</b> {currentDateTime} &nbsp;&nbsp; | &nbsp;&nbsp;
-              <b>Report ID:</b> {reportId}
-            </p>
-            <hr />
-          </div>
+         {/* PDF HEADER */}
+        <div className="pdf-header only-print">
+          <img src="/cocsmart.png" alt="CocoSmart Logo" className="pdf-logo" />
+          <h1>COCOSMART - PLANTATION REPORT</h1>
+          <h3>Comprehensive Coconut Plantation Management Analysis</h3>
+          <p>
+            <b>Generated on:</b> {currentDateTime} &nbsp;&nbsp; | &nbsp;&nbsp;
+            <b>Report ID:</b> {reportId}
+          </p>
+          <hr />
+        </div>
+
 
           {/* Description */}
           <div className="report-description only-print">
@@ -129,13 +142,23 @@ function Plantations() {
                   ))}
                 </tbody>
               </table>
+
+              {/* ✅ Totals Section (only print) */}
+              <div className="totals-section only-print">
+                <p>
+                  <b>Total Number of Plots:</b> {totalPlots}
+                </p>
+                <p>
+                  <b>Total Harvest (units):</b> {totalHarvest}
+                </p>
+              </div>
             </>
           ) : (
             <p>No plantation records found.</p>
           )}
 
           {/* Recommendations */}
-          <div className="recommendations only-print">
+          {/* <div className="recommendations only-print">
             <h2>💡 Management Recommendations</h2>
             <ul>
               <li>
@@ -155,14 +178,14 @@ function Plantations() {
                 from high-performing plots to underperforming areas.
               </li>
             </ul>
-          </div>
+          </div> */}
 
           {/* Signature Section */}
-          <div className="signature-section only-print">
+          {/* <div className="signature-section only-print">
             <p>______________________________</p>
             <p>Administrator Signature</p>
             <p>Date Signed: __________________</p>
-          </div>
+          </div> */}
 
           {/* Bottom-right contact info */}
           <div className="contact-info only-print">
@@ -179,10 +202,24 @@ function Plantations() {
         </div>
       )}
 
-      <div className="action-buttons">
-        <button onClick={handlePrint}>Download Report</button>
-        <button onClick={handleSendReport}>Send Whatsapp Message</button>
-      </div>
+      <div className="action-buttons flex justify-center gap-4 mt-4">
+      <button
+        onClick={handlePrint}
+        className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded"
+      >
+        <FaDownload />
+        <span>Download Report</span>
+      </button>
+
+      <button
+        onClick={handleSendReport}
+        className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded"
+      >
+        <FaWhatsapp />
+        <span>Send Whatsapp Message</span>
+      </button>
+    </div>
+
     </div>
   );
 }
