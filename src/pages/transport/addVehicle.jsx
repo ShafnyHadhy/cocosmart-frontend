@@ -151,14 +151,14 @@ export default function AddVehicle() {
   };
 
   return (
-    <div className="flex items-center justify-center p-4 min-h-screen bg-gray-50">
+    <div className="flex justify-center p-6 bg-gray-50">
       <div className="bg-sec-2 rounded-xl shadow-2xl border border-medium-gray overflow-hidden w-full max-w-md">
         <div className="bg-green-calm p-4">
           <h1 className="text-xl font-bold text-white text-center flex items-center justify-center gap-2">
             <FaPlusCircle className="text-earth-white" />
             Add New Vehicle
           </h1>
-          <p className="text-earth-black text-center mt-1 text-xs">
+          <p className="text-white text-center mt-1 text-xs">
             Register vehicle to the system
           </p>
         </div>

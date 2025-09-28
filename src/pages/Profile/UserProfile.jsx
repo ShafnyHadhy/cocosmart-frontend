@@ -148,7 +148,7 @@ export default function UserProfile() {
               />
               <label
                 htmlFor="profilePic"
-                className="absolute bottom-0 right-0 bg-[var(--green-calm)] text-white p-2 rounded-full cursor-pointer"
+                className="absolute bottom-0 right-0 bg-white text-white p-2 rounded-full cursor-pointer"
               >
                 📷
                 <input
