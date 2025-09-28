@@ -81,21 +81,21 @@ export default function LoginPage() {
     <div
       className="min-h-screen w-full flex items-center justify-center p-4 relative"
       style={{
-        backgroundImage: `url('/1122.jpeg')`, // make sure A2.png is in the public folder
+        backgroundImage: `url('/111.png')`, // make sure A2.png is in the public folder
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
       }}
     >
       {/* Blurred overlay */}
-      <div className="absolute inset-0 bg-black/20 backdrop-blur-[6px]"></div>
+      <div className="absolute inset-0 bg-black/20 backdrop-blur-[15px]"></div>
 
       {/* Main Container */}
       <div className="relative flex flex-col md:flex-row w-full max-w-4xl rounded-3xl overflow-hidden shadow-lg border border-medium-gray">
         {/* Left Section - Image */}
         <div className="w-full md:w-3/5">
           <img
-            src="/111.png" // your image path
+            src="/render-19.png" // your image path
             alt="CocoSmart Visual"
             className="w-full h-full object-cover" // cover whole div
           />
@@ -122,13 +122,19 @@ export default function LoginPage() {
         </div>
 
         {/* Right Section - Login Form */}
-        <div className="w-full md:w-3/5 flex justify-center items-center p-11 bg-white">
-          <div className="w-full max-w-xs">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-green-calm mb-1">
+        <div className="w-full md:w-3/5 flex justify-center items-center p-10 bg-white">
+          <div className="w-full max-w-sm">
+            {/* COCOSmart Title */}
+            <h1 className="text-4xl font-extrabold text-green-800 tracking-wide text-center mb-8 font-sans">
+              COCOSmart
+            </h1>
+
+            {/* Welcome Message */}
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-800">
                 Welcome Back
               </h2>
-              <p className="text-secondary text-sm">
+              <p className="text-gray-500 text-sm">
                 Sign in to your CocoSmart account
               </p>
             </div>
@@ -199,14 +205,19 @@ export default function LoginPage() {
               </div>
 
               {/* Login Button */}
-              <button
-                type="submit"
-                disabled={isLoading} // disable button during API call
-                className="w-full py-3 bg-green-calm text-white font-semibold rounded-lg"
-              >
-                {isLoading ? "Signing in..." : "Sign In"}{" "}
-                {/* show loading text */}
-              </button>
+              <div className="flex justify-center">
+                <button
+                  type="submit"
+                  disabled={isLoading} // disable button during API call
+                  className="w-3/4 py-2 bg-green-calm text-white font-semibold rounded-full
+               transition-all duration-300 hover:bg-green-700 
+               hover:scale-105  shadow-md hover:shadow-lg
+               disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? "Signing in..." : "Sign In"}{" "}
+                  {/* show loading text */}
+                </button>
+              </div>
 
               {/* Divider */}
               <div className="flex items-center justify-center my-6">
@@ -220,7 +231,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => navigate("/register")} // navigate to register page
-                  className="inline-flex items-center text-sm text-green-calm bg-medium-gray font-medium px-4 py-2 rounded-lg border border-medium-gray"
+                  className="inline-flex items-center text-sm text-green-calm bg-medium-gray font-medium px-4 py-2 rounded-lg border border-medium-gray hover:scale-110"
                 >
                   <FaUserPlus className="mr-2" />
                   Create a new account

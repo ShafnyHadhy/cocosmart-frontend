@@ -272,14 +272,14 @@ export default function SignupPage() {
     <div
       className="min-h-screen w-full flex items-center justify-center p-4 relative"
       style={{
-        backgroundImage: `url('/1122.jpeg')`, // make sure A2.png is in the public folder
+        backgroundImage: `url('/111.png')`, // make sure A2.png is in the public folder
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
       }}
     >
       {/* Blurred overlay */}
-      <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"></div>
+      <div className="absolute inset-0 bg-black/20 backdrop-blur-[10px]"></div>
 
       {/* Main Container */}
       <div className="relative flex flex-col md:flex-row w-full max-w-5xl rounded-3xl overflow-hidden shadow-lg border border-medium-gray z-10">
@@ -297,7 +297,10 @@ export default function SignupPage() {
           <div className="w-full max-w-sm">
             {/* Form header */}
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-green-calm mb-1">
+              <h1 className="text-4xl font-extrabold text-green-800 tracking-wide text-center mb-8 font-sans">
+                COCOSmart
+              </h1>
+              <h2 className="text-1xl font-bold text-gray-800  mb-1">
                 Create Your Account
               </h2>
               <p className="text-gray-600 text-xs">
@@ -422,17 +425,20 @@ export default function SignupPage() {
               </div>
 
               {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={!isFormValid}
-                className={`w-full py-3 font-semibold rounded-xl ${
-                  isFormValid
-                    ? "bg-green-calm text-white hover-bg-green-calm-90"
-                    : "bg-medium-gray text-gray-500 cursor-not-allowed"
-                }`}
-              >
-                Sign Up
-              </button>
+              <div className="flex justify-center">
+                <button
+                  type="submit"
+                  disabled={!isFormValid}
+                  className={`px-8 py-2 font-semibold rounded-full transition-all duration-300 shadow-md
+      ${
+        isFormValid
+          ? "bg-green-calm text-white hover:bg-green-700 hover:scale-105"
+          : "bg-medium-gray text-gray-500 cursor-not-allowed"
+      }`}
+                >
+                  Sign Up
+                </button>
+              </div>
 
               {/* Login Link */}
               <p className="text-center text-xs text-gray-600 mt-4">
