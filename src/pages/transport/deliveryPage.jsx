@@ -455,18 +455,18 @@ export default function DeliveryPage() {
                 {/* Status */}
                 <td className="py-3 px-4">
                   {d.deliveryStatus === "completed" ? (
-                    <span className="text-green-600 font-semibold">
+                    <span className="bg-green-100 text-green-800 px-5 py-1 rounded-full font-semibold">
                       Delivered
                     </span>
                   ) : (
-                    <span className="text-yellow-600 font-semibold">
+                    <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full  font-semibold">
                       Processing
                     </span>
                   )}
                 </td>
 
                 {/* Transport Cost */}
-                <td className="py-3 px-4">
+                <td className="py-3 px-4 text-blue-800 font-semibold">
                   {editingId === d._id && d.deliveryStatus === "completed" ? (
                     <input
                       type="number"
@@ -550,17 +550,17 @@ export default function DeliveryPage() {
                       <>
                         <FaRegEdit
                           title="Edit Delivery"
-                          className="cursor-pointer hover:text-green-600 transition-colors text-xl"
+                          className="cursor-pointer text-[#5c4033] text-xl transition-transform duration-200 hover:text-[#5c4033]-600 hover:scale-125"
                           onClick={() => handleEditClick(d)}
                         />
                         <TfiTrash
                           title="Delete Delivery"
-                          className="cursor-pointer hover:text-red-600 transition-colors text-xl"
+                          className="cursor-pointer text-red-600 hover:text-red-900 transition-transform duration-200 text-xl hover:scale-125"
                           onClick={() => confirmDelete(d._id)}
                         />
                         {d.deliveryStatus !== "completed" && (
                           <IoCheckmarkDoneSharp
-                            className="text-green-500 text-2xl cursor-pointer hover:text-green-700 transition-colors"
+                            className="text-green-500 text-2xl cursor-pointer transition-transform duration-200 hover:text-green-700 transition-colors hover:scale-125"
                             title="Mark Delivered"
                             onClick={() => handleMarkDelivery(d._id)}
                           />
