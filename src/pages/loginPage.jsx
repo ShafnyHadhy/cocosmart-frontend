@@ -88,6 +88,26 @@ export default function LoginPage() {
             alt="CocoSmart Visual"
             className="w-full h-full object-cover" // cover whole div
           />
+          {/* Decorative Cloud Divider */}
+          <div className="relative my-6 flex items-center justify-center">
+            <div className="absolute inset-0 flex justify-center">
+              <svg
+                viewBox="0 0 1440 100"
+                className="w-full h-10"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0 10 Q 25 0, 50 10 Q 75 20, 100 10"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                ></path>
+              </svg>
+            </div>
+            <span className="px-4 py-1 bg-white text-secondary text-sm rounded-full shadow">
+              or
+            </span>
+          </div>
         </div>
 
         {/* Right Section - Login Form */}

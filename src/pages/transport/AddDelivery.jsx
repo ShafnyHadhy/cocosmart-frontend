@@ -1,253 +1,3 @@
-// import { useState, useEffect } from "react";
-// import axios from "axios";
-// import toast from "react-hot-toast";
-// import { useNavigate } from "react-router-dom";
-// import {
-//   FaTruck,
-//   FaUser,
-//   FaCar,
-//   FaMapMarkerAlt,
-//   FaCalendarAlt,
-//   FaPlusCircle,
-// } from "react-icons/fa";
-// import "../../styles/3dEffects.css"; // Import 3D CSS
-
-// export default function AddDelivery() {
-//   const navigate = useNavigate();
-//   const [deliveryData, setDeliveryData] = useState({
-//     orderId: "",
-//     driver: "",
-//     vehicle: "",
-//     route: "",
-//     scheduledDate: "",
-//   });
-
-//   const [drivers, setDrivers] = useState([]);
-//   const [vehicles, setVehicles] = useState([]);
-//   const [isSubmitting, setIsSubmitting] = useState(false);
-
-//   const today = new Date().toISOString().split("T")[0];
-
-//   useEffect(() => {
-//     fetchDrivers();
-//     fetchVehicles();
-//   }, []);
-
-//   const fetchDrivers = async () => {
-//     try {
-//       const driverRes = await axios.get(
-//         `${import.meta.env.VITE_API_URL}/api/drivers`
-//       );
-//       const availableDrivers = driverRes.data.filter(
-//         (d) => d.status === "available"
-//       );
-//       setDrivers(availableDrivers);
-//     } catch (err) {
-//       console.error(err);
-//       toast.error("Failed to fetch drivers");
-//     }
-//   };
-
-//   const fetchVehicles = async () => {
-//     try {
-//       const res = await axios.get(
-//         `${import.meta.env.VITE_API_URL}/api/vehicles`
-//       );
-//       const availableVehicles = res.data.filter(
-//         (v) => v.status === "available"
-//       );
-//       setVehicles(availableVehicles);
-//     } catch (err) {
-//       console.error(err);
-//       toast.error("Failed to fetch vehicles");
-//     }
-//   };
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setDeliveryData({ ...deliveryData, [name]: value });
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     const { orderId, driver, vehicle, route, scheduledDate } = deliveryData;
-
-//     if (!orderId || !driver || !vehicle || !route || !scheduledDate) {
-//       return toast.error("All fields are required");
-//     }
-
-//     setIsSubmitting(true);
-//     try {
-//       await axios.post(
-//         `${import.meta.env.VITE_API_URL}/api/deliveries`,
-//         deliveryData
-//       );
-//       toast.success("Delivery assigned successfully");
-//       navigate("/admin/deliveries");
-//     } catch (err) {
-//       console.error(err);
-//       toast.error(err.response?.data?.message || "Failed to assign delivery");
-//     } finally {
-//       setIsSubmitting(false);
-//     }
-//   };
-
-//   return (
-//     <div className="flex items-center justify-center p-4 min-h-screen bg-gray-50 relative overflow-hidden perspective-1000">
-//       {/* Floating decorations */}
-//       <div className="absolute top-12 left-6 w-16 h-16 opacity-20 animate-float">
-//         <div className="w-full h-full bg-[url('/coconut-icon.png')] bg-contain bg-no-repeat"></div>
-//       </div>
-//       <div className="absolute bottom-12 right-8 w-20 h-20 opacity-15 animate-float-reverse">
-//         <div className="w-full h-full bg-[url('/palm-leaf.png')] bg-contain bg-no-repeat"></div>
-//       </div>
-
-//       {/* Main Card */}
-//       <div
-//         className="bg-sec-2 rounded-xl shadow-2xl border border-medium-gray
-//                       overflow-hidden w-full max-w-lg transform-style-3d
-//                       transition-transform duration-700 hover:translate-z-10"
-//       >
-//         {/* Header */}
-//         <div className="bg-green-calm p-4">
-//           <h1 className="text-xl font-bold text-white text-center flex items-center justify-center gap-2">
-//             <FaPlusCircle className="text-earth-white" />
-//             Assign Delivery
-//           </h1>
-//           <p className="text-earth-white text-center mt-1 text-sm">
-//             Schedule a new delivery assignment
-//           </p>
-//         </div>
-
-//         {/* Form */}
-//         <form
-//           onSubmit={handleSubmit}
-//           className="p-5 space-y-4 bg-white/95 backdrop-blur-sm"
-//         >
-//           {/* Order ID */}
-//           <div className="relative transform transition-transform duration-300 hover:translate-z-3">
-//             <label className="block text-secondary mb-1 font-medium text-sm">
-//               <FaTruck className="inline-block mr-2 text-green-calm text-sm" />
-//               Order ID
-//             </label>
-//             <input
-//               type="text"
-//               name="orderId"
-//               placeholder="Enter order ID"
-//               value={deliveryData.orderId}
-//               onChange={handleChange}
-//               className="w-full px-3 py-2 bg-white border border-medium-gray rounded-lg focus:outline-none focus:ring-1 focus:ring-green-calm text-secondary text-sm shadow-[inset_0_2px_6px_rgba(0,0,0,0.1)] hover:translate-y-1 transition-all"
-//               required
-//             />
-//           </div>
-
-//           {/* Driver Selection */}
-//           <div className="relative transform transition-transform duration-300 hover:translate-z-3">
-//             <label className="block text-secondary mb-1 font-medium text-sm">
-//               <FaUser className="inline-block mr-2 text-green-calm text-sm" />
-//               Select Driver
-//             </label>
-//             <select
-//               name="driver"
-//               value={deliveryData.driver}
-//               onChange={handleChange}
-//               className="w-full px-3 py-2 bg-white border border-medium-gray rounded-lg focus:outline-none focus:ring-1 focus:ring-green-calm text-secondary text-sm appearance-none shadow-[inset_0_2px_6px_rgba(0,0,0,0.1)] hover:translate-y-1 transition-all"
-//               required
-//             >
-//               <option value="">Choose a driver</option>
-//               {drivers.map((driver) => (
-//                 <option key={driver._id} value={driver._id}>
-//                   {driver.name} - {driver.licenseNumber}
-//                 </option>
-//               ))}
-//             </select>
-//           </div>
-
-//           {/* Vehicle Selection */}
-//           <div className="relative transform transition-transform duration-300 hover:translate-z-3">
-//             <label className="block text-secondary mb-1 font-medium text-sm">
-//               <FaCar className="inline-block mr-2 text-green-calm text-sm" />
-//               Select Vehicle
-//             </label>
-//             <select
-//               name="vehicle"
-//               value={deliveryData.vehicle}
-//               onChange={handleChange}
-//               className="w-full px-3 py-2 bg-white border border-medium-gray rounded-lg focus:outline-none focus:ring-1 focus:ring-green-calm text-secondary text-sm appearance-none shadow-[inset_0_2px_6px_rgba(0,0,0,0.1)] hover:translate-y-1 transition-all"
-//               required
-//             >
-//               <option value="">Choose a vehicle</option>
-//               {vehicles.map((vehicle) => (
-//                 <option key={vehicle._id} value={vehicle._id}>
-//                   {vehicle.vehicleId} - {vehicle.type}
-//                 </option>
-//               ))}
-//             </select>
-//           </div>
-
-//           {/* Route */}
-//           <div className="relative transform transition-transform duration-300 hover:translate-z-3">
-//             <label className="block text-secondary mb-1 font-medium text-sm">
-//               <FaMapMarkerAlt className="inline-block mr-2 text-green-calm text-sm" />
-//               Delivery Address
-//             </label>
-//             <input
-//               type="text"
-//               name="route"
-//               placeholder="Enter delivery address"
-//               value={deliveryData.route}
-//               onChange={handleChange}
-//               className="w-full px-3 py-2 bg-white border border-medium-gray rounded-lg focus:outline-none focus:ring-1 focus:ring-green-calm text-secondary text-sm shadow-[inset_0_2px_6px_rgba(0,0,0,0.1)] hover:translate-y-1 transition-all"
-//               required
-//             />
-//           </div>
-
-//           {/* Scheduled Date */}
-//           <div className="relative transform transition-transform duration-300 hover:translate-z-3">
-//             <label className="block text-secondary mb-1 font-medium text-sm">
-//               <FaCalendarAlt className="inline-block mr-2 text-green-calm text-sm" />
-//               Scheduled Date
-//             </label>
-//             <input
-//               type="date"
-//               name="scheduledDate"
-//               min={today}
-//               value={deliveryData.scheduledDate}
-//               onChange={handleChange}
-//               className="w-full px-3 py-2 bg-white border border-medium-gray rounded-lg focus:outline-none focus:ring-1 focus:ring-green-calm text-secondary text-sm shadow-[inset_0_2px_6px_rgba(0,0,0,0.1)] hover:translate-y-1 transition-all"
-//               required
-//             />
-//           </div>
-
-//           {/* Submit */}
-//           <button
-//             type="submit"
-//             disabled={isSubmitting}
-//             className={`w-full py-2 font-semibold rounded-lg transition-all flex items-center justify-center gap-2 text-sm mt-3
-//               ${
-//                 isSubmitting
-//                   ? "bg-medium-gray text-secondary cursor-not-allowed"
-//                   : "bg-green-calm hover:bg-green-calm-90 text-white shadow-lg hover:shadow-xl hover:-translate-y-1"
-//               }`}
-//           >
-//             {isSubmitting ? (
-//               <>
-//                 <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-//                 Assigning...
-//               </>
-//             ) : (
-//               <>
-//                 <FaTruck className="text-xs" />
-//                 Assign Delivery
-//               </>
-//             )}
-//           </button>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// }
-
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -273,6 +23,7 @@ function FormInput({
   error,
   options,
   min,
+  displayField,
 }) {
   return (
     <div className="relative">
@@ -280,6 +31,7 @@ function FormInput({
         <Icon className="inline-block mr-1 text-green-calm" />
         {label}
       </label>
+
       {options ? (
         <select
           value={value}
@@ -292,7 +44,9 @@ function FormInput({
           <option value="">Select {label}</option>
           {options.map((opt) => (
             <option key={opt._id || opt} value={opt._id || opt}>
-              {opt.name || `${opt.vehicleId} - ${opt.type}`}
+              {displayField
+                ? opt[displayField]
+                : opt.name || `${opt.vehicleId} - ${opt.type}`}
             </option>
           ))}
         </select>
@@ -309,6 +63,7 @@ function FormInput({
           }`}
         />
       )}
+
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
@@ -322,14 +77,10 @@ const validators = {
   route: (val) => (!val ? "Delivery address is required" : ""),
   scheduledDate: (val) => {
     if (!val) return "Scheduled date is required";
-
     const today = new Date();
     const selectedDate = new Date(val);
-
-    // Ignore time part
     today.setHours(0, 0, 0, 0);
     selectedDate.setHours(0, 0, 0, 0);
-
     if (selectedDate < today) return "Scheduled date cannot be in the past";
     return "";
   },
@@ -347,15 +98,41 @@ export default function AddDelivery() {
     scheduledDate: "",
   });
   const [errors, setErrors] = useState({});
+  const [orders, setOrders] = useState([]);
   const [drivers, setDrivers] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    fetchOrders();
     fetchDrivers();
     fetchVehicles();
   }, []);
 
+  // Fetch Orders - Filter only pending orders
+  const fetchOrders = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/orders`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Filter only pending orders that can be assigned for delivery
+      const pendingOrders = (res.data.orders || []).filter(
+        (order) => order.status === "pending" || order.status === "Pending"
+      );
+
+      setOrders(pendingOrders);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch orders");
+    }
+  };
+
+  // Fetch Drivers
   const fetchDrivers = async () => {
     try {
       const res = await axios.get(
@@ -368,6 +145,7 @@ export default function AddDelivery() {
     }
   };
 
+  // Fetch Vehicles
   const fetchVehicles = async () => {
     try {
       const res = await axios.get(
@@ -380,11 +158,13 @@ export default function AddDelivery() {
     }
   };
 
+  // Validate input fields
   const handleValidate = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: validators[field](value) }));
   };
 
+  // Submit form - FIXED: Send orderID string instead of _id
   const handleAddDelivery = async () => {
     const newErrors = {};
     Object.keys(formData).forEach((field) => {
@@ -399,11 +179,30 @@ export default function AddDelivery() {
 
     setIsSubmitting(true);
     try {
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/deliveries`,
-        formData
+      // Find the selected order to get its orderID string
+      const selectedOrder = orders.find(
+        (order) => order._id === formData.orderId
       );
+
+      if (!selectedOrder) {
+        toast.error("Selected order not found");
+        return;
+      }
+
+      // Send the orderID string (like "ORD0000001") instead of the _id
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/deliveries`, {
+        orderId: selectedOrder.orderID, // Send the orderID string
+        vehicle: formData.vehicle,
+        driver: formData.driver,
+        route: formData.route,
+        scheduledDate: formData.scheduledDate,
+      });
+
       toast.success("Delivery assigned successfully");
+
+      // Set flag to refresh orders page
+      localStorage.setItem("ordersNeedRefresh", "true");
+
       navigate("/admin/deliveries");
     } catch (err) {
       console.error(err);
@@ -426,15 +225,32 @@ export default function AddDelivery() {
         </div>
 
         <div className="p-5 space-y-4 bg-white/95 backdrop-blur-sm">
+          {/* Orders dropdown - FIXED: Show orderID but store _id temporarily */}
           <FormInput
-            label="Order ID"
+            label="Order"
             icon={FaTruck}
-            placeholder="Enter order ID"
             value={formData.orderId}
             onChange={(e) => handleValidate("orderId", e.target.value)}
             onBlur={() => handleValidate("orderId", formData.orderId)}
+            options={orders}
+            displayField="orderID"
             error={errors.orderId}
           />
+
+          {/* Show selected order details */}
+          {formData.orderId && (
+            <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+              Selected Order:{" "}
+              {orders.find((o) => o._id === formData.orderId)?.customerName} -
+              LKR{" "}
+              {orders
+                .find((o) => o._id === formData.orderId)
+                ?.total?.toFixed(2)}{" "}
+              - Status: {orders.find((o) => o._id === formData.orderId)?.status}
+            </div>
+          )}
+
+          {/* Drivers dropdown */}
           <FormInput
             label="Driver"
             icon={FaUser}
@@ -442,8 +258,11 @@ export default function AddDelivery() {
             onChange={(e) => handleValidate("driver", e.target.value)}
             onBlur={() => handleValidate("driver", formData.driver)}
             options={drivers}
+            displayField="name"
             error={errors.driver}
           />
+
+          {/* Vehicles dropdown */}
           <FormInput
             label="Vehicle"
             icon={FaCar}
@@ -451,8 +270,11 @@ export default function AddDelivery() {
             onChange={(e) => handleValidate("vehicle", e.target.value)}
             onBlur={() => handleValidate("vehicle", formData.vehicle)}
             options={vehicles}
+            displayField="vehicleId"
             error={errors.vehicle}
           />
+
+          {/* Delivery address */}
           <FormInput
             label="Delivery Address"
             icon={FaMapMarkerAlt}
@@ -462,6 +284,8 @@ export default function AddDelivery() {
             onBlur={() => handleValidate("route", formData.route)}
             error={errors.route}
           />
+
+          {/* Scheduled Date */}
           <FormInput
             label="Scheduled Date"
             icon={FaCalendarAlt}
@@ -472,18 +296,18 @@ export default function AddDelivery() {
               handleValidate("scheduledDate", formData.scheduledDate)
             }
             error={errors.scheduledDate}
-            min={today} // Prevent selecting past dates
+            min={today}
           />
 
+          {/* Submit button */}
           <button
             onClick={handleAddDelivery}
             disabled={isSubmitting}
-            className={`w-full py-2 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1
-              ${
-                isSubmitting
-                  ? "bg-medium-gray text-secondary cursor-not-allowed"
-                  : "bg-green-calm hover:bg-green-calm-90 text-white shadow-lg hover:shadow-xl hover:-translate-y-1"
-              }`}
+            className={`w-full py-2 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1 ${
+              isSubmitting
+                ? "bg-medium-gray text-secondary cursor-not-allowed"
+                : "bg-green-calm hover:bg-green-calm-90 text-white shadow-lg hover:shadow-xl hover:-translate-y-1"
+            }`}
           >
             {isSubmitting ? "Assigning..." : "Assign Delivery"}
           </button>

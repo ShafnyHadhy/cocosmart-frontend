@@ -9,6 +9,8 @@ import HomeBody from "../components/homeBody";
 import TestimonialSection from "../components/testimonialSection";
 import FeaturesCarousel from "../components/featuresSection";
 import SubmitFeedback from "./feedback/SubmitFeedback";
+import UserProfile from "./Profile/UserProfile";
+import ViewOrder from "./Profile/viewOrder";
 
 export default function HomePage() {
   return (
@@ -27,6 +29,8 @@ export default function HomePage() {
         <Route path="cart" element={<CartPage/>}/>
         <Route path="checkout" element={<CheckoutPage/>}/>
         <Route path="feedback" element={<SubmitFeedback />} />
+        <Route path="profile" element={<UserProfile />} />
+        <Route path="orders/:orderID" element={<ViewOrder />} />
         <Route path="*" element={<h1>404 not found</h1>} />
       </Routes>
       

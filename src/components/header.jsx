@@ -29,16 +29,14 @@ export default function Header() {
           
         </Link>
 
-        {
-          /*
-          <Link
-            to="/signup"
-            className="px-4 h-9 flex items-center rounded-full border border-accent text-accent font-medium text-sm shadow-sm hover:bg-accent hover:text-primary active:scale-95 transition-all duration-200"
-          >
-            Sign Up
-          </Link>
-          */
-        }
+        
+        <Link
+          to="/profile"
+          className="px-4 h-9 flex items-center rounded-full border border-accent text-accent font-medium text-sm shadow-sm hover:bg-accent hover:text-primary active:scale-95 transition-all duration-200"
+        >
+          Profile
+        </Link>
+         
         
         <Link
           to="/login"

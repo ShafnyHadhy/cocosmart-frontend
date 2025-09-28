@@ -75,13 +75,19 @@ export default function SubmitFeedback() {
   }
 
   return (
-    <div className="flex items-center justify-center p-4 min-h-screen">
+    <div
+      className="flex items-center justify-center p-4 min-h-[calc(100vh-37px)] relative"
+      style={{
+        backgroundImage: `url('/A2.jpg')`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      {/* Blurred overlay */}
+      <div className="absolute inset-0 bg-black/20 backdrop-blur-[3px]"></div>
+
       {/* Main feedback card with 3D hover effect */}
-      <div
-        className="bg-sec-2 rounded-xl shadow-2xl border border-medium-gray 
-                   overflow-hidden w-full max-w-md transform-style-3d 
-                   transition-transform duration-700 hover:translate-z-10"
-      >
+      <div className="relative z-10 bg-sec-2 rounded-xl shadow-2xl border border-medium-gray overflow-hidden w-full max-w-md transform-style-3d transition-transform duration-700 hover:translate-z-10">
         {/* Header */}
         <div className="bg-green-calm p-5">
           <h1 className="text-2xl font-bold text-white text-center flex items-center justify-center gap-2">
@@ -103,9 +109,6 @@ export default function SubmitFeedback() {
             <div className="w-full px-4 py-3 bg-accent-green-20 border border-medium-gray rounded-lg text-green-calm">
               {username}
             </div>
-            <p className="text-green-calm text-xs mt-1">
-              Logged in user • Name cannot be changed
-            </p>
           </div>
 
           {/* Rating */}
