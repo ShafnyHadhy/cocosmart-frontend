@@ -68,7 +68,7 @@ const MetricCard = ({
   color,
   bgColor,
 }) => (
-  <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:scale-105 relative overflow-hidden group">
+  <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 shadow-lg border-2 border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:scale-105 relative overflow-hidden group">
     {/* Background gradient overlay */}
     <div
       className="absolute inset-0 opacity-5 transition-opacity duration-300 group-hover:opacity-10"
@@ -124,7 +124,7 @@ const AlertCard = ({
   bgColor,
   description,
 }) => (
-  <div className="bg-gradient-to-br from-white via-white to-gray-50 rounded-2xl p-5 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:scale-105 relative overflow-hidden group">
+  <div className="bg-gradient-to-br from-white via-white to-gray-50 rounded-2xl p-5 shadow-lg border-2 border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:scale-105 relative overflow-hidden group">
     {/* Animated background pattern */}
     <div
       className="absolute top-0 right-0 w-20 h-20 rounded-full opacity-10 transition-all duration-300 group-hover:scale-150 group-hover:opacity-20"

@@ -17,6 +17,9 @@ import SupplierDetails from "./inventory/SupplierDetails";
 import UpdateSupplier from "./inventory/UpdateSupplier";
 import CoconutInventoryDashboard from "./inventory/CoconutInventoryDashboard";
 
+import AddStock from "./inventory/AddStock";
+import StockDetails from "./inventory/StockDetails";
+
 export default function Inventory() {
   const location = useLocation();
 
@@ -26,6 +29,7 @@ export default function Inventory() {
     { path: "/inventory/cocoProductDetails", label: "Coco Products", icon: <FiBox /> },
     { path: "/inventory/purchasedItemDetails", label: "Purchased Items", icon: <FiBox /> },////////////////
     { path: "/inventory/supplierDetails", label: "Suppliers", icon: <FiBox /> },////////////////
+    { path: "/inventory/stockDetails", label: "Stock Movements", icon: <FiBox /> },////////////////
     
   ];
 
@@ -93,6 +97,9 @@ export default function Inventory() {
             <Route path="addSupplier" element={<AddSupplier />} />
             <Route path="supplierDetails" element={<SupplierDetails />} />
             <Route path="updateSupplier/:id" element={<UpdateSupplier />} />
+
+            <Route path="addStock" element={<AddStock />} />
+            <Route path="stockDetails" element={<StockDetails />} />
             
           </Routes>
           </div>
