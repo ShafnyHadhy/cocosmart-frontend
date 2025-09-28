@@ -160,13 +160,10 @@ export default function UserProfile() {
                 />
               </label>
             </div>
-            <div className="ml-6 text-white">
-              <h1 className="text-xl font-bold">
+            <div className="ml-6 text-green-900">
+              <h1 className="text-4xl font-bold">
                 {user?.firstname} {user?.lastname}
               </h1>
-              <p className="text-[var(--color-sec-2)] opacity-90 text-sm">
-                {user?.email}
-              </p>
             </div>
           </div>
 

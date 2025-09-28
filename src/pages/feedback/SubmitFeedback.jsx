@@ -76,7 +76,7 @@ export default function SubmitFeedback() {
 
   return (
     <div
-      className="flex items-center justify-center h-screen relative overflow-hidden"
+      className="flex items-center justify-center h-[85vh] relative overflow-hidden pt-4"
       style={{
         backgroundImage: `url('/111.png')`,
         backgroundSize: "cover",
@@ -103,7 +103,7 @@ export default function SubmitFeedback() {
         <div className="p-5 space-y-4 bg-white/95 backdrop-blur-sm">
           {/* User info (read-only) */}
           <div className="relative transform transition-transform duration-300 hover:translate-z-3">
-            <label className="block text-secondary mb-1 font-medium text-sm">
+            <label className="block text-green-800 mb-1 font-medium text-sm">
               👤 Your Account
             </label>
             <div className="w-full px-4 py-3 bg-accent-green-20 border border-medium-gray rounded-lg text-green-calm">
@@ -145,7 +145,7 @@ export default function SubmitFeedback() {
 
           {/* Comment box */}
           <div className="relative transform transition-transform duration-300 hover:translate-z-3">
-            <label className="block text-secondary mb-1 font-medium text-sm">
+            <label className="block text-green-800 mb-1 font-medium text-sm">
               💬 Your Feedback *
             </label>
             <textarea
