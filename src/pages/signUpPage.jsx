@@ -300,7 +300,7 @@ export default function SignupPage() {
               <h1 className="text-4xl font-extrabold text-green-800 tracking-wide text-center mb-8 font-sans">
                 COCOSmart
               </h1>
-              <h2 className="text-1xl font-bold text-gray-800  mb-1">
+              <h2 className="text-2xl font-bold text-gray-800  mb-1">
                 Create Your Account
               </h2>
               <p className="text-gray-600 text-xs">

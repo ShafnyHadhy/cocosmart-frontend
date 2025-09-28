@@ -12,6 +12,7 @@ export default function SubmitFeedback() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
+  const [isAnonymous, setIsAnonymous] = useState(false);
 
   useEffect(() => {
     const userEmail = localStorage.getItem("userEmail");
@@ -47,7 +48,7 @@ export default function SubmitFeedback() {
 
     try {
       await axios.post(`${import.meta.env.VITE_API_URL}/api/feedback`, {
-        username,
+        username: isAnonymous ? "Anonymous" : username,
         rating,
         comment,
         userId: userData?._id,
@@ -109,6 +110,21 @@ export default function SubmitFeedback() {
             <div className="w-full px-4 py-3 bg-accent-green-20 border border-medium-gray rounded-lg text-green-calm">
               {username}
             </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="anonymous"
+              checked={isAnonymous}
+              onChange={(e) => setIsAnonymous(e.target.checked)}
+              className="w-4 h-4 accent-green-calm"
+            />
+            <label
+              htmlFor="anonymous"
+              className="text-black text-xs font-medium"
+            >
+              Submit feedback as Anonymous
+            </label>
           </div>
 
           {/* Rating */}
