@@ -1,0 +1,95 @@
+/* Container */
+.add-plantation-page-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 32px 36px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eef2ef;
+}
+
+/* Title */
+.add-plantation-page-title {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 24px;
+  letter-spacing: 0.2px;
+  font-weight: 700;
+}
+
+/* Error text */
+.add-plantation-page-error-text {
+  text-align: left;
+  color: #e74c3c;
+  margin-top: 6px;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+/* Form layout */
+.add-plantation-page-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 28px;
+}
+
+/* Labels */
+.add-plantation-page-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+/* Inputs */
+.add-plantation-page-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #dcdfe3;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.add-plantation-page-input:focus {
+  border-color: #16a085;
+  box-shadow: 0 0 0 3px rgba(22, 160, 133, 0.15);
+}
+
+/* Action buttons */
+.add-plantation-page-actions {
+  grid-column: span 2;
+  display: flex;
+  justify-content: center;
+  margin-top: 28px;
+}
+
+.add-plantation-page-btn-submit {
+  background: linear-gradient(135deg, #1e5631, #2f855a);
+  color: #fff;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.add-plantation-page-btn-submit:hover {
+  box-shadow: 0 8px 16px rgba(30, 86, 49, 0.25);
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .add-plantation-page-form {
+    grid-template-columns: 1fr;
+  }
+
+  .add-plantation-page-actions {
+    grid-column: span 1;
+  }
+}

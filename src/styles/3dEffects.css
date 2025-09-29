@@ -1,0 +1,73 @@
+/* ==============================
+   3D Card Perspective & Transform
+   ============================== */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+/* Translate in Z-axis */
+.translate-z-5 {
+  transform: translateZ(5px);
+}
+
+.translate-z-10 {
+  transform: translateZ(10px);
+}
+
+.-translate-z-5 {
+  transform: translateZ(-5px);
+}
+
+/* Hover translate Z */
+.hover\:translate-z-3:hover {
+  transform: translateZ(3px);
+}
+
+/* ==============================
+   Floating Animations
+   ============================== */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+@keyframes float-reverse {
+  0%,
+  100% {
+    transform: translateY(0) rotate(12deg);
+  }
+  50% {
+    transform: translateY(15px) rotate(7deg);
+  }
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 10s ease-in-out infinite;
+}
+
+/* ==============================
+   Text Shadow
+   ============================== */
+.text-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ==============================
+   Hover Scale Effect for Groups
+   ============================== */
+.group:hover .group-hover\:scale-110 {
+  transform: scale(1.1);
+}
