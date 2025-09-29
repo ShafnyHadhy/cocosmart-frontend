@@ -106,7 +106,7 @@ const UserPage = () => {
       <div className="w-full flex justify-end gap-3 mb-4">
         {/* Search Button */}
         <button
-          className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 text-black hover:bg-gray-600 hover:scale-110 transition"
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-black hover:bg-gray-300 hover:scale-110 transition"
           onClick={() => setShowSearchFields(!showSearchFields)}
           title="Search Users"
         >
@@ -134,6 +134,7 @@ const UserPage = () => {
             <option value="worker">Worker</option>
             <option value="Pro.Staff">Pro Staff</option>
             <option value="HRM">HRM</option>
+            <option value="Inventory">Inventory</option>
           </select>
         </div>
       )}
@@ -173,6 +174,7 @@ const UserPage = () => {
                       <option value="worker">Worker</option>
                       <option value="Pro.Staff">Pro Staff</option>
                       <option value="HRM">HRM</option>
+                      <option value="Inventory">Inventory</option>
                     </select>
                   ) : (
                     <span
@@ -183,6 +185,8 @@ const UserPage = () => {
                           ? "bg-yellow-100 text-yellow-800 px-5.5 py-1 rounded-full font-semibold"
                           : user.role === "Pro.Staff"
                           ? "bg-blue-100 text-blue-800 px-4.5 py-1 rounded-full font-semibold"
+                          : user.role === "Inventory"
+                          ? "bg-purple-200 text-purple-900 px-4.5 py-1.5 rounded-full font-semibold"
                           : user.role === "HRM"
                           ? "bg-green-200 text-green-800 px-7.5 py-1 rounded-full font-semibold"
                           : "bg-gray-200 text-gray-800 px-7.5 py-1 rounded-full font-semibold"

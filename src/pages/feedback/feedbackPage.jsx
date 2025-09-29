@@ -104,117 +104,149 @@ const FeedbackPage = () => {
     return matchText && matchRating;
   });
 
-  // Generate PDF
   const generateFeedbackReport = () => {
     const doc = new jsPDF();
     const logoImg = new Image();
-    logoImg.src = "/clogo.png";
+    logoImg.src = "/clogo.png"; // logo in public folder
 
-    const now = new Date();
-    const reportId = `RPT-${now.getFullYear()}${(now.getMonth() + 1)
-      .toString()
-      .padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}-${now
-      .getHours()
-      .toString()
-      .padStart(2, "0")}${now.getMinutes().toString().padStart(2, "0")}${now
-      .getSeconds()
-      .toString()
-      .padStart(2, "0")}`;
+    logoImg.onload = () => {
+      const now = new Date();
+      const reportId = `FB-${now.getFullYear()}${(now.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}-${now
+        .getHours()
+        .toString()
+        .padStart(2, "0")}${now.getMinutes().toString().padStart(2, "0")}${now
+        .getSeconds()
+        .toString()
+        .padStart(2, "0")}`;
 
-    // ===== Header =====
-    doc.setFontSize(18);
-    doc.setFont("helvetica", "bold");
-    doc.text("COCOSMART", 105, 20, { align: "center" });
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
 
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text("Comprehensive User Feedback Analysis", 105, 38, {
-      align: "center",
-    }); // moved down
-
-    doc.text("123/C, Main Street, Colombo 01, Sri Lanka", 105, 46, {
-      align: "center",
-    }); // moved down
-
-    // Generated on / Report ID below address
-    doc.setFontSize(10);
-    doc.text(
-      `Generated on: ${now.toLocaleString()} | Report ID: ${reportId}`,
-      105,
-      54, // moved down
-      { align: "center" }
-    );
-
-    // ===== Add FEEDBACK REPORT heading again before table =====
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(0, 0, 0);
-    doc.text("FEEDBACK REPORT", 105, 62, { align: "center" }); // startY for tables below this
-
-    // ===== Filter feedbacks by rating =====
-    const ratings = [5, 4, 3, 2, 1];
-    let startY = 70; // space below repeated heading
-
-    ratings.forEach((rating) => {
-      const feedbacksByRating = feedbacks.filter((f) => f.rating === rating);
-      if (feedbacksByRating.length === 0) return;
-
-      // Table heading
+      // ===== Company Header =====
+      doc.addImage(logoImg, "PNG", 15, 10, 30, 30);
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(12);
-      doc.setTextColor(41, 128, 185);
-      doc.text(`${rating} Star Feedbacks`, 105, startY, { align: "center" });
+      doc.setFontSize(20);
+      doc.text("CocoSmart Pvt Ltd", 105, 20, { align: "center" });
 
-      startY += 6; // small gap before table
-
-      // Prepare table data
-      const tableColumn = ["User", "Feedback", "Rating", "Reply"];
-      const tableRows = feedbacksByRating.map((f) => [
-        f.username,
-        f.comment,
-        f.rating,
-        f.adminReply || "No reply yet",
-      ]);
-
-      // Add table
-      doc.autoTable({
-        head: [tableColumn],
-        body: tableRows,
-        startY,
-        theme: "grid",
-        styles: { fontSize: 9, lineWidth: 0.1, lineColor: [0, 0, 0] },
-        headStyles: {
-          fillColor: [42, 85, 64],
-          textColor: 255,
-          halign: "center",
-        },
-        alternateRowStyles: { fillColor: [245, 245, 245] },
-        margin: { top: 5, bottom: 5 },
-      });
-
-      startY = doc.lastAutoTable.finalY + 15; // space between tables
-    });
-
-    // ===== Footer =====
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
-      doc.text("Prepared by: Admin | Approved by: Manager", 15, 290, {
-        align: "left",
+      doc.setFontSize(14);
+      doc.text("Comprehensive User Feedback Analysis", 105, 28, {
+        align: "center",
       });
-      doc.text(`Report ID: ${reportId} | Page ${i} of ${pageCount}`, 200, 290, {
+
+      doc.setFontSize(9);
+      doc.text("123/C, Main Street, Colombo 01, Sri Lanka", 105, 36, {
+        align: "center",
+      });
+
+      // ===== Period (left) & Generated on (right) =====
+      doc.setFontSize(10);
+      doc.text(
+        `Period: ${firstDay.toISOString().split("T")[0]}  -  ${
+          lastDay.toISOString().split("T")[0]
+        }`,
+        15,
+        48,
+        { align: "left" }
+      );
+      doc.text(`Generated on: ${now.toLocaleString()}`, 200, 48, {
         align: "right",
       });
-    }
 
-    // Save PDF
-    doc.save(
-      `feedback_report_${now.getFullYear()}${
-        now.getMonth() + 1
-      }${now.getDate()}.pdf`
-    );
+      // ===== Feedback Report Title =====
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("FEEDBACK REPORT", 105, 60, { align: "center" });
+      const titleWidth = doc.getTextWidth("FEEDBACK REPORT");
+      doc.line(105 - titleWidth / 2, 62, 105 + titleWidth / 2, 62);
+
+      // ===== Feedback Summary =====
+      const totalFeedbacks = feedbacks.length;
+      const avgRating =
+        feedbacks.reduce((sum, f) => sum + f.rating, 0) / (totalFeedbacks || 1);
+
+      let summaryStartY = 70;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text(`Total Feedbacks: ${totalFeedbacks}`, 15, summaryStartY);
+      doc.text(
+        `Average Rating: ${avgRating.toFixed(2)} `,
+        15,
+        summaryStartY + 6
+      );
+
+      summaryStartY += 18; // space before tables
+
+      // ===== Table Section by Rating =====
+      const ratings = [5, 4, 3, 2, 1];
+      ratings.forEach((rating) => {
+        const feedbacksByRating = feedbacks.filter((f) => f.rating === rating);
+        if (!feedbacksByRating.length) return;
+
+        // Rating Heading
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.setTextColor(41, 128, 185);
+        doc.text(`${rating} Star Feedbacks`, 105, summaryStartY, {
+          align: "center",
+        });
+        summaryStartY += 6;
+
+        const tableColumn = ["User", "Feedback", "Rating", "Reply"];
+        const tableRows = feedbacksByRating.map((f) => [
+          f.username || "-",
+          f.comment || "-",
+          `${f.rating} `,
+          f.adminReply || "No reply yet",
+        ]);
+
+        doc.autoTable({
+          head: [tableColumn],
+          body: tableRows,
+          startY: summaryStartY,
+          theme: "grid",
+          styles: { fontSize: 9, halign: "left" },
+          headStyles: {
+            fillColor: [42, 85, 64],
+            textColor: 255,
+            halign: "center",
+          },
+          alternateRowStyles: { fillColor: [245, 245, 245] },
+          margin: { top: 5, bottom: 5 },
+        });
+
+        summaryStartY = doc.lastAutoTable.finalY + 12;
+      });
+
+      // ===== Footer =====
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        doc.text("Prepared by: Admin | Approved by: Manager", 15, 290, {
+          align: "left",
+        });
+        doc.text(
+          `Report ID: ${reportId} | Page ${i} of ${pageCount}`,
+          200,
+          290,
+          {
+            align: "right",
+          }
+        );
+      }
+
+      doc.save(
+        `Cocosmart_Feedback_Report_${now.getFullYear()}${
+          now.getMonth() + 1
+        }${now.getDate()}.pdf`
+      );
+    };
   };
 
   return (
@@ -223,7 +255,7 @@ const FeedbackPage = () => {
 
       <div className="w-full flex justify-end gap-2 mb-2">
         <button
-          className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 text-black hover:bg-gray-600 hover:scale-110 transition"
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-black hover:bg-gray-300 hover:scale-110 transition"
           onClick={() => setShowSearchFields(!showSearchFields)}
           title="Search Feedback"
         >
@@ -232,7 +264,7 @@ const FeedbackPage = () => {
 
         {/* PDF icon clickable */}
         <button
-          className="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-500 text-black hover:bg-yellow-600 hover:scale-110 transition"
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-300 text-black hover:bg-yellow-200 hover:scale-110 transition"
           title="Generate Report"
           onClick={generateFeedbackReport}
         >

@@ -62,6 +62,9 @@ export default function LoginPage() {
         case "Pro.Staff":
           navigate("/plant");
           break;
+        case "Inventory":
+          navigate("/inventory");
+          break;
         case "HRM":
           navigate("/hrm");
           break;
@@ -131,7 +134,7 @@ export default function LoginPage() {
 
             {/* Welcome Message */}
             <div className="text-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-800">
+              <h2 className="text-2xl font-semibold text-gray-800">
                 Welcome Back
               </h2>
               <p className="text-gray-500 text-sm">

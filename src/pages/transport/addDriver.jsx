@@ -152,7 +152,7 @@ export default function AddDriver() {
     setErrors((prev) => ({ ...prev, [field]: validators[field](value) }));
   };
 
-  // Submit handler
+  // Submit handler (Database Connection)
   const handleAddDriver = async () => {
     const newErrors = {};
     Object.keys(formData).forEach((field) => {
@@ -164,7 +164,7 @@ export default function AddDriver() {
       toast.error("Please fix the errors in the form");
       return;
     }
-
+    // Step 2: Send POST request to backend
     setIsSubmitting(true);
     try {
       await axios.post(`${import.meta.env.VITE_API_URL}/api/drivers`, {
@@ -192,7 +192,7 @@ export default function AddDriver() {
   };
 
   return (
-    <div className="flex items-center justify-center p-4 min-h-screen bg-gray-50 relative overflow-hidden">
+    <div className="flex justify-center p-6 bg-gray-50">
       {/* Main form */}
       <div className="bg-sec-2 rounded-xl shadow-2xl border border-medium-gray overflow-hidden w-full max-w-md ">
         <div className="bg-green-calm p-4 ">
@@ -200,7 +200,7 @@ export default function AddDriver() {
             <FaPlusCircle className="text-earth-white" />
             Add New Driver
           </h1>
-          <p className="text-earth-black text-center mt-1 text-xs">
+          <p className="text-white text-center mt-1 text-xs">
             Register driver to the system
           </p>
         </div>
