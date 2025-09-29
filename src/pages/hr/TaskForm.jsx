@@ -8,6 +8,12 @@ export default function TaskForm() {
   const { taskId: routeTaskId } = useParams(); // present when editing
   const navigate = useNavigate();
 
+  const cssVars = {
+    "--green-calm": "#2a5540",
+    "--medium-gray": "#e7e9e9",
+    "--light-gray": "#f7f9f9",
+  };
+
   const [taskId, setTaskId] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -90,7 +96,7 @@ export default function TaskForm() {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50" style={cssVars}>
       <div className="bg-white rounded-2xl p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto relative shadow-2xl">
         <button
           onClick={() => navigate(-1)}
@@ -98,7 +104,7 @@ export default function TaskForm() {
         >
           ×
         </button>
-        <h2 className="text-2xl font-bold mb-6 pr-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <h2 className="text-2xl font-bold mb-6 pr-8 text-[var(--green-calm)]">
           {editing ? "Edit Task" : "Create New Task"}
         </h2>
 
@@ -177,7 +183,7 @@ export default function TaskForm() {
             <label className="block mb-2 text-sm font-medium text-gray-700">Scheduled Date</label>
             <input
               type="date"
-              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent"
               value={scheduledDate}
               onChange={(e) => setScheduledDate(e.target.value)}
               min={new Date().toISOString().split('T')[0]}
@@ -188,9 +194,34 @@ export default function TaskForm() {
             <label className="block mb-2 text-sm font-medium text-gray-700">Scheduled Time</label>
             <input
               type="time"
-              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent"
               value={scheduledTime}
-              onChange={(e) => setScheduledTime(e.target.value)}
+              min={scheduledDate && new Date(scheduledDate).toDateString() === new Date().toDateString() ? new Date().toTimeString().slice(0, 5) : undefined}
+              onChange={(e) => {
+                const selectedTime = e.target.value;
+                const today = new Date();
+                const selectedDate = scheduledDate ? new Date(scheduledDate) : today;
+                
+                // If no date is selected, use today
+                if (!scheduledDate) {
+                  const currentTime = today.toTimeString().slice(0, 5);
+                  if (selectedTime < currentTime) {
+                    alert("Cannot schedule task in the past. Please select a future time.");
+                    return;
+                  }
+                } else {
+                  // If date is today, check if time is in the past
+                  if (selectedDate.toDateString() === today.toDateString()) {
+                    const currentTime = today.toTimeString().slice(0, 5);
+                    if (selectedTime < currentTime) {
+                      alert("Cannot schedule task in the past. Please select a future time.");
+                      return;
+                    }
+                  }
+                }
+                
+                setScheduledTime(selectedTime);
+              }}
             />
           </div>
 
@@ -198,12 +229,18 @@ export default function TaskForm() {
             <label className="block mb-2 text-sm font-medium text-gray-700">Estimated Hours</label>
             <input
               type="number"
-              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent"
               value={estimatedHours}
-              onChange={(e) => setEstimatedHours(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === '' || (parseFloat(value) >= 0.5 && parseFloat(value) <= 10)) {
+                  setEstimatedHours(value);
+                }
+              }}
               min="0.5"
+              max="10"
               step="0.5"
-              placeholder="Hours"
+              placeholder="Hours (max 10)"
             />
           </div>
 
@@ -282,7 +319,7 @@ export default function TaskForm() {
           </button>
           <button
             type="submit"
-            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg font-medium transition-all duration-200 transform hover:-translate-y-0.5"
+            className="px-8 py-3 bg-[var(--green-calm)] text-white rounded-xl hover:shadow-lg font-medium transition-all duration-200 transform hover:-translate-y-0.5"
           >
             {editing ? "Update Task" : "Create Task"}
           </button>

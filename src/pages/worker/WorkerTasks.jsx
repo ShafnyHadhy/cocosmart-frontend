@@ -8,6 +8,9 @@ export default function WorkerTasks() {
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
 
   const cssVars = {
     "--green-calm": "#2a5540",
@@ -47,8 +50,26 @@ export default function WorkerTasks() {
   }, [isLoggedIn, workerId]);
 
   const filteredTasks = tasks.filter(task => {
-    if (filter === "all") return true;
-    return task.status === filter;
+    // Status filter
+    if (filter !== "all" && task.status !== filter) return false;
+    
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      if (!task.title.toLowerCase().includes(query) && 
+          !task.description?.toLowerCase().includes(query) &&
+          !task.taskId.toLowerCase().includes(query)) {
+        return false;
+      }
+    }
+    
+    // Priority filter
+    if (priorityFilter && task.priority !== priorityFilter) return false;
+    
+    // Category filter
+    if (categoryFilter && task.category !== categoryFilter) return false;
+    
+    return true;
   }).sort((a, b) => {
     switch (sortBy) {
       case "title":
@@ -56,6 +77,10 @@ export default function WorkerTasks() {
       case "priority":
         const priorityOrder = { "Critical": 4, "High": 3, "Medium": 2, "Low": 1 };
         return priorityOrder[b.priority] - priorityOrder[a.priority];
+      case "status":
+        return a.status.localeCompare(b.status);
+      case "category":
+        return a.category.localeCompare(b.category);
       case "recent":
       default:
         return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
@@ -129,35 +154,128 @@ export default function WorkerTasks() {
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Professional Filters */}
       <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <div className="flex flex-wrap gap-4 items-center">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Filter:</label>
+            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            <span className="text-sm font-medium text-gray-700">Filters</span>
+          </div>
+          <button
+            onClick={() => {
+              setSearchQuery("");
+              setFilter("all");
+              setPriorityFilter("");
+              setCategoryFilter("");
+              setSortBy("recent");
+            }}
+            className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Clear
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+          {/* Search */}
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+              <svg className="h-3 w-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search tasks..."
+              className="w-full pl-7 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent"
+            />
+          </div>
+
+          {/* Status Filter */}
+          <div className="relative">
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent appearance-none cursor-pointer"
             >
-              <option value="all">All Tasks</option>
+              <option value="all">All Status</option>
               <option value="To Do">To Do</option>
               <option value="In Progress">In Progress</option>
               <option value="Completed">Completed</option>
               <option value="On Hold">On Hold</option>
             </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <svg className="h-3 w-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
           </div>
-          
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Sort by:</label>
+
+          {/* Priority Filter */}
+          <div className="relative">
+            <select
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent appearance-none cursor-pointer"
+            >
+              <option value="">All Priorities</option>
+              <option value="Critical">Critical</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <svg className="h-3 w-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Category Filter */}
+          <div className="relative">
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent appearance-none cursor-pointer"
+            >
+              <option value="">All Categories</option>
+              <option value="Plantation">Plantation</option>
+              <option value="Harvesting">Harvesting</option>
+              <option value="Processing">Processing</option>
+              <option value="Maintenance">Maintenance</option>
+              <option value="Administration">Administration</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <svg className="h-3 w-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Sort Filter */}
+          <div className="relative">
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent appearance-none cursor-pointer"
             >
               <option value="recent">Recent</option>
               <option value="title">Title</option>
               <option value="priority">Priority</option>
+              <option value="status">Status</option>
+              <option value="category">Category</option>
             </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <svg className="h-3 w-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
           </div>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { useWorker } from "../../contexts/WorkerContext";
 import { getTasksForWorker, getWorkerAnalytics } from "../../services/taskService";
 
 export default function WorkerDashboard() {
-  const { workerId, workerData, isLoggedIn, isLoading, loadWorkerData } = useWorker();
+  const { workerId, workerData, isLoggedIn, isLoading, login, authenticateFromMainLogin } = useWorker();
   const [stats, setStats] = useState({
     totalTasks: 0,
     completedTasks: 0,
@@ -56,12 +56,33 @@ export default function WorkerDashboard() {
     loadStats();
   }, [isLoggedIn, workerId]);
 
-  const [inputWorkerId, setInputWorkerId] = useState("");
+  // Auto-authenticate if user is already logged in through main login
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userEmail = localStorage.getItem('userEmail');
+    
+    if (token && userEmail && !isLoggedIn) {
+      console.log("WorkerDashboard: Auto-authenticating from main login");
+      authenticateFromMainLogin();
+    }
+  }, [authenticateFromMainLogin, isLoggedIn]);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (inputWorkerId.trim()) {
-      await loadWorkerData(inputWorkerId);
+    setLoginError("");
+    
+    if (!email || !password) {
+      setLoginError("Please enter both email and password");
+      return;
+    }
+
+    const result = await login(email, password);
+    if (!result.success) {
+      setLoginError(result.error);
     }
   };
 
@@ -85,7 +106,7 @@ export default function WorkerDashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
-            <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold mb-4 text-[var(--green-calm)]">
               Welcome to CocoSmart
             </h1>
             <p className="text-xl text-gray-600 mb-8">Worker Dashboard</p>
@@ -93,26 +114,48 @@ export default function WorkerDashboard() {
 
           {/* Login Form */}
           <div className="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8">
-            <h2 className="text-2xl font-semibold mb-6 text-gray-800">Enter Your Worker ID</h2>
+            <h2 className="text-2xl font-semibold mb-6 text-gray-800">Worker Login</h2>
             <form onSubmit={handleLogin} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Worker ID</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                 <input
-                  type="text"
-                  value={inputWorkerId}
-                  onChange={(e) => setInputWorkerId(e.target.value)}
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter your worker ID"
+                  placeholder="Enter your email"
                   required
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
+              {loginError && (
+                <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+                  {loginError}
+                </div>
+              )}
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Access Dashboard
+                {isLoading ? "Signing in..." : "Sign In"}
               </button>
             </form>
+            <div className="mt-4 text-center">
+              <p className="text-sm text-gray-600">
+                Don't have a worker account? Contact your HR manager to register.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -124,7 +167,7 @@ export default function WorkerDashboard() {
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold mb-2 text-[var(--green-calm)]">
             Welcome back, {workerData?.name || workerId}!
           </h2>
           <p className="text-gray-600">Here's your task overview and performance summary</p>
@@ -143,7 +186,7 @@ export default function WorkerDashboard() {
           className="group bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
         >
           <div className="flex items-center">
-            <div className="p-3 bg-white bg-opacity-20 rounded-xl group-hover:bg-opacity-30 transition-all duration-300">
+            <div className="p-3 rounded-xl group-hover:scale-110 transition-all duration-300">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
@@ -160,7 +203,7 @@ export default function WorkerDashboard() {
           className="group bg-gradient-to-br from-green-500 via-green-600 to-green-700 text-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
         >
           <div className="flex items-center">
-            <div className="p-3 bg-white bg-opacity-20 rounded-xl group-hover:bg-opacity-30 transition-all duration-300">
+            <div className="p-3 rounded-xl group-hover:scale-110 transition-all duration-300">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
@@ -174,7 +217,7 @@ export default function WorkerDashboard() {
 
         <div className="group bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 text-white p-6 rounded-2xl shadow-lg">
           <div className="flex items-center">
-            <div className="p-3 bg-white bg-opacity-20 rounded-xl">
+            <div className="p-3 rounded-xl">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>

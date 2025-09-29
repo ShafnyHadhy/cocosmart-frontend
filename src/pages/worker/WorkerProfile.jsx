@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useWorker } from "../../contexts/WorkerContext";
 import { updateWorkerProfile } from "../../services/workerService";
+import { getTasksForWorker } from "../../services/taskService";
 
 export default function WorkerProfile() {
   const { workerId, workerData, isLoggedIn, isLoading: contextLoading } = useWorker();
   const [profile, setProfile] = useState(null);
+  const [tasks, setTasks] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     jobRole: ""
@@ -17,15 +19,30 @@ export default function WorkerProfile() {
     "--light-gray": "#f7f9f9",
   };
 
-  // Load profile when worker data is available
+  // Load profile and tasks when worker data is available
   useEffect(() => {
     if (isLoggedIn && workerData) {
       setProfile(workerData);
       setEditForm({
         jobRole: workerData.jobRole || ""
       });
+      
+      // Load tasks for this worker
+      loadWorkerTasks();
     }
-  }, [isLoggedIn, workerData]);
+  }, [isLoggedIn, workerData, workerId]);
+
+  const loadWorkerTasks = async () => {
+    if (!workerId) return;
+    
+    try {
+      const response = await getTasksForWorker(workerId);
+      setTasks(response.tasks || []);
+    } catch (error) {
+      console.error("Error loading worker tasks:", error);
+      setTasks([]);
+    }
+  };
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
@@ -77,7 +94,7 @@ export default function WorkerProfile() {
     <div className="space-y-6" style={cssVars}>
       {/* Header */}
       <div className="mb-8">
-        <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <h2 className="text-3xl font-bold mb-2 text-[var(--green-calm)]">
           My Profile
         </h2>
         <p className="text-gray-600">View and update your personal information</p>
@@ -192,24 +209,24 @@ export default function WorkerProfile() {
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <span className="text-gray-600">Total Tasks:</span>
-                  <span className="font-medium text-blue-600">{profile.assignedTasks?.length || 0}</span>
+                  <span className="font-medium text-blue-600">{tasks.length}</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <span className="text-gray-600">Completed Tasks:</span>
                   <span className="font-medium text-green-600">
-                    {profile.assignedTasks?.filter(task => task.status === 'Completed').length || 0}
+                    {tasks.filter(task => task.status === 'Completed').length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <span className="text-gray-600">In Progress:</span>
                   <span className="font-medium text-yellow-600">
-                    {profile.assignedTasks?.filter(task => task.status === 'In Progress').length || 0}
+                    {tasks.filter(task => task.status === 'In Progress').length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <span className="text-gray-600">To Do:</span>
                   <span className="font-medium text-gray-600">
-                    {profile.assignedTasks?.filter(task => task.status === 'To Do').length || 0}
+                    {tasks.filter(task => task.status === 'To Do').length}
                   </span>
                 </div>
               </div>

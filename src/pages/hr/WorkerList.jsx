@@ -1,18 +1,24 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { listWorkers, createWorker as apiCreateWorker, deleteWorker as apiDeleteWorker, updateWorker as apiUpdateWorker, listEligibleWorkerUsers as apiListEligible, getWorkerWithTasks } from "../../services/workerService";
 import { createTask } from "../../services/taskService";
 
 export default function WorkerList() {
+  const location = useLocation();
   const [workers, setWorkers] = useState([]);
   const [q, setQ] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [eligibleUsers, setEligibleUsers] = useState([]);
-  const [form, setForm] = useState({ workerId: "", userEmail: "", jobRole: "", dateOfBirth: "" });
+  const [form, setForm] = useState({ workerId: "", userEmail: "", jobRole: "", dateOfBirth: "", nic: "" });
   const [selectedWorker, setSelectedWorker] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
   const [showAssignForm, setShowAssignForm] = useState(false);
+  const [showAssignOptions, setShowAssignOptions] = useState(false);
+  const [selectedWorkerForTask, setSelectedWorkerForTask] = useState(null);
   const [assignForm, setAssignForm] = useState({ taskId: "", title: "", priority: "Medium", scheduledDate: "", scheduledTime: "" });
   const [sortBy, setSortBy] = useState("recent");
+  const [roleFilter, setRoleFilter] = useState("");
+  const [availabilityFilter, setAvailabilityFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [updateForm, setUpdateForm] = useState({ workerId: "", userEmail: "", jobRole: "", dateOfBirth: "" });
@@ -29,7 +35,7 @@ export default function WorkerList() {
       const data = await listWorkers();
       setWorkers((data.workers || []).map(w => ({
         workerId: w.workerId,
-        name: w.userEmail,
+        name: w.name || w.userEmail, // Use the name field from backend, fallback to email
         jobRole: w.jobRole || "",
         isAvailable: w.isAvailable,
         createdAt: w.createdAt
@@ -41,11 +47,27 @@ export default function WorkerList() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  const openAdd = useCallback(async () => {
+    const u = await apiListEligible();
+    setEligibleUsers(u.users || []);
+    setForm({ workerId: "", userEmail: "", jobRole: "", dateOfBirth: "", nic: "" });
+    setShowAdd(true);
+  }, []);
+
+  useEffect(() => { 
+    load(); 
+    
+    // Check if we should auto-open the register form
+    const urlParams = new URLSearchParams(location.search);
+    if (urlParams.get('action') === 'register') {
+      openAdd();
+    }
+  }, [location.search, openAdd]);
 
   const filtered = useMemo(() => {
     let result = workers;
     
+    // Apply search filter
     if (q.trim()) {
       const qq = q.toLowerCase();
       result = result.filter((w) =>
@@ -53,6 +75,20 @@ export default function WorkerList() {
         (w.name || "").toLowerCase().includes(qq) ||
         (w.jobRole || "").toLowerCase().includes(qq)
       );
+    }
+    
+    // Apply role filter
+    if (roleFilter) {
+      result = result.filter((w) => w.jobRole === roleFilter);
+    }
+    
+    // Apply availability filter
+    if (availabilityFilter) {
+      if (availabilityFilter === "available") {
+        result = result.filter((w) => w.isAvailable);
+      } else if (availabilityFilter === "busy") {
+        result = result.filter((w) => !w.isAvailable);
+      }
     }
     
     switch (sortBy) {
@@ -64,18 +100,11 @@ export default function WorkerList() {
       default:
         return result.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
     }
-  }, [workers, q, sortBy]);
-
-  const openAdd = async () => {
-    const u = await apiListEligible();
-    setEligibleUsers(u.users || []);
-    setForm({ workerId: "", userEmail: "", jobRole: "", dateOfBirth: "" });
-    setShowAdd(true);
-  };
+  }, [workers, q, sortBy, roleFilter, availabilityFilter]);
 
   const submitAdd = async (e) => {
     e.preventDefault();
-    if (!form.workerId || !form.userEmail || !form.dateOfBirth) return;
+    if (!form.workerId || !form.userEmail || !form.dateOfBirth || !form.nic) return;
     
     const today = new Date();
     const birthDate = new Date(form.dateOfBirth);
@@ -107,8 +136,20 @@ export default function WorkerList() {
   };
 
   const assignTask = (workerId) => {
+    setSelectedWorkerForTask(workerId);
+    setShowAssignOptions(true);
+  };
+
+  const assignExistingTask = () => {
+    setShowAssignOptions(false);
     setAssignForm({ taskId: "", title: "", priority: "Medium", scheduledDate: "", scheduledTime: "" });
     setShowAssignForm(true);
+  };
+
+  const createNewTask = () => {
+    setShowAssignOptions(false);
+    // Redirect to create new task form with the worker pre-selected
+    window.location.href = `/hr/tasks/new?workerId=${selectedWorkerForTask}`;
   };
 
   const submitAssign = async (e) => {
@@ -184,31 +225,103 @@ export default function WorkerList() {
         </button>
       </div>
 
-      {/* Filters */}
+      {/* Professional Filters */}
       <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <div className="flex flex-wrap gap-4 items-center">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Search:</label>
+            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            <span className="text-sm font-medium text-gray-700">Filters</span>
+          </div>
+          <button
+            onClick={() => {
+              setQ("");
+              setRoleFilter("");
+              setAvailabilityFilter("");
+              setSortBy("recent");
+            }}
+            className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Clear
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* Search */}
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+              <svg className="h-3 w-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
             <input
               type="text"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search workers..."
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-7 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent"
             />
           </div>
-          
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Sort by:</label>
+
+          {/* Role Filter */}
+          <div className="relative">
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent appearance-none cursor-pointer"
+            >
+              <option value="">All Roles</option>
+              <option value="Plantation">Plantation</option>
+              <option value="Harvesting">Harvesting</option>
+              <option value="Processing">Processing</option>
+              <option value="Maintenance">Maintenance</option>
+              <option value="Administration">Administration</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <svg className="h-3 w-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Availability Filter */}
+          <div className="relative">
+            <select
+              value={availabilityFilter}
+              onChange={(e) => setAvailabilityFilter(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent appearance-none cursor-pointer"
+            >
+              <option value="">All Status</option>
+              <option value="available">Available</option>
+              <option value="busy">Busy</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <svg className="h-3 w-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Sort Filter */}
+          <div className="relative">
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent appearance-none cursor-pointer"
             >
               <option value="recent">Recent</option>
               <option value="name">Name</option>
               <option value="id">Worker ID</option>
             </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <svg className="h-3 w-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
           </div>
         </div>
       </div>
@@ -327,7 +440,7 @@ export default function WorkerList() {
             >
               ×
             </button>
-            <h2 className="text-2xl font-bold mb-6 pr-8">Register New Worker</h2>
+            <h2 className="text-2xl font-bold mb-6 pr-8 text-[var(--green-calm)]">Register New Worker</h2>
             
             <form onSubmit={submitAdd} className="space-y-4">
               <div>
@@ -360,12 +473,57 @@ export default function WorkerList() {
               </div>
 
               <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">NIC Number</label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent"
+                  value={form.nic}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const name = "nic";
+                    if (name === "nic") {
+                      if (/^[0-9]{0,9}[Vv]?$/.test(value) || /^[0-9]{0,12}$/.test(value)) {
+                        setForm((prev) => ({ ...prev, [name]: value }));
+                      }
+                      return;
+                    }
+                  }}
+                  required
+                  placeholder="Enter NIC number (9 digits + V or 12 digits)"
+                />
+              </div>
+
+              <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Date of Birth</label>
                 <input
                   type="date"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent"
                   value={form.dateOfBirth}
-                  onChange={(e) => setForm(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                  onChange={(e) => {
+                    const selectedDate = e.target.value;
+                    if (selectedDate) {
+                      const today = new Date();
+                      const birthDate = new Date(selectedDate);
+                      let age = today.getFullYear() - birthDate.getFullYear();
+                      const monthDiff = today.getMonth() - birthDate.getMonth();
+                      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                        age--;
+                      }
+                      
+                      // If age is less than 18, auto-correct to exactly 18 years ago
+                      if (age < 18) {
+                        const correctedDate = new Date();
+                        correctedDate.setFullYear(correctedDate.getFullYear() - 18);
+                        setForm(prev => ({ ...prev, dateOfBirth: correctedDate.toISOString().split('T')[0] }));
+                      } else {
+                        setForm(prev => ({ ...prev, dateOfBirth: selectedDate }));
+                      }
+                    } else {
+                      setForm(prev => ({ ...prev, dateOfBirth: selectedDate }));
+                    }
+                  }}
+                  max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+                  min={new Date(new Date().setFullYear(new Date().getFullYear() - 40)).toISOString().split('T')[0]}
                   required
                 />
               </div>
@@ -399,7 +557,7 @@ export default function WorkerList() {
                 </button>
                 <button
                   type="submit"
-                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg font-medium transition-all duration-200 transform hover:-translate-y-0.5"
+                  className="px-8 py-3 bg-[var(--green-calm)] text-white rounded-xl hover:shadow-lg font-medium transition-all duration-200 transform hover:-translate-y-0.5"
                 >
                   Register Worker
                 </button>
@@ -478,6 +636,51 @@ export default function WorkerList() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Assign Task Options Modal */}
+      {showAssignOptions && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 relative shadow-2xl">
+            <button
+              onClick={() => setShowAssignOptions(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold"
+            >
+              ×
+            </button>
+            <h2 className="text-2xl font-bold mb-6 pr-8 text-[var(--green-calm)]">Assign Task to Worker</h2>
+            
+            <div className="space-y-4">
+              <p className="text-gray-600 mb-4">Choose how you want to assign a task to this worker:</p>
+              
+              <button
+                onClick={assignExistingTask}
+                className="w-full p-4 border-2 border-[var(--green-calm)] rounded-xl hover:bg-[var(--green-calm)] hover:text-white transition-all duration-200 flex items-center gap-3"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <div className="text-left">
+                  <h3 className="font-semibold">Assign Existing Task</h3>
+                  <p className="text-sm text-gray-500">Assign a task that already exists</p>
+                </div>
+              </button>
+              
+              <button
+                onClick={createNewTask}
+                className="w-full p-4 border-2 border-[var(--green-calm)] rounded-xl hover:bg-[var(--green-calm)] hover:text-white transition-all duration-200 flex items-center gap-3"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <div className="text-left">
+                  <h3 className="font-semibold">Create New Task</h3>
+                  <p className="text-sm text-gray-500">Create a new task and assign it</p>
+                </div>
+              </button>
             </div>
           </div>
         </div>
@@ -565,7 +768,7 @@ export default function WorkerList() {
                 </button>
                 <button
                   type="submit"
-                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg font-medium transition-all duration-200 transform hover:-translate-y-0.5"
+                  className="px-8 py-3 bg-[var(--green-calm)] text-white rounded-xl hover:shadow-lg font-medium transition-all duration-200 transform hover:-translate-y-0.5"
                 >
                   Assign Task
                 </button>
@@ -650,7 +853,7 @@ export default function WorkerList() {
                 </button>
                 <button
                   type="submit"
-                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg font-medium transition-all duration-200 transform hover:-translate-y-0.5"
+                  className="px-8 py-3 bg-[var(--green-calm)] text-white rounded-xl hover:shadow-lg font-medium transition-all duration-200 transform hover:-translate-y-0.5"
                 >
                   Update Worker
                 </button>

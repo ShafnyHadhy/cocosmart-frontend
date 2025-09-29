@@ -9,6 +9,12 @@ export default function AnalyticsDashboard() {
     loading: true
   });
 
+  const cssVars = {
+    "--green-calm": "#2a5540",
+    "--medium-gray": "#e7e9e9",
+    "--light-gray": "#f7f9f9",
+  };
+
   const loadAnalytics = async () => {
     try {
       setAnalytics(prev => ({ ...prev, loading: true }));
@@ -43,10 +49,10 @@ export default function AnalyticsDashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" style={cssVars}>
       {/* Header */}
       <div className="mb-8">
-        <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <h2 className="text-3xl font-bold mb-2 text-[var(--green-calm)]">
           Analytics Dashboard
         </h2>
         <p className="text-gray-600">Comprehensive insights into workforce and task performance</p>

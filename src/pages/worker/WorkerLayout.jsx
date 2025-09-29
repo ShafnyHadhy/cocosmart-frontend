@@ -19,10 +19,7 @@ export default function WorkerLayout() {
       <div className="flex min-h-screen bg-white text-gray-800" style={{ fontFamily: "'Spline Sans', 'Noto Sans', sans-serif" }}>
         <aside className="flex w-64 flex-col bg-[var(--light-gray)]">
           <div className="flex h-16 items-center gap-4 border-b border-[var(--medium-gray)] px-6">
-            <svg className="h-8 w-8 text-[var(--green-calm)]" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-              <path clipRule="evenodd" d="M32.5,6.5C32.5,15.869,25.369,23,16,23S-0.5,15.869-0.5,6.5S6.631-2.5,16-2.5S32.5-2.869,32.5,6.5Z" fill="currentColor" fillRule="evenodd" transform="translate(8 5)"></path>
-              <path clipRule="evenodd" d="M32,32C32,22.631,24.869,15.5,15.5,15.5S-1,22.631-1,32S6.131,48.5,15.5,48.5S32,41.369,32,32Z" fill="currentColor" fillOpacity="0.6" fillRule="evenodd" transform="translate(8 5)"></path>
-            </svg>
+            <img src="/cocosmart logo.jpg" alt="CocoSmart logo" className="h-8 w-8 object-contain" />
             <h1 className="text-xl font-bold tracking-[-0.015em] text-gray-900">CocoSmart</h1>
           </div>
 

@@ -13,6 +13,7 @@ export default function HRLayout() {
     location.pathname === "/hr/in-progress" ||
     location.pathname === "/hr/todo"
   );
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
   const isActive = (path) => location.pathname === path;
 
@@ -36,10 +37,7 @@ export default function HRLayout() {
         {/* Sidebar */}
         <aside className="flex w-64 flex-col bg-[var(--light-gray)]">
           <div className="flex h-16 items-center gap-4 border-b border-[var(--medium-gray)] px-6">
-            <svg className="h-8 w-8 text-[var(--green-calm)]" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-              <path clipRule="evenodd" d="M32.5,6.5C32.5,15.869,25.369,23,16,23S-0.5,15.869-0.5,6.5S6.631-2.5,16-2.5S32.5-2.869,32.5,6.5Z" fill="currentColor" fillRule="evenodd" transform="translate(8 5)"></path>
-              <path clipRule="evenodd" d="M32,32C32,22.631,24.869,15.5,15.5,15.5S-1,22.631-1,32S6.131,48.5,15.5,48.5S32,41.369,32,32Z" fill="currentColor" fillOpacity="0.6" fillRule="evenodd" transform="translate(8 5)"></path>
-            </svg>
+            <img src="/cocosmart logo.jpg" alt="CocoSmart logo" className="h-8 w-8 object-contain" />
             <h1 className="text-xl font-bold tracking-[-0.015em] text-gray-900">CocoSmart</h1>
           </div>
 
@@ -191,10 +189,32 @@ export default function HRLayout() {
                   <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path>
                 </svg>
               </button>
-              <div
-                className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-10 h-10"
-                style={{ backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuDpsYYWf6MRv9HKu0OsboL6ji_8RqY7vTqjC-U_rQzjtYYgcwjoTdCzMqBLwUIEJrkBLSh6W4q7ZLHoL1Fdn8Ex7SByzaWKUwrOZzBkmtaio8QQMlRFDIALhHlRqo-g5VBBiId1mwmGC5FOllgxAPsbM-a8A5kLv4CEjEi-ANfiKV_ydNSy4VRDe7-Mwdn8_y0HgSmlWvKSPLcT4i84i68fLEZkgKOD_XFaFax_gD8qWSwQJceyIVMBVhweOgDZtP0SnKc1uu5uxUrR")` }}
-              />
+              <div className="relative">
+                <button
+                  onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                  className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-10 h-10 cursor-pointer hover:ring-2 hover:ring-gray-300 transition-all"
+                  style={{ backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuDpsYYWf6MRv9HKu0OsboL6ji_8RqY7vTqjC-U_rQzjtYYgcwjoTdCzMqBLwUIEJrkBLSh6W4q7ZLHoL1Fdn8Ex7SByzaWKUwrOZzBkmtaio8QQMlRFDIALhHlRqo-g5VBBiId1mwmGC5FOllgxAPsbM-a8A5kLv4CEjEi-ANfiKV_ydNSy4VRDe7-Mwdn8_y0HgSmlWvKSPLcT4i84i68fLEZkgKOD_XFaFax_gD8qWSwQJceyIVMBVhweOgDZtP0SnKc1uu5uxUrR")` }}
+                />
+                {showProfileDropdown && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div className="py-1">
+                      <button
+                        onClick={() => {
+                          localStorage.removeItem('token');
+                          localStorage.removeItem('user');
+                          window.location.href = '/login';
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </header>
 
