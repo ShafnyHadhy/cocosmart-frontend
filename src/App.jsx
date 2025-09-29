@@ -10,6 +10,8 @@ import ForgotPassword from "./pages/forgotPassword";
 import ResetPassword from "./pages/resetPassword";
 import UserProfile from "./pages/Profile/UserProfile";
 import { Toaster } from "react-hot-toast";
+import PlantationManage from "./pages/plantationManage";
+import ChatBotPage from './pages/chatbotDash'
 
 function App() {
   return (
@@ -24,8 +26,12 @@ function App() {
           <Route path="/test" element={<TestPage />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/plant/*" element={<PlantationManage />} />
         </Routes>
       </div>
+      
+          <ChatBotPage />
+      
     </BrowserRouter>
   );
 }
