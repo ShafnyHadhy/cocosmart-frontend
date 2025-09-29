@@ -306,6 +306,7 @@ function generatePDF(finances, startDate, endDate) {
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
+            min={startDate}
             max={new Date().toISOString().split("T")[0]}
             className="p-2 border rounded-lg border-gray-300 text-sm"
           />
