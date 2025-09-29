@@ -9,8 +9,9 @@ import AddPlantation from "./Plantations/AddPlantation";
 import Plantation from "./Plantations/Plantation";
 import UpdatePlantation from "./Plantations/UpdatePlantation";
 import { GiPalmTree } from "react-icons/gi";
-import { IoMdAddCircle } from "react-icons/io";
+import { IoMdAddCircle, IoMdNotificationsOutline } from "react-icons/io";
 import { RiDashboardFill } from "react-icons/ri";
+import { BiMenu } from "react-icons/bi";
 
 
 export default function PlantationManage() {
@@ -62,16 +63,52 @@ export default function PlantationManage() {
       </aside>
 
      <div className="ml-64 flex flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-end whitespace-nowrap border-b border-gray-200 bg-white/80 px-6 backdrop-blur-sm">
-          <div className="flex items-center gap-4">
-            <button className="rounded-lg px-4 py-1 text-md font-normal text-gray-500 border-1 border-accent cursor-pointer hover:bg-gray-200 hover:text-accent transition">
-              Logout
-            </button>
-            <button className="rounded-full px-3 py-1 font-bold text-white  bg-accent border-1 border-accent cursor-pointer hover:bg-gray-100 hover:text-gray-900 transition">
-              A
-            </button>
-          </div>
-        </header>
+             <header className="sticky top-0 z-10 flex h-16 items-center whitespace-nowrap border-b border-gray-200 bg-white/80 px-6 backdrop-blur-sm">
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center space-x-2">
+                  {/* <button
+                    className="rounded-lg p-2 bg-slate-100 transition-colors"
+                    style={{ color: "#004225" }}
+                  >
+                    <BiMenu className="w-5 h-5" />
+                  </button> */}
+                  <div className="hidden md:block">
+                    {/* <h1
+                      className="text-sm font-black"
+                      style={{ color: "#004225" }}
+                    >
+                      Dashboard
+                    </h1> */}
+                    <p className="text-xs" style={{ color: "#004225" }}>
+                      {/* Welcome back!, Here is what's happening today */}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-3 pl-3">
+                  <Link className="p-2" style={{ color: "#004225" }}>
+                    <IoMdNotificationsOutline size={22} />
+                  </Link>
+
+                  <img
+                    src="/admin.jpg"
+                    alt="User"
+                    className="h-8 w-8 rounded-full ring-2 object-cover"
+                    style={{ borderColor: "#004225" }}
+                  />
+
+                  <div className="hidden md:block">
+                    <p className="text-sm font-medium" style={{ color: "#004225" }}>
+                      Isuri Ranasinghe
+                    </p>
+                    <p className="text-xs" style={{ color: "#004225" }}>
+                      Plantation Manager
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </header>
+
 
         <main className="flex-1 bg-primary p-6 overflow-y-auto">
           <div className="rounded-2xl shadow-md min-h-[400px] bg-light-gray">
