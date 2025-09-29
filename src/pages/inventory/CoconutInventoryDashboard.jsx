@@ -363,9 +363,9 @@ export default function CoconutInventoryDashboard() {
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <MetricCard
-            title="Total Coconut Products"
-            value="1,247"
-            change="+12.3%"
+            title="Coconut Products"
+            value="10"
+            change="+9.9%"
             changeType="increase"
             icon={Package}
             color="#2a5540"
@@ -391,7 +391,7 @@ export default function CoconutInventoryDashboard() {
           />
           <MetricCard
             title="Inventory Value"
-            value="LKR 2.4M"
+            value="LKR 1M"
             change="+15.2%"
             changeType="increase"
             icon={DollarSign}
@@ -407,7 +407,7 @@ export default function CoconutInventoryDashboard() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <AlertCard
-              title="Low Stock - Coco Products"
+              title="Low-Products"
               count="18"
               icon={AlertTriangle}
               color="#ef4444"
@@ -415,7 +415,7 @@ export default function CoconutInventoryDashboard() {
               description="Products need restocking"
             />
             <AlertCard
-              title="Low Stock - Purchased Items"
+              title="Low-Purchases"
               count="12"
               icon={Box}
               color="#f59e0b"

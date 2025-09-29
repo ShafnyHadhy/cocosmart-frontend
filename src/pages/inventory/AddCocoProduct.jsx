@@ -546,7 +546,7 @@ export default function AddCocoProduct() {
                   type="text"
                   name="std_cost"
                   value={inputs.std_cost}
-                  placeholder="e.g., 1,250.00"
+                  placeholder="150.25"
                   onChange={handleStdCostChange}
                   onFocus={handleStdCostFocus}
                   onBlur={handleStdCostBlur}
@@ -556,7 +556,7 @@ export default function AddCocoProduct() {
                   style={{ borderColor: "#e7e9e9", backgroundColor: "#f5f3f1" }}
                 />
                 <p className="mt-2 text-sm" style={{ color: "#a4ac86" }}>
-                  Max 10,000.00 • formats as 1,000.00 on blur.
+                 
                 </p>
               </div>
 
@@ -652,7 +652,7 @@ export default function AddCocoProduct() {
                   }}
                 />
                 <p className="mt-2 text-sm" style={{ color: "#a4ac86" }}>
-                  Past dates are blocked.
+                 
                 </p>
               </div>
 

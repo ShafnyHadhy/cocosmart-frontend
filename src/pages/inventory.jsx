@@ -1,8 +1,9 @@
 import { BsCart2, BsGraphUpArrow } from "react-icons/bs";
-import { FiBox } from "react-icons/fi";
+import { FiBox, FiShoppingCart, FiUsers, FiArchive, FiRepeat } from "react-icons/fi";
 import { SiExpensify } from "react-icons/si";
 import { Link, Route, Routes, useLocation } from "react-router-dom";
 import { FaInvision } from "react-icons/fa";
+import coco4 from "../assets/coco4.webp";
 
 import CocoProductDetails from "./inventory/CocoProductDetails";
 import AddCocoProduct from "./inventory/AddCocoProduct";
@@ -34,10 +35,10 @@ export default function Inventory() {
     { path: "/inventory", label: "Dashboard", icon: <BsGraphUpArrow className="text-[15px]"/> },
 
     { path: "/inventory/cocoProductDetails", label: "Coco Products", icon: <FiBox /> },
-    { path: "/inventory/purchasedItemDetails", label: "Purchased Items", icon: <FiBox /> },////////////////
-    { path: "/inventory/supplierDetails", label: "Suppliers", icon: <FiBox /> },////////////////
-    { path: "/inventory/stockDetails", label: "Stock Movements", icon: <FiBox /> },////////////////
-        { path: "/inventory/rorderDetails", label: "Rorders", icon: <FiBox /> },////////////////
+    { path: "/inventory/purchasedItemDetails", label: "Purchased Items", icon: <FiShoppingCart  /> },////////////////
+    { path: "/inventory/supplierDetails", label: "Suppliers", icon: <FiUsers  /> },////////////////
+    { path: "/inventory/stockDetails", label: "Stock Movements", icon: <FiArchive  /> },////////////////
+        { path: "/inventory/rorderDetails", label: "Rorders", icon: <FiRepeat  /> },////////////////
         
     
   ];
@@ -84,9 +85,22 @@ export default function Inventory() {
             <button className="rounded-lg px-4 py-1 text-md font-normal text-gray-500 border-1 border-accent cursor-pointer hover:bg-gray-200 hover:text-accent transition">
               Logout
             </button>
-            <button className="rounded-full px-3 py-1 font-bold text-white  bg-accent border-1 border-accent cursor-pointer hover:bg-gray-100 hover:text-gray-900 transition">
-              A
-            </button>
+         <div className="flex items-center gap-3">
+  
+  <button className="rounded-full w-10 h-10 overflow-hidden border-2 border-accent cursor-pointer hover:opacity-80 transition">
+    <img
+      src={coco4}
+      alt="Profile"
+      className="w-full h-full object-cover"
+    />
+  </button>
+  <div className="text-right">
+    <p className="text-sm font-bold text-gray-800">MGN Dakshika</p>
+    <p className="text-xs text-gray-500">Inv-Mgr-001</p>
+  </div>
+</div>
+
+
           </div>
         </header>
 

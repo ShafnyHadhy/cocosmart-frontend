@@ -14,27 +14,63 @@ const parseMoney = (s) => {
   return Number.isFinite(n) ? n : 0;
 };
 
-// ---- validations ----
+//validate re order id
 const validateOrderId = (val) => {
   if (!val || !String(val).trim()) return "Order ID is required.";
   if (String(val).length < 3) return "Order ID is too short.";
+
+  // ✅ Block special characters (allow only A–Z, a–z, 0–9, -, _)
+  if (!/^[A-Za-z0-9-_]+$/.test(val)) {
+    return "Order ID can only contain letters, numbers, hyphens, and underscores.";
+  }
+
   return "";
 };
+
+//validate item id
+const validateItemId = (val) => {
+  if (!val || !String(val).trim()) return "Item ID is required.";
+  if (String(val).length < 3) return "Item ID is too short.";
+
+  // ✅ Allow only letters, numbers, hyphen (-), and underscore (_)
+  if (!/^[A-Za-z0-9-_]+$/.test(val)) {
+    return "Item ID can only contain letters, numbers, hyphens, and underscores.";
+  }
+
+  return "";
+};
+
 
 const validateUnitCost = (val) => {
   if (!val) return "Unit cost is required.";
   const num = parseMoney(val);
+
+  // ✅ Allow only numbers and optional decimal
+  if (!/^\d+(\.\d{1,2})?$/.test(String(val).replace(/,/g, ""))) {
+    return "Unit cost must be a valid number.";
+  }
+
   if (!Number.isFinite(num)) return "Unit cost must be a number.";
   if (num <= 0) return "Unit cost must be positive.";
   return "";
 };
 
+
 const validateQty = (val) => {
-  if (!val) return "Quantity is required.";
-  const num = Number(val);
-  if (!Number.isInteger(num) || num <= 0) return "Quantity must be a positive whole number.";
+  if (val === "" || val === null || val === undefined) return "Quantity is required.";
+
+  // strip commas/spaces just in case
+  const s = String(val).replace(/[\s,]/g, "");
+
+  // ✅ only digits, at least 1
+  if (!/^\d+$/.test(s)) return "Quantity must be a whole number.";
+
+  const num = Number(s);
+  if (!Number.isFinite(num)) return "Quantity must be a number.";
+  if (num <= 0) return "Quantity must be positive.";
   return "";
 };
+
 
 export default function AddRorder() {
   const navigate = useNavigate();
@@ -108,11 +144,13 @@ export default function AddRorder() {
     setSubmitted(true);
 
     const orderIdError = validateOrderId(inputs.order_id);
+    const itemIdError = validateItemId(inputs.item_id);
     const unitCostError = validateUnitCost(inputs.unit_cost);
     const qtyError = validateQty(inputs.qty);
 
     const newErrors = {
       order_id: orderIdError,
+      item_id: itemIdError,
       unit_cost: unitCostError,
       qty: qtyError,
     };
@@ -196,24 +234,28 @@ export default function AddRorder() {
                 <label className="block text-sm font-semibold mb-2" style={{ color: "#2D3748" }}>
                   Order ID *
                 </label>
-                <input
-                  type="text"
-                  name="order_id"
-                  value={inputs.order_id}
-                  onChange={handleChange}
-                  onBlur={(e) => {
-                    const msg = validateOrderId(e.target.value);
-                    setFieldErrors((p) => ({ ...p, order_id: msg }));
-                    if (!msg) checkOrderIdUnique(e.target.value.trim());
-                  }}
-                  placeholder="e.g., RO-2025-0001"
-                  required
-                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
-                  style={{
-                    borderColor: submitted && fieldErrors.order_id ? "#ef4444" : "#e7e9e9",
-                    backgroundColor: "#f5f3f1",
-                  }}
-                />
+               <input
+  type="text"
+  name="order_id"
+  value={inputs.order_id}
+  onChange={(e) => {
+    const cleaned = e.target.value.replace(/[^A-Za-z0-9-_]/g, ""); // remove bad chars
+    setInputs((p) => ({ ...p, order_id: cleaned }));
+  }}
+  onBlur={(e) => {
+    const msg = validateOrderId(e.target.value);
+    setFieldErrors((p) => ({ ...p, order_id: msg }));
+    if (!msg) checkOrderIdUnique(e.target.value.trim());
+  }}
+  placeholder="e.g., ro001"
+  required
+  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
+  style={{
+    borderColor: submitted && fieldErrors.order_id ? "#ef4444" : "#e7e9e9",
+    backgroundColor: "#f5f3f1",
+  }}
+/>
+
                 {submitted && fieldErrors.order_id && (
                   <p className="mt-2 text-sm" style={{ color: "#ef4444" }}>
                     {fieldErrors.order_id}
@@ -226,16 +268,33 @@ export default function AddRorder() {
                 <label className="block text-sm font-semibold mb-2" style={{ color: "#2D3748" }}>
                   Item ID *
                 </label>
-                <input
-                  type="text"
-                  name="item_id"
-                  onChange={handleChange}
-                  value={inputs.item_id}
-                  placeholder="Enter item ID"
-                  required
-                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
-                  style={{ borderColor: "#e7e9e9", backgroundColor: "#f5f3f1" }}
-                />
+               <input
+  type="text"
+  name="item_id"
+  value={inputs.item_id}
+  onChange={(e) => {
+    // strip out invalid characters as user types
+    const cleaned = e.target.value.replace(/[^A-Za-z0-9-_]/g, "");
+    setInputs((p) => ({ ...p, item_id: cleaned }));
+  }}
+  onBlur={(e) => {
+    const msg = validateItemId(e.target.value);
+    setFieldErrors((p) => ({ ...p, item_id: msg }));
+  }}
+  placeholder="Enter item ID"
+  required
+  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
+  style={{
+    borderColor: submitted && fieldErrors.item_id ? "#ef4444" : "#e7e9e9",
+    backgroundColor: "#f5f3f1",
+  }}
+/>
+{submitted && fieldErrors.item_id && (
+  <p className="mt-2 text-sm" style={{ color: "#ef4444" }}>
+    {fieldErrors.item_id}
+  </p>
+)}
+
               </div>
 
               {/* Unit Cost */}
@@ -243,38 +302,48 @@ export default function AddRorder() {
                 <label className="block text-sm font-semibold mb-2" style={{ color: "#2D3748" }}>
                   Unit Cost (LKR) *
                 </label>
-                <input
-                  type="text"
-                  name="unit_cost"
-                  value={inputs.unit_cost}
-                  placeholder="Enter unit cost"
-                  onChange={handleChange}
-                  onFocus={(e) => {
-                    const raw = String(e.target.value || "").replace(/,/g, "");
-                    setInputs((prev) => ({ ...prev, unit_cost: raw }));
-                  }}
-                  onBlur={(e) => {
-                    let num = parseMoney(e.target.value);
-                    const msg = validateUnitCost(e.target.value);
-                    if (msg) {
-                      setFieldErrors((p) => ({ ...p, unit_cost: msg }));
-                      return;
-                    }
-                    setInputs((prev) => ({ ...prev, unit_cost: formatMoney(num) }));
-                    setFieldErrors((p) => ({ ...p, unit_cost: "" }));
-                  }}
-                  required
-                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
-                  style={{
-                    borderColor: submitted && fieldErrors.unit_cost ? "#ef4444" : "#e7e9e9",
-                    backgroundColor: "#f5f3f1",
-                  }}
-                />
-                {submitted && fieldErrors.unit_cost && (
-                  <p className="mt-2 text-sm" style={{ color: "#ef4444" }}>
-                    {fieldErrors.unit_cost}
-                  </p>
-                )}
+              <input
+  type="text"
+  name="unit_cost"
+  value={inputs.unit_cost}
+  placeholder="150.25"
+  onChange={(e) => {
+    // ✅ allow only digits and decimal point
+    const cleaned = e.target.value.replace(/[^0-9.]/g, "");
+
+    // prevent multiple decimals like "12.3.4"
+    const parts = cleaned.split(".");
+    const safe = parts.length > 2 ? parts[0] + "." + parts.slice(1).join("") : cleaned;
+
+    setInputs((prev) => ({ ...prev, unit_cost: safe }));
+  }}
+  onFocus={(e) => {
+    const raw = String(e.target.value || "").replace(/,/g, "");
+    setInputs((prev) => ({ ...prev, unit_cost: raw }));
+  }}
+  onBlur={(e) => {
+    let num = parseMoney(e.target.value);
+    const msg = validateUnitCost(e.target.value);
+    if (msg) {
+      setFieldErrors((p) => ({ ...p, unit_cost: msg }));
+      return;
+    }
+    setInputs((prev) => ({ ...prev, unit_cost: formatMoney(num) }));
+    setFieldErrors((p) => ({ ...p, unit_cost: "" }));
+  }}
+  required
+  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
+  style={{
+    borderColor: submitted && fieldErrors.unit_cost ? "#ef4444" : "#e7e9e9",
+    backgroundColor: "#f5f3f1",
+  }}
+/>
+{submitted && fieldErrors.unit_cost && (
+  <p className="mt-2 text-sm" style={{ color: "#ef4444" }}>
+    {fieldErrors.unit_cost}
+  </p>
+)}
+
               </div>
 
               {/* Quantity */}
@@ -283,25 +352,41 @@ export default function AddRorder() {
                   Quantity *
                 </label>
                 <input
-                  type="number"
-                  name="qty"
-                  min="0"
-                  onChange={handleChange}
-                  value={inputs.qty}
-                  placeholder="Enter quantity"
-                  required
-                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
-                  style={{
-                    borderColor: submitted && fieldErrors.qty ? "#ef4444" : "#e7e9e9",
-                    backgroundColor: "#f5f3f1",
-                  }}
-                />
-                {submitted && fieldErrors.qty && (
-                  <p className="mt-2 text-sm" style={{ color: "#ef4444" }}>
-                    {fieldErrors.qty}
-                  </p>
-                )}
-              </div>
+  type="text"                 // keep as text to control typing
+  name="qty"
+  value={inputs.qty}
+  placeholder="Enter quantity"
+  required
+  onChange={(e) => {
+    // ✅ allow digits only
+    const cleaned = e.target.value.replace(/[^0-9]/g, "");
+    // keep state
+    const newInputs = { ...inputs, qty: cleaned };
+
+    // recompute total with current unit_cost
+    const qty = Number(cleaned || 0);
+    const cost = parseMoney(newInputs.unit_cost) || 0;
+    const total = qty * cost;
+    newInputs.tot_value = total ? formatMoney(total) : "";
+
+    setInputs(newInputs);
+  }}
+  onBlur={(e) => {
+    const msg = validateQty(e.target.value);
+    setFieldErrors((p) => ({ ...p, qty: msg }));
+  }}
+  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
+  style={{
+    borderColor: submitted && fieldErrors.qty ? "#ef4444" : "#e7e9e9",
+    backgroundColor: "#f5f3f1",
+  }}
+/>
+{submitted && fieldErrors.qty && (
+  <p className="mt-2 text-sm" style={{ color: "#ef4444" }}>
+    {fieldErrors.qty}
+  </p>
+)}
+</div>
 
               {/* Total Value */}
               <div>
@@ -319,22 +404,26 @@ export default function AddRorder() {
                 />
               </div>
 
-              {/* Requested By */}
-              <div>
-                <label className="block text-sm font-semibold mb-2" style={{ color: "#2D3748" }}>
-                  Requested By *
-                </label>
-                <input
-                  type="text"
-                  name="requested_by"
-                  onChange={handleChange}
-                  value={inputs.requested_by}
-                  placeholder="Manager name or ID"
-                  required
-                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
-                  style={{ borderColor: "#e7e9e9", backgroundColor: "#f5f3f1" }}
-                />
-              </div>
+             {/* Requested By */}
+<div>
+  <label className="block text-sm font-semibold mb-2" style={{ color: "#2D3748" }}>
+    Requested By *
+  </label>
+  <select
+    name="requested_by"
+    value={inputs.requested_by}
+    onChange={handleChange}
+    required
+    className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
+    style={{ borderColor: "#e7e9e9", backgroundColor: "#f5f3f1" }}
+  >
+    <option value="">-- Select Manager --</option>
+    <option value="inv-mgr-001">inv-mgr-001</option>
+    <option value="inv-mgr-002">inv-mgr-002</option>
+    <option value="inv-mgr-003">inv-mgr-003</option>
+  </select>
+</div>
+
             </div>
 
             {/* Actions */}
