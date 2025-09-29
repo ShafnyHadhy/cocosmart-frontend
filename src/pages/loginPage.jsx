@@ -69,7 +69,7 @@ export default function LoginPage() {
           navigate("/inventory");
           break;
         case "HRM":
-          navigate("/hrm");
+          navigate("/hr");
           break;
         default:
           navigate("/"); // default route
