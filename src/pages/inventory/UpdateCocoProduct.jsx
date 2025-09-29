@@ -2,6 +2,56 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 
+/* --- helpers & constants (match AddCocoProduct) --- */
+const MONEY_MIN = 0.01;
+const MONEY_MAX = 10000;
+const QTY_MAX = 1_000_000;
+
+const CATEGORIES = [
+  "Fresh",
+  "Milk & Cream",
+  "Oil",
+  "Desiccated",
+  "Flour & Sugar",
+  "Snacks & Drinks",
+];
+const UPDATED_BY_OPTIONS = ["inv-mgr-001", "inv-mgr-002", "inv-mgr-003"];
+
+function toTodayLocalISODate() {
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 10);
+}
+const formatInt = (n) =>
+  new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(n);
+const cleanQty = (s) => {
+  const v = String(s || "").replace(/[^\d]/g, "");
+  if (!v) return "";
+  const n = Math.min(QTY_MAX, Number(v));
+  return String(n);
+};
+const formatMoney = (n) =>
+  new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(n);
+const cleanMoneyInput = (s) => {
+  let v = String(s || "").replace(/,/g, "");
+  v = v.replace(/[^\d.]/g, "");
+  const firstDot = v.indexOf(".");
+  if (firstDot !== -1)
+    v = v.slice(0, firstDot + 1) + v.slice(firstDot + 1).replace(/\./g, "");
+  if (v.startsWith(".")) v = "0" + v;
+  if (/^0\d/.test(v)) v = v.replace(/^0+(?=\d)/, "");
+  if (v.includes(".")) {
+    const [i, d] = v.split(".");
+    v = `${i}.${d.slice(0, 2)}`;
+  }
+  const n = Number(v);
+  if (!Number.isNaN(n) && n > MONEY_MAX) v = String(MONEY_MAX);
+  return v;
+};
+
 export default function UpdateCocoProduct() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -20,70 +70,124 @@ export default function UpdateCocoProduct() {
   });
 
   const [qtyError, setQtyError] = useState("");
-  const [wasClamped, setWasClamped] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Helpers
-  const toDateInput = (val) => {
-    if (!val) return "";
-    const d = new Date(val);
-    return Number.isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 10);
+  // Name field guards (match AddCocoProduct)
+  const isAllowedNameChar = (ch) => /^[A-Za-z ]$/.test(ch);
+  const handleNameKeyDown = (e) => {
+    const k = e.key;
+    if (
+      k === "Backspace" ||
+      k === "Delete" ||
+      k === "Tab" ||
+      k === "ArrowLeft" ||
+      k === "ArrowRight" ||
+      k === "Home" ||
+      k === "End" ||
+      e.ctrlKey ||
+      e.metaKey
+    )
+      return;
+    if (k.length === 1 && !isAllowedNameChar(k)) e.preventDefault();
   };
-
-  const todayLocal = () => {
-    const d = new Date();
-    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-    return d.toISOString().slice(0, 10);
+  const handleNameBeforeInput = (e) => {
+    if (e.data && !/^[A-Za-z ]+$/.test(e.data)) e.preventDefault();
   };
-
-  // Clamp reserved when on hand changes
-  useEffect(() => {
-    const onHand = Number(inputs.qty_on_hand) || 0;
-    const reserved = Number(inputs.qty_reserved);
-    if (inputs.qty_reserved !== "" && !Number.isNaN(reserved) && reserved > onHand) {
-      setWasClamped(true);
-      setInputs((prev) => ({ ...prev, qty_reserved: String(onHand) }));
-    } else {
-      setWasClamped(false);
+  const handleNamePaste = (e) => {
+    const text = (e.clipboardData || window.clipboardData).getData("text") || "";
+    if (!/^[A-Za-z ]+$/.test(text)) {
+      e.preventDefault();
+      const cleaned = text.replace(/[^A-Za-z ]+/g, "");
+      const target = e.target;
+      const start = target.selectionStart ?? target.value.length;
+      const end = target.selectionEnd ?? target.value.length;
+      const next = target.value.slice(0, start) + cleaned + target.value.slice(end);
+      setInputs((prev) => ({ ...prev, pro_name: next }));
     }
-  }, [inputs.qty_on_hand]);
+  };
+  const handleNameDrop = (e) => e.preventDefault();
 
-  // Live error message
+  // Qty on Hand handlers (commas in UI, cap ≤ 1,000,000)
+  const blockQtyBadKeys = (e) => {
+    if (["e", "E", "-", "+"].includes(e.key)) e.preventDefault();
+  };
+  const handleQtyOnHandChange = (e) => {
+    setInputs((prev) => ({ ...prev, qty_on_hand: cleanQty(e.target.value) }));
+  };
+  const handleQtyOnHandFocus = () => {
+    setInputs((prev) => ({
+      ...prev,
+      qty_on_hand: String(prev.qty_on_hand || "").replace(/,/g, ""),
+    }));
+  };
+  const handleQtyOnHandBlur = () => {
+    const raw = String(inputs.qty_on_hand || "").replace(/,/g, "");
+    if (!raw) return;
+    const n = Math.min(QTY_MAX, Number(raw.replace(/[^\d]/g, "") || 0));
+    setInputs((prev) => ({ ...prev, qty_on_hand: formatInt(n) }));
+  };
+
+  // Money handlers for std_cost (cap ≤ 10,000; show commas + 2dp on blur)
+  const handleStdCostChange = (e) => {
+    const cleaned = cleanMoneyInput(e.target.value);
+    setInputs((prev) => ({ ...prev, std_cost: cleaned }));
+  };
+  const handleStdCostFocus = () => {
+    setInputs((prev) => ({
+      ...prev,
+      std_cost: String(prev.std_cost || "").replace(/,/g, ""),
+    }));
+  };
+  const handleStdCostBlur = () => {
+    const raw = String(inputs.std_cost || "").replace(/,/g, "");
+    if (raw === "") return;
+    let n = Number(raw);
+    if (Number.isNaN(n)) return;
+    if (n < MONEY_MIN) n = MONEY_MIN;
+    if (n > MONEY_MAX) n = MONEY_MAX;
+    setInputs((prev) => ({ ...prev, std_cost: formatMoney(n) }));
+  };
+
+  // Derived error: reserved ≤ on-hand (parse on-hand stripping commas)
   useEffect(() => {
-    const onHand = Number(inputs.qty_on_hand);
+    const onHand = Number(String(inputs.qty_on_hand).replace(/,/g, ""));
     const reserved = Number(inputs.qty_reserved);
-    const typedSomething =
-      inputs.qty_reserved !== "" && !Number.isNaN(onHand) && !Number.isNaN(reserved);
-
-    if (typedSomething && (reserved > onHand || wasClamped)) {
-      setQtyError("Enter a value less than or equal to Qty on Hand.");
+    const typed =
+      inputs.qty_reserved !== "" &&
+      !Number.isNaN(onHand) &&
+      !Number.isNaN(reserved);
+    if (typed && reserved > onHand) {
+      setQtyError("Qty Reserved must be ≤ Qty on Hand.");
     } else {
       setQtyError("");
     }
-  }, [inputs.qty_on_hand, inputs.qty_reserved, wasClamped]);
+  }, [inputs.qty_on_hand, inputs.qty_reserved]);
 
-  // Fetch item
+  // Fetch product to edit
   useEffect(() => {
     const fetchHandler = async () => {
       try {
         setLoading(true);
         const { data } = await axios.get(`http://localhost:5000/api/cocoProducts/${id}`);
         const item = data?.cocoProducts;
-        if (!item) return;
+        if (!item) throw new Error("Not found");
+
+        const onHandNum = Number(item.qty_on_hand ?? 0);
+        const stdCostNum = Number(item.std_cost ?? 0);
 
         setInputs({
           pro_id: item.pro_id ?? "",
           pro_name: item.pro_name ?? "",
           pro_category: item.pro_category ?? "",
           pro_uom: item.pro_uom && item.pro_uom !== "undefined" ? item.pro_uom : "",
-          std_cost: item.std_cost ?? "",
-          qty_on_hand: item.qty_on_hand ?? "",
+          std_cost: Number.isFinite(stdCostNum) ? formatMoney(Math.min(MONEY_MAX, Math.max(MONEY_MIN, stdCostNum))) : "",
+          qty_on_hand: Number.isFinite(onHandNum) ? formatInt(Math.min(QTY_MAX, Math.max(0, onHandNum))) : "",
           qty_reserved: item.qty_reserved ?? "",
-          expire_date: toDateInput(item.expire_date),
-          updated_at: toDateInput(item.updated_at || item.updatedAt),
+          expire_date: item.expire_date ? toTodayLocalISODate(new Date(item.expire_date)) : "",
+          updated_at: item.updated_at || item.updatedAt ? toTodayLocalISODate(new Date(item.updated_at || item.updatedAt)) : toTodayLocalISODate(),
           updated_by: item.updated_by ?? "",
         });
       } catch (err) {
@@ -93,26 +197,53 @@ export default function UpdateCocoProduct() {
       }
     };
     fetchHandler();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  // Generic change handler (match AddCocoProduct)
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "pro_name") {
+      const cleaned = value.replace(/[^A-Za-z ]+/g, "");
+      setInputs((prev) => ({ ...prev, pro_name: cleaned }));
+      return;
+    }
+
+    if (name === "qty_reserved") {
+      const n = Number(value);
+      const onHand = Number(String(inputs.qty_on_hand).replace(/,/g, "")) || 0;
+      if (!Number.isNaN(n) && n > onHand) {
+        setInputs((prev) => ({ ...prev, qty_reserved: String(onHand) }));
+        return;
+      }
+    }
+
+    if (name === "expire_date") {
+      const today = toTodayLocalISODate();
+      setInputs((prev) => ({
+        ...prev,
+        expire_date: value && value < today ? today : value,
+      }));
+      return;
+    }
+
+    setInputs((prev) => ({ ...prev, [name]: value }));
+  };
 
   const sendRequest = async () => {
     const body = {
-      pro_name: String(inputs.pro_name),
-      pro_category: String(inputs.pro_category),
-      pro_uom: String(inputs.pro_uom),
-      std_cost: inputs.std_cost === "" ? null : Number(inputs.std_cost),
-      qty_on_hand: inputs.qty_on_hand === "" ? 0 : Number(inputs.qty_on_hand),
-      qty_reserved: inputs.qty_reserved === "" ? 0 : Number(inputs.qty_reserved),
+      pro_name: inputs.pro_name.trim(),
+      pro_category: inputs.pro_category.trim(),
+      pro_uom: inputs.pro_uom,
+      std_cost: Number(String(inputs.std_cost).replace(/,/g, "")),
+      qty_on_hand: Number(String(inputs.qty_on_hand).replace(/,/g, "")),
+      qty_reserved: Number(inputs.qty_reserved),
       expire_date: inputs.expire_date || null,
-      updated_by: String(inputs.updated_by),
+      updated_by: inputs.updated_by.trim(),
     };
-
     const res = await axios.put(`http://localhost:5000/api/cocoProducts/${id}`, body);
     return res.data;
-  };
-
-  const handleChange = (e) => {
-    setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
@@ -120,6 +251,7 @@ export default function UpdateCocoProduct() {
     setSuccess("");
     setError("");
     if (qtyError) return;
+
     try {
       setSaving(true);
       await sendRequest();
@@ -132,7 +264,17 @@ export default function UpdateCocoProduct() {
     }
   };
 
-  const disableSubmit = !!qtyError || saving;
+  const disableSubmit =
+    saving ||
+    !!qtyError ||
+    !inputs.pro_name ||
+    !inputs.pro_category ||
+    !inputs.pro_uom ||
+    !inputs.std_cost ||
+    inputs.qty_on_hand === "" ||
+    inputs.qty_reserved === "" ||
+    !inputs.expire_date ||
+    !inputs.updated_by;
 
   if (loading) {
     return (
@@ -183,7 +325,7 @@ export default function UpdateCocoProduct() {
             />
           </div>
 
-          {/* Product Name */}
+          {/* Product Name (letters + spaces only) */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Product Name</label>
             <input
@@ -191,22 +333,34 @@ export default function UpdateCocoProduct() {
               name="pro_name"
               value={inputs.pro_name}
               onChange={handleChange}
+              onKeyDown={handleNameKeyDown}
+              onBeforeInput={handleNameBeforeInput}
+              onPaste={handleNamePaste}
+              onDrop={handleNameDrop}
+              inputMode="text"
+              autoComplete="off"
+              pattern="[A-Za-z ]*"
               required
+              title="Letters and spaces only"
               className="w-full rounded-xl border border-gray-200 px-3 py-2 outline-none focus:border-transparent focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
-          {/* Category */}
+          {/* Category (dropdown) */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Category</label>
-            <input
-              type="text"
+            <select
               name="pro_category"
               value={inputs.pro_category}
               onChange={handleChange}
               required
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 outline-none focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-            />
+              className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 outline-none focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="" disabled>Select category</option>
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
           </div>
 
           {/* UOM */}
@@ -219,9 +373,7 @@ export default function UpdateCocoProduct() {
               required
               className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 outline-none focus:border-transparent focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="" disabled>
-                Select unit
-              </option>
+              <option value="">Select unit</option>
               <option value="Pieces (pcs)">Pieces (pcs)</option>
               <option value="Bunches (bch)">Bunches (bch)</option>
               <option value="Bags (bag)">Bags (bag)</option>
@@ -232,110 +384,67 @@ export default function UpdateCocoProduct() {
             </select>
           </div>
 
-          {/* Standard Cost */}
+          {/* Standard Cost (money formatting) */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Standard Cost</label>
             <input
-              type="number"
+              type="text"
               name="std_cost"
               value={inputs.std_cost}
-              step="0.01"
-              min="0.01"
-              max="100000"
+              onChange={handleStdCostChange}
+              onFocus={handleStdCostFocus}
+              onBlur={handleStdCostBlur}
+              inputMode="decimal"
               required
-              onWheel={(e) => e.currentTarget.blur()}
-              onKeyDown={(e) => {
-                if (["-", "+", "e", "E"].includes(e.key)) e.preventDefault();
-              }}
-              onChange={(e) => {
-                let v = e.target.value;
-                if (v === "") return setInputs((p) => ({ ...p, std_cost: v }));
-                v = v.replace(/[+\-]/g, "");
-                v = v.replace(/(\..*)\./g, "$1");
-                if (/^0+\d/.test(v)) v = v.replace(/^0+(?=\d)/, "");
-                if (v.startsWith(".")) v = "0" + v;
-                if (v.includes(".")) {
-                  const [i, d] = v.split(".");
-                  if (d.length > 2) v = `${i}.${d.slice(0, 2)}`;
-                }
-                if (v === "0.00") v = "0.01";
-                const n = Number(v);
-                if (!Number.isNaN(n) && n > 100000) v = "100000";
-                if (n > 0 && n < 0.01) v = "0.01";
-                setInputs((p) => ({ ...p, std_cost: v }));
-              }}
-              onBlur={(e) => {
-                const n = Number(e.target.value);
-                if (!Number.isNaN(n) && n < 0.01) {
-                  setInputs((p) => ({ ...p, std_cost: "0.01" }));
-                }
-              }}
               className="w-full rounded-xl border border-gray-200 px-3 py-2 outline-none focus:border-transparent focus:ring-2 focus:ring-indigo-500"
             />
+            <p className="mt-1 text-xs text-gray-500">Max 10,000.00 • formats as 1,000.00 on blur.</p>
           </div>
 
-          {/* Qty on Hand */}
+          {/* Qty on Hand (formatted integer with commas) */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Qty on Hand</label>
             <input
-              type="number"
+              type="text"
               name="qty_on_hand"
               value={inputs.qty_on_hand}
-              onChange={handleChange}
-              min="0"
+              onChange={handleQtyOnHandChange}
+              onFocus={handleQtyOnHandFocus}
+              onBlur={handleQtyOnHandBlur}
+              onKeyDown={blockQtyBadKeys}
+              inputMode="numeric"
               required
               className="w-full rounded-xl border border-gray-200 px-3 py-2 outline-none focus:border-transparent focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
-          {/* Qty Reserved */}
+          {/* Qty Reserved (must be ≤ on-hand) */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Qty Reserved</label>
             <input
               type="number"
               name="qty_reserved"
               value={inputs.qty_reserved}
+              onChange={handleChange}
               min="0"
               required
-              onWheel={(e) => e.currentTarget.blur()}
-              onChange={(e) => {
-                const raw = e.target.value;
-                if (raw === "") {
-                  setWasClamped(false);
-                  return setInputs((prev) => ({ ...prev, qty_reserved: "" }));
-                }
-                const n = Number(raw);
-                if (Number.isNaN(n)) return;
-                const onHand = Number(inputs.qty_on_hand) || 0;
-                if (n > onHand) {
-                  setWasClamped(true);
-                  setInputs((prev) => ({ ...prev, qty_reserved: String(onHand) }));
-                } else {
-                  setWasClamped(false);
-                  setInputs((prev) => ({ ...prev, qty_reserved: String(n) }));
-                }
-              }}
-              className={`w-full rounded-xl border px-3 py-2 outline-none focus:border-transparent focus:ring-2 ${qtyError ? "border-red-300 focus:ring-red-500" : "border-gray-200 focus:ring-indigo-500"}`}
+              className={`w-full rounded-xl border px-3 py-2 outline-none focus:border-transparent focus:ring-2 ${
+                qtyError ? "border-red-300 focus:ring-red-500" : "border-gray-200 focus:ring-indigo-500"
+              }`}
             />
-            {qtyError && (
-              <p className="mt-1 text-sm text-red-600">{qtyError}</p>
-            )}
+            {qtyError && <p className="mt-1 text-sm text-red-600">{qtyError}</p>}
           </div>
 
-          {/* Expire Date */}
+          {/* Expire Date (no past dates) */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Expire Date</label>
             <input
               type="date"
               name="expire_date"
               value={inputs.expire_date || ""}
-              min={todayLocal()}
+              min={toTodayLocalISODate()}
               required
-              onChange={(e) => {
-                const v = e.target.value;
-                const min = todayLocal();
-                setInputs((prev) => ({ ...prev, expire_date: v && v < min ? min : v }));
-              }}
+              onChange={handleChange}
               className="w-full rounded-xl border border-gray-200 px-3 py-2 outline-none focus:border-transparent focus:ring-2 focus:ring-indigo-500"
             />
             <p className="mt-1 text-xs text-gray-500">Past dates are blocked.</p>
@@ -347,23 +456,27 @@ export default function UpdateCocoProduct() {
             <input
               type="date"
               name="updated_at"
-              value={inputs.updated_at}
+              value={inputs.updated_at || toTodayLocalISODate()}
               readOnly
               className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-gray-600 outline-none focus:ring-2 focus:ring-gray-300"
             />
           </div>
 
-          {/* Updated By */}
+          {/* Updated By (dropdown) */}
           <div className="sm:col-span-2">
             <label className="mb-1 block text-sm font-medium text-gray-700">Updated By</label>
-            <input
-              type="text"
+            <select
               name="updated_by"
               value={inputs.updated_by}
               onChange={handleChange}
               required
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 outline-none focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-            />
+              className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 outline-none focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="" disabled>Select manager</option>
+              {UPDATED_BY_OPTIONS.map((id) => (
+                <option key={id} value={id}>{id}</option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -371,7 +484,9 @@ export default function UpdateCocoProduct() {
           <button
             type="submit"
             disabled={disableSubmit}
-            className={`inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium text-white transition active:scale-[0.99] ${disableSubmit ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700"}`}
+            className={`inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium text-white transition active:scale-[0.99] ${
+              disableSubmit ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700"
+            }`}
           >
             {saving ? (
               <span className="flex items-center gap-2">

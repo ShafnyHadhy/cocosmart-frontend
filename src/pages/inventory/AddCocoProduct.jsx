@@ -2,6 +2,60 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+/* --- helpers --- */
+const MONEY_MIN = 0.01;
+const MONEY_MAX = 10000;
+const QTY_MAX = 1_000_000;
+
+const CATEGORIES = [
+  "Fresh",
+  "Milk & Cream",
+  "Oil",
+  "Desiccated",
+  "Flour & Sugar",
+  "Snacks & Drinks",
+];
+const UPDATED_BY_OPTIONS = ["inv-mgr-001", "inv-mgr-002", "inv-mgr-003"];
+
+function toTodayLocalISODate() {
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 10);
+}
+
+const formatInt = (n) =>
+  new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(n);
+
+const cleanQty = (s) => {
+  const v = String(s || "").replace(/[^\d]/g, "");
+  if (!v) return "";
+  const n = Math.min(QTY_MAX, Number(v));
+  return String(n);
+};
+
+const formatMoney = (n) =>
+  new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(n);
+
+const cleanMoneyInput = (s) => {
+  let v = String(s || "").replace(/,/g, "");
+  v = v.replace(/[^\d.]/g, "");
+  const firstDot = v.indexOf(".");
+  if (firstDot !== -1)
+    v = v.slice(0, firstDot + 1) + v.slice(firstDot + 1).replace(/\./g, "");
+  if (v.startsWith(".")) v = "0" + v;
+  if (/^0\d/.test(v)) v = v.replace(/^0+(?=\d)/, "");
+  if (v.includes(".")) {
+    const [i, d] = v.split(".");
+    v = `${i}.${d.slice(0, 2)}`;
+  }
+  const n = Number(v);
+  if (!Number.isNaN(n) && n > MONEY_MAX) v = String(MONEY_MAX);
+  return v;
+};
+
 export default function AddCocoProduct() {
   const navigate = useNavigate();
 
@@ -10,112 +64,195 @@ export default function AddCocoProduct() {
     pro_name: "",
     pro_category: "",
     pro_uom: "",
-    pro_description: "",
     std_cost: "",
-    sell_price: "",
     qty_on_hand: "",
     qty_reserved: "",
     expire_date: "",
-    updated_at: "",
+    updated_at: toTodayLocalISODate(),
     updated_by: "",
   });
 
-  // Validation + UI state
-  const [proIdError, setProIdError] = useState("");
-  const [checkingProId, setCheckingProId] = useState(false);
-  const lastCheckedProId = useRef("");
-  const [qtyError, setQtyError] = useState("");
-  const [wasClamped, setWasClamped] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Helpers
-  const todayLocal = () => {
-    const d = new Date();
-    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-    return d.toISOString().slice(0, 10);
-  };
+  // Product ID uniqueness (debounced)
+  const [proIdError, setProIdError] = useState("");
+  const [checkingProId, setCheckingProId] = useState(false);
+  const lastChecked = useRef("");
 
-  // Prefill updated_at with today on first mount
   useEffect(() => {
-    setInputs((prev) => ({ ...prev, updated_at: todayLocal() }));
-  }, []);
-
-  // Live pro_id uniqueness check (debounced)
-  // useEffect(() => {
-  //   const value = inputs.pro_id?.trim();
-  //   if (!value) {
-  //     setProIdError("");
-  //     return;
-  //   }
-
-  //   const t = setTimeout(async () => {
-  //     try {
-  //       setCheckingProId(true);
-  //       lastCheckedProId.current = value;
-  //       const { data } = await axios.get(
-  //         "http://localhost:5000/api/cocoProducts/check-pro-id",
-  //         { params: { pro_id: value } }
-  //       );
-  //       if (lastCheckedProId.current !== value) return; // stale
-  //       setProIdError(
-  //         data?.exists ? "This Product ID already exists. Please use a unique ID." : ""
-  //       );
-  //     } catch {
-  //       setProIdError("Could not verify Product ID. Check your connection.");
-  //     } finally {
-  //       if (lastCheckedProId.current === value) setCheckingProId(false);
-  //     }
-  //   }, 400);
-
-  //   return () => clearTimeout(t);
-  // }, [inputs.pro_id]);
-
-  // Re-clamp reserved if on-hand drops
-  useEffect(() => {
-    const onHand = Number(inputs.qty_on_hand) || 0;
-    const reserved = Number(inputs.qty_reserved);
-    if (inputs.qty_reserved !== "" && !Number.isNaN(reserved) && reserved > onHand) {
-      setWasClamped(true);
-      setInputs((prev) => ({ ...prev, qty_reserved: String(onHand) }));
-    } else {
-      setWasClamped(false);
+    const v = inputs.pro_id.trim();
+    if (!v) {
+      setProIdError("");
+      setCheckingProId(false);
+      return;
     }
-  }, [inputs.qty_on_hand]);
+    const t = setTimeout(async () => {
+      try {
+        setCheckingProId(true);
+        lastChecked.current = v;
+        const { data } = await axios.get(
+          "http://localhost:5000/api/cocoProducts/check-pro-id",
+          { params: { pro_id: v } }
+        );
+        if (lastChecked.current !== v) return; // stale response
+        setProIdError(data?.exists ? "This Product ID already exists." : "");
+      } catch {
+        setProIdError("Could not verify Product ID.");
+      } finally {
+        if (lastChecked.current === v) setCheckingProId(false);
+      }
+    }, 400);
+    return () => clearTimeout(t);
+  }, [inputs.pro_id]);
 
-  // Live qty error message
-  useEffect(() => {
-    const onHand = Number(inputs.qty_on_hand);
+  // qty_reserved must be ≤ qty_on_hand
+  const qtyError = (() => {
+    const onHand = Number(String(inputs.qty_on_hand).replace(/,/g, ""));
     const reserved = Number(inputs.qty_reserved);
-
-    const typedSomething =
-      inputs.qty_reserved !== "" && !Number.isNaN(onHand) && !Number.isNaN(reserved);
-
-    if (typedSomething && (reserved > onHand || wasClamped)) {
-      setQtyError("Enter a value less than or equal to Qty on Hand.");
-    } else {
-      setQtyError("");
+    if (
+      inputs.qty_on_hand !== "" &&
+      inputs.qty_reserved !== "" &&
+      !Number.isNaN(onHand) &&
+      !Number.isNaN(reserved) &&
+      reserved > onHand
+    ) {
+      return "Qty Reserved must be ≤ Qty on Hand.";
     }
-  }, [inputs.qty_on_hand, inputs.qty_reserved, wasClamped]);
+    return "";
+  })();
 
+  // generic change handler (+ clamp reserved as you type, block past dates, sanitize name)
   const handleChange = (e) => {
-    setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+
+    if (name === "pro_name") {
+      const cleaned = value.replace(/[^A-Za-z ]+/g, "");
+      setInputs((prev) => ({ ...prev, pro_name: cleaned }));
+      return;
+    }
+
+    if (name === "qty_reserved") {
+      const n = Number(value);
+      const onHand =
+        Number(String(inputs.qty_on_hand).replace(/,/g, "")) || 0;
+      if (!Number.isNaN(n) && n > onHand) {
+        setInputs((prev) => ({ ...prev, qty_reserved: String(onHand) }));
+        return;
+      }
+    }
+
+    if (name === "expire_date") {
+      const today = toTodayLocalISODate();
+      setInputs((prev) => ({
+        ...prev,
+        expire_date: value && value < today ? today : value,
+      }));
+      return;
+    }
+
+    setInputs((prev) => ({ ...prev, [name]: value }));
   };
+
+  // Qty on Hand (formatted integer with commas)
+  const handleQtyOnHandChange = (e) => {
+    setInputs((prev) => ({ ...prev, qty_on_hand: cleanQty(e.target.value) }));
+  };
+  const handleQtyOnHandFocus = (e) => {
+    e.target.style.borderColor = "#2a5540";
+    e.target.style.boxShadow = "0 0 0 2px rgba(42, 85, 64, 0.1)";
+    setInputs((prev) => ({
+      ...prev,
+      qty_on_hand: String(prev.qty_on_hand || "").replace(/,/g, ""),
+    }));
+  };
+  const handleQtyOnHandBlur = (e) => {
+    e.target.style.borderColor = "#e7e9e9";
+    e.target.style.boxShadow = "none";
+    const raw = String(inputs.qty_on_hand || "").replace(/,/g, "");
+    if (!raw) return;
+    const n = Math.min(QTY_MAX, Number(raw.replace(/[^\d]/g, "") || 0));
+    setInputs((prev) => ({ ...prev, qty_on_hand: formatInt(n) }));
+  };
+  const blockQtyBadKeys = (e) => {
+    if (["e", "E", "-", "+"].includes(e.key)) e.preventDefault();
+  };
+
+  // Std cost (money, cap ≤ 10,000; 2dp; commas on blur)
+  const handleStdCostChange = (e) => {
+    const cleaned = cleanMoneyInput(e.target.value);
+    setInputs((prev) => ({ ...prev, std_cost: cleaned }));
+  };
+  const handleStdCostFocus = (e) => {
+    e.target.style.borderColor = "#2a5540";
+    e.target.style.boxShadow = "0 0 0 2px rgba(42, 85, 64, 0.1)";
+    setInputs((prev) => ({
+      ...prev,
+      std_cost: String(prev.std_cost || "").replace(/,/g, ""),
+    }));
+  };
+  const handleStdCostBlur = (e) => {
+    e.target.style.borderColor = "#e7e9e9";
+    e.target.style.boxShadow = "none";
+    const raw = String(inputs.std_cost || "").replace(/,/g, "");
+    if (raw === "") return;
+    let n = Number(raw);
+    if (Number.isNaN(n)) return;
+    if (n < MONEY_MIN) n = MONEY_MIN;
+    if (n > MONEY_MAX) n = MONEY_MAX;
+    setInputs((prev) => ({ ...prev, std_cost: formatMoney(n) }));
+  };
+
+  // Name hard-block typing to letters + spaces
+  const isAllowedNameChar = (ch) => /^[A-Za-z ]$/.test(ch);
+  const handleNameKeyDown = (e) => {
+    const k = e.key;
+    if (
+      k === "Backspace" ||
+      k === "Delete" ||
+      k === "Tab" ||
+      k === "ArrowLeft" ||
+      k === "ArrowRight" ||
+      k === "Home" ||
+      k === "End" ||
+      e.ctrlKey ||
+      e.metaKey
+    )
+      return;
+    if (k.length === 1 && !isAllowedNameChar(k)) e.preventDefault();
+  };
+  const handleNameBeforeInput = (e) => {
+    if (e.data && !/^[A-Za-z ]+$/.test(e.data)) e.preventDefault();
+  };
+  const handleNamePaste = (e) => {
+    const text = (e.clipboardData || window.clipboardData).getData("text") || "";
+    if (!/^[A-Za-z ]+$/.test(text)) {
+      e.preventDefault();
+      const cleaned = text.replace(/[^A-Za-z ]+/g, "");
+      const target = e.target;
+      const start = target.selectionStart ?? target.value.length;
+      const end = target.selectionEnd ?? target.value.length;
+      const next = target.value.slice(0, start) + cleaned + target.value.slice(end);
+      setInputs((prev) => ({ ...prev, pro_name: next }));
+    }
+  };
+  const handleNameDrop = (e) => e.preventDefault();
+
+  const stopWheel = (e) => e.currentTarget.blur();
 
   const sendRequest = async () => {
     const body = {
-      pro_id: String(inputs.pro_id),
-      pro_name: String(inputs.pro_name),
-      pro_category: String(inputs.pro_category),
-      pro_uom: String(inputs.pro_uom),
-      pro_description: String(inputs.pro_description),
-      std_cost: Number(inputs.std_cost),
-      sell_price: Number(inputs.sell_price),
-      qty_on_hand: Number(inputs.qty_on_hand),
+      pro_id: inputs.pro_id.trim(),
+      pro_name: inputs.pro_name.trim(),
+      pro_category: inputs.pro_category.trim(),
+      pro_uom: inputs.pro_uom,
+      std_cost: Number(String(inputs.std_cost).replace(/,/g, "")),
+      qty_on_hand: Number(String(inputs.qty_on_hand).replace(/,/g, "")),
       qty_reserved: Number(inputs.qty_reserved),
       expire_date: inputs.expire_date || null,
-      updated_by: String(inputs.updated_by),
+      updated_at: inputs.updated_at || undefined,
+      updated_by: inputs.updated_by.trim(),
     };
     const res = await axios.post("http://localhost:5000/api/cocoProducts", body);
     return res.data;
@@ -125,7 +262,11 @@ export default function AddCocoProduct() {
     e.preventDefault();
     setError("");
     setSuccess("");
-    if (proIdError || checkingProId || qtyError) return;
+
+    if (qtyError) return setError(qtyError);
+    if (proIdError || checkingProId)
+      return setError(proIdError || "Checking Product ID…");
+
     try {
       setSaving(true);
       await sendRequest();
@@ -138,347 +279,502 @@ export default function AddCocoProduct() {
     }
   };
 
-  const disableRest = !!proIdError || checkingProId;
-  const disableSubmit = !!proIdError || checkingProId || !!qtyError || saving;
+  const disableSubmit =
+    saving ||
+    !!qtyError ||
+    !!proIdError ||
+    checkingProId ||
+    !inputs.pro_id ||
+    !inputs.pro_name ||
+    !inputs.pro_category ||
+    !inputs.pro_uom ||
+    !inputs.std_cost ||
+    inputs.qty_on_hand === "" ||
+    inputs.qty_reserved === "" ||
+    !inputs.expire_date ||
+    !inputs.updated_by;
 
   return (
-    <div className="mx-auto max-w-3xl p-4 sm:p-6 lg:p-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Add Coco Product</h1>
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-2 text-sm font-medium hover:bg-gray-50 active:scale-[0.99]"
-        >
-          ← Back
-        </button>
-      </div>
-
-      {error && (
-        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-          {success}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          {/* Product ID */}
-          <div className="sm:col-span-2">
-            <label className="mb-1 block text-sm font-medium text-gray-700">Product ID</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                name="pro_id"
-                onChange={handleChange}
-                value={inputs.pro_id}
-                required
-                className={`w-full rounded-xl border px-3 py-2 outline-none focus:border-transparent focus:ring-2 ${
-                  proIdError
-                    ? "border-red-300 focus:ring-red-500"
-                    : "border-gray-200 focus:ring-indigo-500"
-                }`}
-              />
-              {checkingProId && (
-                <span className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-transparent" />
-              )}
-            </div>
-            {proIdError && (
-              <p className="mt-1 text-sm text-red-600">{proIdError}</p>
-            )}
-          </div>
-
-          {/* Product Name */}
+    <div
+      className="min-h-screen p-6"
+      style={{ backgroundColor: "#f7f9f9" }}
+    >
+      {/* Header */}
+      <div className="max-w-4xl mx-auto mb-8">
+        <div className="flex items-center justify-between">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Product Name</label>
-            <input
-              type="text"
-              name="pro_name"
-              onChange={handleChange}
-              value={inputs.pro_name}
-              required
-              disabled={disableRest}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 outline-none disabled:bg-gray-50 disabled:text-gray-500 focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          {/* Category */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Category</label>
-            <input
-              type="text"
-              name="pro_category"
-              onChange={handleChange}
-              value={inputs.pro_category}
-              required
-              disabled={disableRest}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 outline-none disabled:bg-gray-50 disabled:text-gray-500 focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          {/* UOM */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Unit of Measurement (UOM)</label>
-            <select
-              name="pro_uom"
-              value={inputs.pro_uom}
-              onChange={handleChange}
-              required
-              disabled={disableRest}
-              className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 outline-none disabled:bg-gray-50 disabled:text-gray-500 focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+            <h1
+              className="text-3xl font-bold flex items-center gap-3"
+              style={{ color: "#2a5540" }}
             >
-              <option value="" disabled>
-                Select unit
-              </option>
-              <option value="Pieces (pcs)">Pieces (pcs)</option>
-              <option value="Bunches (bch)">Bunches (bch)</option>
-              <option value="Bags (bag)">Bags (bag)</option>
-              <option value="Liters (L)">Liters (L)</option>
-              <option value="Milliliters (mL)">Milliliters (mL)</option>
-              <option value="Kilograms (kg)">Kilograms (kg)</option>
-              <option value="Metric Tons (t / MT)">Metric Tons (t / MT)</option>
-            </select>
+              Add Coco Product
+            </h1>
+            <p className="mt-2" style={{ color: "#a4ac86" }}>
+              Add a new product to your inventory
+            </p>
           </div>
-
-          {/* Description (optional) */}
-          <div className="sm:col-span-2">
-            <label className="mb-1 block text-sm font-medium text-gray-700">Description</label>
-            <textarea
-              name="pro_description"
-              onChange={handleChange}
-              value={inputs.pro_description}
-              rows={3}
-              disabled={disableRest}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 outline-none disabled:bg-gray-50 disabled:text-gray-500 focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-              placeholder="Optional"
-            />
-          </div>
-
-          {/* Standard Cost */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Standard Cost</label>
-            <input
-              type="number"
-              name="std_cost"
-              value={inputs.std_cost}
-              step="0.01"
-              min="0.01"
-              max="100000"
-              required
-              disabled={disableRest}
-              onWheel={(e) => e.currentTarget.blur()}
-              onKeyDown={(e) => {
-                if (["-", "+", "e", "E"].includes(e.key)) e.preventDefault();
-              }}
-              onChange={(e) => {
-                let v = e.target.value;
-                if (v === "") {
-                  setInputs((prev) => ({ ...prev, std_cost: v }));
-                  return;
-                }
-                v = v.replace(/[+\-]/g, "");
-                v = v.replace(/(\..*)\./g, "$1");
-                if (/^0+\d/.test(v)) v = v.replace(/^0+(?=\d)/, "");
-                if (v.startsWith(".")) v = "0" + v;
-                if (v.includes(".")) {
-                  const [i, d] = v.split(".");
-                  if (d.length > 2) v = `${i}.${d.slice(0, 2)}`;
-                }
-                if (v === "0.00") v = "0.01";
-                const n = Number(v);
-                if (!Number.isNaN(n) && n > 100000) v = "100000";
-                if (n > 0 && n < 0.01) v = "0.01";
-                setInputs((prev) => ({ ...prev, std_cost: v }));
-              }}
-              onBlur={(e) => {
-                const n = Number(e.target.value);
-                if (!Number.isNaN(n) && n < 0.01) {
-                  setInputs((prev) => ({ ...prev, std_cost: "0.01" }));
-                }
-              }}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 outline-none disabled:bg-gray-50 disabled:text-gray-500 focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          {/* Selling Price */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Selling Price</label>
-            <input
-              type="number"
-              name="sell_price"
-              value={inputs.sell_price}
-              step="0.01"
-              min="0.01"
-              max="100000"
-              disabled={disableRest}
-              onWheel={(e) => e.currentTarget.blur()}
-              onKeyDown={(e) => {
-                if (["-", "+", "e", "E"].includes(e.key)) e.preventDefault();
-              }}
-              onChange={(e) => {
-                let v = e.target.value;
-                if (v === "") {
-                  setInputs((prev) => ({ ...prev, sell_price: v }));
-                  return;
-                }
-                v = v.replace(/[+\-]/g, "");
-                v = v.replace(/(\..*)\./g, "$1");
-                if (/^0+\d/.test(v)) v = v.replace(/^0+(?=\d)/, "");
-                if (v.startsWith(".")) v = "0" + v;
-                if (v.includes(".")) {
-                  const [i, d] = v.split(".");
-                  if (d.length > 2) v = `${i}.${d.slice(0, 2)}`;
-                }
-                if (v === "0.00") v = "0.01";
-                const n = Number(v);
-                if (!Number.isNaN(n) && n > 100000) v = "100000";
-                if (n > 0 && n < 0.01) v = "0.01";
-                setInputs((prev) => ({ ...prev, sell_price: v }));
-              }}
-              onBlur={(e) => {
-                const n = Number(e.target.value);
-                if (!Number.isNaN(n) && n < 0.01) {
-                  setInputs((prev) => ({ ...prev, sell_price: "0.01" }));
-                }
-              }}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 outline-none disabled:bg-gray-50 disabled:text-gray-500 focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          {/* Qty on Hand */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Qty on Hand</label>
-            <input
-              type="number"
-              name="qty_on_hand"
-              onChange={handleChange}
-              value={inputs.qty_on_hand}
-              min="0"
-              required
-              disabled={disableRest}
-              onWheel={(e) => e.currentTarget.blur()}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 outline-none disabled:bg-gray-50 disabled:text-gray-500 focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          {/* Qty Reserved */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Qty Reserved</label>
-            <input
-              type="number"
-              name="qty_reserved"
-              value={inputs.qty_reserved}
-              min="0"
-              required
-              disabled={disableRest}
-              onWheel={(e) => e.currentTarget.blur()}
-              onChange={(e) => {
-                const raw = e.target.value;
-                if (raw === "") {
-                  setWasClamped(false);
-                  setInputs((prev) => ({ ...prev, qty_reserved: "" }));
-                  return;
-                }
-                const n = Number(raw);
-                if (Number.isNaN(n)) return;
-                const onHand = Number(inputs.qty_on_hand) || 0;
-                if (n > onHand) {
-                  setWasClamped(true);
-                  setInputs((prev) => ({ ...prev, qty_reserved: String(onHand) }));
-                } else {
-                  setWasClamped(false);
-                  setInputs((prev) => ({ ...prev, qty_reserved: String(n) }));
-                }
-              }}
-              className={`w-full rounded-xl border px-3 py-2 outline-none focus:border-transparent focus:ring-2 ${
-                qtyError ? "border-red-300 focus:ring-red-500" : "border-gray-200 focus:ring-indigo-500"
-              } disabled:bg-gray-50 disabled:text-gray-500`}
-            />
-            {qtyError && <p className="mt-1 text-sm text-red-600">{qtyError}</p>}
-          </div>
-
-          {/* Expire Date */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Expire Date</label>
-            <input
-              type="date"
-              name="expire_date"
-              value={inputs.expire_date ? inputs.expire_date.slice(0, 10) : ""}
-              min={todayLocal()}
-              required
-              disabled={disableRest}
-              onChange={(e) => {
-                const v = e.target.value;
-                const min = todayLocal();
-                setInputs((prev) => ({
-                  ...prev,
-                  expire_date: v && v < min ? min : v,
-                }));
-              }}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 outline-none disabled:bg-gray-50 disabled:text-gray-500 focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-            />
-            <p className="mt-1 text-xs text-gray-500">Past dates are blocked.</p>
-          </div>
-
-          {/* Updated At (read-only) */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Updated At</label>
-            <input
-              type="date"
-              name="updated_at"
-              value={inputs.updated_at}
-              readOnly
-              disabled={disableRest}
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-gray-600 outline-none focus:ring-2 focus:ring-gray-300"
-            />
-          </div>
-
-          {/* Updated By */}
-          <div className="sm:col-span-2">
-            <label className="mb-1 block text-sm font-medium text-gray-700">Updated By</label>
-            <input
-              type="text"
-              name="updated_by"
-              onChange={handleChange}
-              value={inputs.updated_by}
-              required
-              disabled={disableRest}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 outline-none disabled:bg-gray-50 disabled:text-gray-500 focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-        </div>
-
-        <div className="mt-6 flex items-center gap-3">
-          <button
-            type="submit"
-            disabled={disableSubmit}
-            className={`inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium text-white transition active:scale-[0.99] ${
-              disableSubmit ? "bg-gray-400" : "bg-indigo-600 hover:bg-indigo-700"
-            }`}
-          >
-            {saving ? (
-              <span className="flex items-center gap-2">
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/70 border-t-transparent" />
-                Saving…
-              </span>
-            ) : (
-              "Submit"
-            )}
-          </button>
-
           <button
             type="button"
-            onClick={() => navigate("/cocoProductDetails")}
-            className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-50"
+            onClick={() => navigate(-1)}
+            className="px-4 py-2 rounded-lg transition-colors"
+            style={{
+              color: "#a4ac86",
+              backgroundColor: "transparent",
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = "#e7e9e9";
+              e.target.style.color = "#2D3748";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = "transparent";
+              e.target.style.color = "#a4ac86";
+            }}
           >
-            Cancel
+            ← Back
           </button>
         </div>
-      </form>
+      </div>
+
+      {/* Alerts */}
+      <div className="max-w-4xl mx-auto">
+        {error && (
+          <div
+            className="mb-6 p-4 rounded-xl border text-sm"
+            style={{
+              backgroundColor: "rgba(239, 68, 68, 0.1)",
+              borderColor: "#ef4444",
+              color: "#ef4444",
+            }}
+          >
+            {error}
+          </div>
+        )}
+        {success && (
+          <div
+            className="mb-6 p-4 rounded-xl border text-sm"
+            style={{
+              backgroundColor: "rgba(42, 85, 64, 0.1)",
+              borderColor: "#2a5540",
+              color: "#2a5540",
+            }}
+          >
+            {success}
+          </div>
+        )}
+      </div>
+
+      {/* Form Card */}
+      <div className="max-w-4xl mx-auto">
+        <div
+          className="rounded-2xl shadow-sm border p-8"
+          style={{ backgroundColor: "#fcfaf6", borderColor: "#e7e9e9" }}
+        >
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Product ID */}
+              <div className="md:col-span-2">
+                <label
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: "#2D3748" }}
+                >
+                  Product ID *
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    name="pro_id"
+                    value={inputs.pro_id}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
+                    style={{
+                      borderColor: proIdError ? "#ef4444" : "#e7e9e9",
+                      backgroundColor: "#f5f3f1",
+                    }}
+                    onFocus={(e) => {
+                      const c = proIdError ? "#ef4444" : "#2a5540";
+                      e.target.style.borderColor = c;
+                      e.target.style.boxShadow = `0 0 0 2px ${
+                        proIdError
+                          ? "rgba(239, 68, 68, 0.1)"
+                          : "rgba(42, 85, 64, 0.1)"
+                      }`;
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = proIdError
+                        ? "#ef4444"
+                        : "#e7e9e9";
+                      e.target.style.boxShadow = "none";
+                    }}
+                  />
+                  {checkingProId && (
+                    <span
+                      className="w-5 h-5 border-2 rounded-full animate-spin"
+                      style={{
+                        borderColor: "#e7e9e9",
+                        borderTopColor: "#2a5540",
+                      }}
+                    />
+                  )}
+                </div>
+                {proIdError && (
+                  <p className="mt-2 text-sm" style={{ color: "#ef4444" }}>
+                    {proIdError}
+                  </p>
+                )}
+              </div>
+
+              {/* Product Name */}
+              <div>
+                <label
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: "#2D3748" }}
+                >
+                  Product Name *
+                </label>
+                <input
+                  type="text"
+                  name="pro_name"
+                  value={inputs.pro_name}
+                  onChange={handleChange}
+                  onKeyDown={handleNameKeyDown}
+                  onBeforeInput={handleNameBeforeInput}
+                  onPaste={handleNamePaste}
+                  onDrop={handleNameDrop}
+                  inputMode="text"
+                  autoComplete="off"
+                  pattern="[A-Za-z ]*"
+                  title="Letters and spaces only"
+                  required
+                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
+                  style={{ borderColor: "#e7e9e9", backgroundColor: "#f5f3f1" }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#2a5540";
+                    e.target.style.boxShadow =
+                      "0 0 0 2px rgba(42, 85, 64, 0.1)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#e7e9e9";
+                    e.target.style.boxShadow = "none";
+                  }}
+                />
+              </div>
+
+              {/* Category */}
+              <div>
+                <label
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: "#2D3748" }}
+                >
+                  Category *
+                </label>
+                <select
+                  name="pro_category"
+                  value={inputs.pro_category}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
+                  style={{ borderColor: "#e7e9e9", backgroundColor: "#f5f3f1" }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#2a5540";
+                    e.target.style.boxShadow =
+                      "0 0 0 2px rgba(42, 85, 64, 0.1)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#e7e9e9";
+                    e.target.style.boxShadow = "none";
+                  }}
+                >
+                  <option value="" disabled>
+                    Select category
+                  </option>
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* UOM */}
+              <div>
+                <label
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: "#2D3748" }}
+                >
+                  Unit of Measurement *
+                </label>
+                <select
+                  name="pro_uom"
+                  value={inputs.pro_uom}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
+                  style={{ borderColor: "#e7e9e9", backgroundColor: "#f5f3f1" }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#2a5540";
+                    e.target.style.boxShadow =
+                      "0 0 0 2px rgba(42, 85, 64, 0.1)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#e7e9e9";
+                    e.target.style.boxShadow = "none";
+                  }}
+                >
+                  <option value="">Select unit</option>
+                  <option value="Pieces (pcs)">Pieces (pcs)</option>
+                  <option value="Bunches (bch)">Bunches (bch)</option>
+                  <option value="Bags (bag)">Bags (bag)</option>
+                  <option value="Liters (L)">Liters (L)</option>
+                  <option value="Milliliters (mL)">Milliliters (mL)</option>
+                  <option value="Kilograms (kg)">Kilograms (kg)</option>
+                  <option value="Metric Tons (t / MT)">
+                    Metric Tons (t / MT)
+                  </option>
+                </select>
+              </div>
+
+              {/* Standard Cost */}
+              <div>
+                <label
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: "#2D3748" }}
+                >
+                  Standard Cost (LKR) *
+                </label>
+                <input
+                  type="text"
+                  name="std_cost"
+                  value={inputs.std_cost}
+                  placeholder="e.g., 1,250.00"
+                  onChange={handleStdCostChange}
+                  onFocus={handleStdCostFocus}
+                  onBlur={handleStdCostBlur}
+                  inputMode="decimal"
+                  required
+                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
+                  style={{ borderColor: "#e7e9e9", backgroundColor: "#f5f3f1" }}
+                />
+                <p className="mt-2 text-sm" style={{ color: "#a4ac86" }}>
+                  Max 10,000.00 • formats as 1,000.00 on blur.
+                </p>
+              </div>
+
+              {/* Qty on Hand */}
+              <div>
+                <label
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: "#2D3748" }}
+                >
+                  Qty on Hand *
+                </label>
+                <input
+                  type="text"
+                  name="qty_on_hand"
+                  value={inputs.qty_on_hand}
+                  onChange={handleQtyOnHandChange}
+                  onFocus={handleQtyOnHandFocus}
+                  onBlur={handleQtyOnHandBlur}
+                  onKeyDown={blockQtyBadKeys}
+                  inputMode="numeric"
+                  required
+                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
+                  style={{ borderColor: "#e7e9e9", backgroundColor: "#f5f3f1" }}
+                />
+              </div>
+
+              {/* Qty Reserved */}
+              <div>
+                <label
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: "#2D3748" }}
+                >
+                  Qty Reserved *
+                </label>
+                <input
+                  type="number"
+                  name="qty_reserved"
+                  value={inputs.qty_reserved}
+                  onChange={handleChange}
+                  onWheel={stopWheel}
+                  min="0"
+                  required
+                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
+                  style={{
+                    borderColor: qtyError ? "#ef4444" : "#e7e9e9",
+                    backgroundColor: "#f5f3f1",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = qtyError ? "#ef4444" : "#2a5540";
+                    e.target.style.boxShadow = `0 0 0 2px ${
+                      qtyError
+                        ? "rgba(239, 68, 68, 0.1)"
+                        : "rgba(42, 85, 64, 0.1)"
+                    }`;
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = qtyError ? "#ef4444" : "#e7e9e9";
+                    e.target.style.boxShadow = "none";
+                  }}
+                />
+                {qtyError && (
+                  <p className="mt-2 text-sm" style={{ color: "#ef4444" }}>
+                    {qtyError}
+                  </p>
+                )}
+              </div>
+
+              {/* Expire Date */}
+              <div>
+                <label
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: "#2D3748" }}
+                >
+                  Expiry Date *
+                </label>
+                <input
+                  type="date"
+                  name="expire_date"
+                  value={inputs.expire_date}
+                  min={toTodayLocalISODate()}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
+                  style={{ borderColor: "#e7e9e9", backgroundColor: "#f5f3f1" }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#2a5540";
+                    e.target.style.boxShadow =
+                      "0 0 0 2px rgba(42, 85, 64, 0.1)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#e7e9e9";
+                    e.target.style.boxShadow = "none";
+                  }}
+                />
+                <p className="mt-2 text-sm" style={{ color: "#a4ac86" }}>
+                  Past dates are blocked.
+                </p>
+              </div>
+
+              {/* Updated At (read-only) */}
+              <div>
+                <label
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: "#2D3748" }}
+                >
+                  Updated At
+                </label>
+                <input
+                  type="date"
+                  name="updated_at"
+                  value={inputs.updated_at}
+                  readOnly
+                  className="w-full px-4 py-3 border rounded-xl focus:outline-none"
+                  style={{
+                    borderColor: "#e7e9e9",
+                    backgroundColor: "#f5f3f1",
+                    color: "#718096",
+                  }}
+                />
+              </div>
+
+              {/* Updated By */}
+              <div className="md:col-span-2">
+                <label
+                  className="block text-sm font-semibold mb-2"
+                  style={{ color: "#2D3748" }}
+                >
+                  Updated By *
+                </label>
+                <select
+                  name="updated_by"
+                  value={inputs.updated_by}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
+                  style={{ borderColor: "#e7e9e9", backgroundColor: "#f5f3f1" }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#2a5540";
+                    e.target.style.boxShadow =
+                      "0 0 0 2px rgba(42, 85, 64, 0.1)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#e7e9e9";
+                    e.target.style.boxShadow = "none";
+                  }}
+                >
+                  <option value="" disabled>
+                    Select manager
+                  </option>
+                  {UPDATED_BY_OPTIONS.map((id) => (
+                    <option key={id} value={id}>
+                      {id}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="mt-8 flex justify-end space-x-4">
+              <button
+                type="button"
+                onClick={() => navigate("/inventory/cocoProductDetails")}
+                className="px-6 py-3 rounded-xl transition-colors font-medium"
+                style={{ color: "#a4ac86", backgroundColor: "transparent" }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = "#e7e9e9";
+                  e.target.style.color = "#2D3748";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = "transparent";
+                  e.target.style.color = "#a4ac86";
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={disableSubmit}
+                className="px-8 py-3 rounded-xl font-semibold transition-all"
+                style={{
+                  backgroundColor: disableSubmit ? "#e7e9e9" : "#2a5540",
+                  color: disableSubmit ? "#a4ac86" : "white",
+                  cursor: disableSubmit ? "not-allowed" : "pointer",
+                }}
+                onMouseEnter={(e) => {
+                  if (!disableSubmit) {
+                    e.target.style.backgroundColor = "rgba(42, 85, 64, 0.9)";
+                    e.target.style.transform = "translateY(-1px)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!disableSubmit) {
+                    e.target.style.backgroundColor = "#2a5540";
+                    e.target.style.transform = "translateY(0)";
+                  }
+                }}
+              >
+                {saving ? (
+                  <span className="flex items-center space-x-2">
+                    <div
+                      className="w-4 h-4 border-2 rounded-full animate-spin"
+                      style={{
+                        borderColor: "rgba(255, 255, 255, 0.3)",
+                        borderTopColor: "white",
+                      }}
+                    ></div>
+                    <span>Adding...</span>
+                  </span>
+                ) : (
+                  "Add to Inventory"
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
+ 

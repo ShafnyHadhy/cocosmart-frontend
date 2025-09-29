@@ -15,10 +15,17 @@ import AddPurchasedItem from "./inventory/AddPurchasedItem";
 import AddSupplier from "./inventory/AddSupplier";
 import SupplierDetails from "./inventory/SupplierDetails";
 import UpdateSupplier from "./inventory/UpdateSupplier";
+
+
+
 import CoconutInventoryDashboard from "./inventory/CoconutInventoryDashboard";
 
 import AddStock from "./inventory/AddStock";
 import StockDetails from "./inventory/StockDetails";
+
+import AddRorder from "./inventory/AddRorder";
+import ReorderDetails from "./inventory/RorderDetails";
+import UpdateRorder from "./inventory/UpdateRorder";
 
 export default function Inventory() {
   const location = useLocation();
@@ -30,6 +37,8 @@ export default function Inventory() {
     { path: "/inventory/purchasedItemDetails", label: "Purchased Items", icon: <FiBox /> },////////////////
     { path: "/inventory/supplierDetails", label: "Suppliers", icon: <FiBox /> },////////////////
     { path: "/inventory/stockDetails", label: "Stock Movements", icon: <FiBox /> },////////////////
+        { path: "/inventory/rorderDetails", label: "Rorders", icon: <FiBox /> },////////////////
+        
     
   ];
 
@@ -100,6 +109,13 @@ export default function Inventory() {
 
             <Route path="addStock" element={<AddStock />} />
             <Route path="stockDetails" element={<StockDetails />} />
+{/* 
+            <Route path="addRorder" element={<AddRorder />} /> */}
+            {/* <Route path="rorderDetails" element={<RorderDetails />} /> */}
+
+            <Route path="addRorder" element={<AddRorder />} />
+            <Route path="rorderDetails" element={<ReorderDetails />} />
+            <Route path="updateRorder/:id" element={<UpdateRorder />} />
             
           </Routes>
           </div>

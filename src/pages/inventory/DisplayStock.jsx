@@ -2,12 +2,22 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { FiEdit2, FiTrash2, FiAlertTriangle, FiArrowDownCircle, FiArrowUpCircle, FiCalendar, FiUser } from "react-icons/fi";
+import {
+  FiEdit2,
+  FiTrash2,
+  FiAlertTriangle,
+  FiArrowDownCircle,
+  FiArrowUpCircle,
+  FiCalendar,
+  FiUser,
+} from "react-icons/fi";
 import Swal from "sweetalert2";
 
 // ---- API base (works in Vite & CRA) ----
 const API_BASE =
-  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_URL) ||
+  (typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    import.meta.env.VITE_API_URL) ||
   (typeof process !== "undefined" && process.env && process.env.VITE_API_URL) ||
   "http://localhost:5000";
 
@@ -40,7 +50,8 @@ const getRowStyleByType = (type, isWastage) => {
   return `${base} bg-gradient-to-r from-white/80 to-gray-50/60 hover:from-blue-50/40 hover:to-indigo-50/30 hover:shadow-blue-100/50`;
 };
 
-const baseCellClass = "px-6 py-4 border-r border-gray-100 last:border-r-0 relative";
+const baseCellClass =
+  "px-6 py-4 border-r border-gray-100 last:border-r-0 relative";
 
 export default function DisplayStock({ stock, onDelete }) {
   const {
@@ -48,12 +59,12 @@ export default function DisplayStock({ stock, onDelete }) {
     stock_id,
     item_id,
     category,
-    type,       // "in" | "out"
-    reason,     // e.g., "purchase", "wastage", "adjustment"
-    qty,        // number
-    tot_value,  // number
-    date,       // ISO string / Date
-    enter_by,   // user
+    type, // "in" | "out"
+    reason, // e.g., "purchase", "wastage", "adjustment"
+    qty, // number
+    tot_value, // number
+    date, // ISO string / Date
+    enter_by, // user
   } = stock || {};
 
   const [loading, setLoading] = useState(false);
@@ -119,7 +130,9 @@ export default function DisplayStock({ stock, onDelete }) {
   return (
     <tr className={rowClass}>
       {/* Stock ID chip */}
-      <td className={`${baseCellClass} bg-gradient-to-br from-indigo-500/10 to-purple-500/10 backdrop-blur-sm`}>
+      <td
+        className={`${baseCellClass} bg-gradient-to-br from-indigo-500/10 to-purple-500/10 backdrop-blur-sm`}
+      >
         <div className="relative">
           <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-bold tracking-wider shadow-lg">
             {stock_id || "—"}
@@ -147,32 +160,31 @@ export default function DisplayStock({ stock, onDelete }) {
 
       {/* Type badge */}
       {/* Type badge */}
-<td className={baseCellClass}>
-  <div
-    className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold shadow-md text-white bg-gradient-to-r ${
-      isIn
-        ? "from-emerald-400 to-green-500"
-        : isOut
-        ? "from-rose-400 to-red-500"
-        : "from-slate-400 to-gray-500"
-    }`}
-  >
-    {isIn ? (
-      <FiArrowDownCircle className="w-3 h-3 mr-1" />
-    ) : (
-      <FiArrowUpCircle className="w-3 h-3 mr-1" />
-    )}
-    {(type || "").toString().toUpperCase() || "—"}
-  </div>
+      <td className={baseCellClass}>
+        <div
+          className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold shadow-md text-white bg-gradient-to-r ${
+            isIn
+              ? "from-emerald-400 to-green-500"
+              : isOut
+              ? "from-rose-400 to-red-500"
+              : "from-slate-400 to-gray-500"
+          }`}
+        >
+          {isIn ? (
+            <FiArrowDownCircle className="w-3 h-3 mr-1" />
+          ) : (
+            <FiArrowUpCircle className="w-3 h-3 mr-1" />
+          )}
+          {(type || "").toString().toUpperCase() || "—"}
+        </div>
 
-  {isWastage && (
-    <div className="mt-2 inline-flex items-center px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[11px] font-semibold shadow">
-      <FiAlertTriangle className="w-3 h-3 mr-1" />
-      WASTAGE
-    </div>
-  )}
-</td>
-
+        {isWastage && (
+          <div className="mt-2 inline-flex items-center px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[11px] font-semibold shadow">
+            <FiAlertTriangle className="w-3 h-3 mr-1" />
+            WASTAGE
+          </div>
+        )}
+      </td>
 
       {/* Reason */}
       <td className={`${baseCellClass} text-gray-700 font-medium`}>
@@ -182,13 +194,27 @@ export default function DisplayStock({ stock, onDelete }) {
       {/* Quantity (signed visual) */}
       <td className={`${baseCellClass} text-right`}>
         <div className="flex flex-col items-end">
-          <span className={`text-lg font-bold ${isOut ? "text-red-600" : "text-green-700"}`}>
-            {isOut ? "-" : "+"}{numberize(qty).toLocaleString()}
+          <span
+            className={`text-lg font-bold ${
+              isOut ? "text-red-600" : "text-green-700"
+            }`}
+          >
+            {isOut ? "-" : "+"}
+            {numberize(qty).toLocaleString()}
           </span>
           <div className="w-full h-1.5 bg-gray-200 rounded-full mt-1 overflow-hidden">
             <div
-              className={`h-full transition-all duration-500 ${isOut ? "bg-gradient-to-r from-red-400 to-red-600" : "bg-gradient-to-r from-green-400 to-green-600"}`}
-              style={{ width: `${Math.min(Math.abs(numberize(qty)) / 100 * 10, 100)}%` }}
+              className={`h-full transition-all duration-500 ${
+                isOut
+                  ? "bg-gradient-to-r from-red-400 to-red-600"
+                  : "bg-gradient-to-r from-green-400 to-green-600"
+              }`}
+              style={{
+                width: `${Math.min(
+                  (Math.abs(numberize(qty)) / 100) * 10,
+                  100
+                )}%`,
+              }}
               title="Relative magnitude (visual only)"
             />
           </div>
@@ -249,7 +275,9 @@ export default function DisplayStock({ stock, onDelete }) {
           >
             <FiTrash2
               size={16}
-              className={`relative z-10 transition-transform duration-200 ${loading ? "animate-spin" : ""}`}
+              className={`relative z-10 transition-transform duration-200 ${
+                loading ? "animate-spin" : ""
+              }`}
             />
             <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-red-400 to-red-500 blur-md opacity-60 group-hover/btn:opacity-80 transition-opacity duration-200" />
             <span className="sr-only">Delete</span>

@@ -9,6 +9,7 @@ import {
   TrendingDown,
   BarChart3,
   Calendar,
+  Bell,
   DollarSign,
   Box,
   Layers,
@@ -173,10 +174,41 @@ const AlertCard = ({
 export default function CoconutInventoryDashboard() {
   const [timeRange, setTimeRange] = useState("6M");
 
+  // --- notifications that should reappear after refresh ---
+  const initialOrderNotifications = [
+    {
+      id: "REQ-001",
+      productId: "P-CO-500",
+      name: "Coconut Oil 500ml",
+      qty: 120,
+    },
+    {
+      id: "REQ-002",
+      productId: "P-CW-1000",
+      name: "Coconut Water 1L",
+      qty: 80,
+    },
+  ];
+
+  const [notifications, setNotifications] = useState(initialOrderNotifications);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [hasSeen, setHasSeen] = useState(false);
+
+  const toggleNotifications = () => {
+    if (!notifOpen) {
+      // opening → mark as seen (dot disappears)
+      setHasSeen(true);
+    } else {
+      // closing → clear messages (session only)
+      if (notifications.length) setNotifications([]);
+    }
+    setNotifOpen((s) => !s);
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#f7f9f9" }}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-white via-white to-gray-50 shadow-lg border-b border-gray-200 sticky top-0 z-10">
+      <div className="bg-gradient-to-r from-white via-white to-gray-50 shadow-lg border-b border-gray-200 sticky top-0 z-50">
         <div className="px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -199,6 +231,109 @@ export default function CoconutInventoryDashboard() {
               </div>
             </div>
             <div className="flex items-center space-x-3">
+              <div className="relative">
+                <button
+                  onClick={toggleNotifications}
+                  className="relative p-2 rounded-lg hover:bg-gray-100 transition"
+                  title="Notifications"
+                >
+                  <Bell className="w-6 h-6 text-gray-700" />
+                  {!hasSeen && notifications.length > 0 && (
+                    <>
+                      <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 rounded-full" />
+                      <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full animate-ping bg-red-400" />
+                    </>
+                  )}
+                </button>
+
+                {notifOpen && (
+                  <>
+                    {/* Backdrop (click to close) */}
+                    <div
+                      className="fixed inset-0 bg-black/20 z-40"
+                      onClick={() => setNotifOpen(false)}
+                    />
+
+                    {/* Popover */}
+                    <div className="absolute right-0 mt-2 w-96 bg-white border border-gray-200 rounded-2xl shadow-xl z-50">
+                      <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                        <span className="font-bold text-gray-800">
+                          Notifications
+                        </span>
+                        <button
+                          onClick={toggleNotifications}
+                          className="text-sm text-gray-500 hover:text-gray-700 px-2 py-1 rounded-md hover:bg-gray-100"
+                        >
+                          Close
+                        </button>
+                      </div>
+                      {/* … leave your existing notifications list + footer exactly as is … */}
+                      <div className="max-h-80 overflow-auto">
+                        {notifications.length === 0 ? (
+                          <div className="p-4 text-sm text-gray-500">
+                            No new notifications.
+                          </div>
+                        ) : (
+                          notifications.map((n) => (
+                            <div
+                              key={n.id}
+                              className="p-4 border-b border-gray-100 hover:bg-gray-50 transition"
+                            >
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs font-semibold text-gray-500">
+                                  Order Request • {n.id}
+                                </span>
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+                                  New
+                                </span>
+                              </div>
+                              <div className="text-sm">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-gray-800">
+                                    Product:
+                                  </span>
+                                  <span className="font-mono text-gray-700">
+                                    {n.productId}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-gray-800">
+                                    Name:
+                                  </span>
+                                  <span className="text-gray-700">
+                                    {n.name}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-gray-800">
+                                    Qty:
+                                  </span>
+                                  <span className="text-gray-700">{n.qty}</span>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                      {notifications.length > 0 && (
+                        <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-right">
+                          <button
+                            className="text-sm font-semibold text-white px-4 py-2 rounded-xl"
+                            style={{ backgroundColor: "#2a5540" }}
+                            onClick={() => {
+                              setNotifOpen(false);
+                              setNotifications([]);
+                            }}
+                          >
+                            View Requests
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+
               <button
                 className="px-5 py-3 rounded-xl text-sm font-bold transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg"
                 style={{
