@@ -287,49 +287,6 @@ export default function DeliveryPage() {
         summaryStartY + 30
       );
 
-      // ===== Additional Transport Expenses =====
-      const additionalExpensesStartY = summaryStartY + 42;
-      const tyreChangeCost = 500;
-      const vehicleMaintenance = 1200;
-      const vehicleInsurance = 800;
-      const tollExpenses = 300;
-
-      doc.text(
-        `Tyre Change Cost: Rs. ${tyreChangeCost}`,
-        15,
-        additionalExpensesStartY
-      );
-      doc.text(
-        `Vehicle Maintenance: Rs. ${vehicleMaintenance}`,
-        15,
-        additionalExpensesStartY + 6
-      );
-      doc.text(
-        `Vehicle Insurance: Rs. ${vehicleInsurance}`,
-        15,
-        additionalExpensesStartY + 12
-      );
-      doc.text(
-        `Toll / Misc. Expenses: Rs. ${tollExpenses}`,
-        15,
-        additionalExpensesStartY + 18
-      );
-
-      // ===== Total Transport Cost Including All Expenses =====
-      const totalTransportWithExpenses =
-        totalCost +
-        tyreChangeCost +
-        vehicleMaintenance +
-        vehicleInsurance +
-        tollExpenses;
-      doc.setFont("helvetica", "bold");
-      doc.text(
-        `Total Transport Cost (All Expenses): Rs. ${totalTransportWithExpenses}`,
-        15,
-        additionalExpensesStartY + 30
-      );
-      doc.setFont("helvetica", "normal");
-
       // ===== Table Section =====
       const tableColumn = [
         "Order",
@@ -357,7 +314,7 @@ export default function DeliveryPage() {
       ]);
 
       autoTable(doc, {
-        startY: additionalExpensesStartY + 42,
+        startY: summaryStartY + 42,
         head: [tableColumn],
         body: tableRows,
         theme: "grid",
