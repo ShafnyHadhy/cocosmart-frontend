@@ -60,7 +60,7 @@ export default function LoginPage() {
           navigate("/worker");
           break;
         case "Pro.Staff":
-          navigate("/prostaff");
+          navigate("/plant");
           break;
         case "HRM":
           navigate("/hrm");
