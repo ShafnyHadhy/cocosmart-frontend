@@ -1,14 +1,79 @@
-.pcv-card{ background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 10px 24px rgba(0,0,0,0.08); transition:transform .2s ease, box-shadow .2s ease; display:flex; flex-direction:column; border:1px solid #eef2ef; }
-.pcv-card:hover{ transform: translateY(-3px); box-shadow:0 14px 30px rgba(0,0,0,0.12); }
-.pcv-media{ position:relative; width:100%; height:180px; }
-.pcv-media img{ width:100%; height:100%; object-fit:cover; }
-.pcv-badge{ position:absolute; top:12px; right:12px; background:#25a56a; color:#fff; font-size:12px; padding:6px 10px; border-radius:999px; box-shadow:0 2px 10px rgba(0,0,0,0.15); letter-spacing:.2px; }
-.pcv-body{ padding:16px 18px; }
-.pcv-title{ margin:0; color:#1f3b2d; font-size:18px; }
-.pcv-plot{ margin-left:8px; color:#6b7a72; font-size:12px; }
-.pcv-location{ margin:4px 0 12px; color:#2c3e50; font-size:13px; opacity:.9; }
-.pcv-metrics{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
-.pcv-metric{ background:#f4faf6; border:1px solid #e2efe7; border-radius:10px; padding:12px; }
-.pcv-label{ display:block; color:#6b7a72; font-size:12px; }
-.pcv-value{ color:#1f3b2d; font-weight:600; font-size:14px; }
+.pgc-card { 
+  background:#fff; 
+  border-radius:14px; 
+  overflow:hidden; 
+  box-shadow:0 10px 24px rgba(0,0,0,0.08); 
+  transition:transform .2s ease, box-shadow .2s ease; 
+  display:flex; 
+  flex-direction:column; 
+  border:1px solid #eef2ef; 
+}
+.pgc-card:hover { 
+  transform: translateY(-3px); 
+  box-shadow:0 14px 30px rgba(0,0,0,0.12); 
+}
 
+.pgc-media { 
+  position:relative; 
+  width:100%; 
+  height:180px; 
+}
+.pgc-media img { 
+  width:100%; 
+  height:100%; 
+  object-fit:cover; 
+}
+.pgc-badge { 
+  position:absolute; 
+  top:12px; 
+  right:12px; 
+  background:#25a56a; 
+  color:#fff; 
+  font-size:12px; 
+  padding:6px 10px; 
+  border-radius:999px; 
+  box-shadow:0 2px 10px rgba(0,0,0,0.15); 
+  letter-spacing:.2px; 
+}
+
+.pgc-body { 
+  padding:16px 18px; 
+}
+.pgc-title { 
+  margin:0; 
+  color:#1f3b2d; 
+  font-size:18px; 
+}
+.pgc-plot { 
+  margin-left:8px; 
+  color:#6b7a72; 
+  font-size:12px; 
+}
+.pgc-location { 
+  margin:4px 0 12px; 
+  color:#2c3e50; 
+  font-size:13px; 
+  opacity:.9; 
+}
+
+.pgc-metrics { 
+  display:grid; 
+  grid-template-columns:repeat(2,1fr); 
+  gap:12px; 
+}
+.pgc-metric { 
+  background:#f4faf6; 
+  border:1px solid #e2efe7; 
+  border-radius:10px; 
+  padding:12px; 
+}
+.pgc-label { 
+  display:block; 
+  color:#6b7a72; 
+  font-size:12px; 
+}
+.pgc-value { 
+  color:#1f3b2d; 
+  font-weight:600; 
+  font-size:14px; 
+}

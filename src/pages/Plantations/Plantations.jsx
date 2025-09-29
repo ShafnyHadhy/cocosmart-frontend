@@ -5,9 +5,7 @@ import Nav from "../../components/Nav/Nav";
 import { useReactToPrint } from "react-to-print";
 import "./Plantations.css";
 import { IoIosSearch } from "react-icons/io";
-import { FaDownload } from "react-icons/fa";
-import { FaWhatsapp } from "react-icons/fa";
-
+import { FaDownload, FaWhatsapp } from "react-icons/fa";
 
 const URL = "http://localhost:5000/api/plots/";
 
@@ -21,7 +19,6 @@ function Plantations() {
   const [searchQuery, setSearchQuery] = useState("");
   const [noResults, setNoResults] = useState(false);
 
-  // Load plantations on mount
   useEffect(() => {
     fetchHandler().then((data) => setPlantations(data));
   }, []);
@@ -29,7 +26,7 @@ function Plantations() {
   const componentRef = useRef(null);
 
   const handlePrint = useReactToPrint({
-    contentRef: componentRef,
+    content: () => componentRef.current,
     documentTitle: "CocoSmart Plantation Report",
     onAfterPrint: () => alert("Plantation Report successfully downloaded!"),
   });
@@ -69,7 +66,6 @@ function Plantations() {
     (new Date().getMonth() + 1)
   ).slice(-2)}${("0" + new Date().getDate()).slice(-2)}-001`;
 
-  // ✅ Calculate totals
   const totalPlots = plantations.length;
   const totalHarvest = plantations.reduce(
     (sum, plantation) => sum + (Number(plantation.harvest) || 0),
@@ -77,53 +73,68 @@ function Plantations() {
   );
 
   return (
-    <div>
+    <div className="pgs-body">
+      {/* <Nav /> */}
 
-      {/* Search */}
-      <div className="search-bar relative">
-        <IoIosSearch className="absolute left-108 top-2/3 transform -translate-y-1/2 text-gray-500" />
-        <input
-          type="text"
-          placeholder="      Search Plantation Details"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 pr-3 py-2 border rounded w-full"
-        />
-
-        
-        <button onClick={handleSearch}>Search</button>
+      {/* Search Bar */}
+     <div className="pgs-search-bar flex justify-center">
+        <div className="pgs-search-wrapper relative w-full max-w-md">
+          <IoIosSearch className="pgs-search-icon" />
+          <input
+            type="text"
+            placeholder="Search Plantation Details"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            className="pgs-search-input"
+          />
+        </div>
+        <button className="pgs-search-btn ml-2" onClick={handleSearch}>
+          Search
+        </button>
       </div>
 
       {noResults ? (
-        <p className="no-results">No results found for "{searchQuery}"</p>
+        <p className="pgs-no-results">
+          No results found for "{searchQuery}"
+        </p>
       ) : (
-        <div ref={componentRef} className="plantations-container">
+        <div ref={componentRef} className="pgs-plantations-container">
           {/* PDF HEADER */}
-         {/* PDF HEADER */}
-        <div className="pdf-header only-print">
-          <img src="/cocsmart.png" alt="CocoSmart Logo" className="pdf-logo" />
-          <h1>COCOSMART - PLANTATION REPORT</h1>
-          <h3>Comprehensive Coconut Plantation Management Analysis</h3>
-          <p>
-            <b>Generated on:</b> {currentDateTime} &nbsp;&nbsp; | &nbsp;&nbsp;
-            <b>Report ID:</b> {reportId}
-          </p>
-          <hr />
-        </div>
-
+          <div className="pgs-pdf-header pgs-only-print">
+            <img
+              src="/cocsmart.png"
+              alt="CocoSmart Logo"
+              className="pgs-pdf-logo"
+            />
+            <h1>COCOSMART - PLANTATION REPORT</h1>
+            <h3>Comprehensive Coconut Plantation Management Analysis</h3>
+            <p>
+              <b>Generated on:</b> {currentDateTime} &nbsp;&nbsp; | &nbsp;&nbsp;
+              <b>Report ID:</b> {reportId}
+            </p>
+            <hr />
+          </div>
 
           {/* Description */}
-          <div className="report-description only-print">
+          <div className="pgs-report-description pgs-only-print">
             <p>
-              CocoSmart is a web-based coconut plantation management system that helps farmers and estate managers track and manage plots efficiently. It supports recording details like plot ID, size, trees, irrigation, and harvests, with features such as search, filtering, PDF reports, WhatsApp sharing, real-time weather updates, and a built-in guidance chatbot.
+              CocoSmart is a web-based coconut plantation management system
+              that helps farmers and estate managers track and manage plots
+              efficiently. It supports recording details like plot ID, size,
+              trees, irrigation, and harvests, with features such as search,
+              filtering, PDF reports, WhatsApp sharing, real-time weather
+              updates, and a built-in guidance chatbot.
             </p>
           </div>
 
           {/* Table */}
           {plantations.length > 0 ? (
             <>
-              <h2 className="section-title only-print">✅ Plantation Details</h2>
-              <table className="plantation-table">
+              <h2 className="pgs-section-title pgs-only-print">
+                ✅ Plantation Details
+              </h2>
+              <table className="pgs-plantation-table">
                 <thead>
                   <tr>
                     <th>Plot ID</th>
@@ -132,8 +143,8 @@ function Plantations() {
                     <th>Size (Acres)</th>
                     <th>No. of Trees</th>
                     <th>Irrigation Schedule</th>
-                    <th>Harvest(units)</th>
-                    <th className="no-print">Actions</th>
+                    <th>Harvest (units)</th>
+                    <th className="pgs-no-print">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -143,8 +154,8 @@ function Plantations() {
                 </tbody>
               </table>
 
-              {/* ✅ Totals Section (only print) */}
-              <div className="totals-section only-print">
+              {/* Totals */}
+              <div className="pgs-totals-section pgs-only-print">
                 <p>
                   <b>Total Number of Plots:</b> {totalPlots}
                 </p>
@@ -157,69 +168,39 @@ function Plantations() {
             <p>No plantation records found.</p>
           )}
 
-          {/* Recommendations */}
-          {/* <div className="recommendations only-print">
-            <h2>💡 Management Recommendations</h2>
-            <ul>
-              <li>
-                <b>Pest Control:</b> Schedule quarterly pest inspection for all
-                plots, especially during monsoon season (Oct–Dec).
-              </li>
-              <li>
-                <b>Harvest Optimization:</b> Monitor soil nutrients and
-                fertilizers to improve yield for underperforming plots.
-              </li>
-              <li>
-                <b>Irrigation System:</b> Ensure irrigation schedules are met
-                consistently to avoid reduced productivity.
-              </li>
-              <li>
-                <b>Resource Allocation:</b> Consider redistributing resources
-                from high-performing plots to underperforming areas.
-              </li>
-            </ul>
-          </div> */}
-
-          {/* Signature Section */}
-          {/* <div className="signature-section only-print">
-            <p>______________________________</p>
-            <p>Administrator Signature</p>
-            <p>Date Signed: __________________</p>
-          </div> */}
-
-          {/* Bottom-right contact info */}
-          <div className="contact-info only-print">
+          {/* Contact Info */}
+          <div className="pgs-contact-info pgs-only-print">
             <p>📧 support@cocosmart.lk</p>
             <p>📱 +94 70 152 0421</p>
             <p>🌐 www.cocosmart.lk</p>
           </div>
 
           {/* Footer */}
-          <div className="pdf-footer only-print">
+          <div className="pgs-pdf-footer pgs-only-print">
             <hr />
             <p>Report generated by CocoSmart © {new Date().getFullYear()}</p>
           </div>
         </div>
       )}
 
-      <div className="action-buttons flex justify-center gap-4 mt-4">
-      <button
-        onClick={handlePrint}
-        className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded"
-      >
-        <FaDownload />
-        <span>Download Report</span>
-      </button>
+      {/* Action Buttons */}
+      <div className="pgs-action-buttons flex justify-center gap-4 mt-4">
+        <button
+          onClick={handlePrint}
+          className="pgs-btn-download flex items-center gap-2"
+        >
+          <FaDownload />
+          <span>Download Report</span>
+        </button>
 
-      <button
-        onClick={handleSendReport}
-        className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded"
-      >
-        <FaWhatsapp />
-        <span>Send Whatsapp Message</span>
-      </button>
-    </div>
-
+        <button
+          onClick={handleSendReport}
+          className="pgs-btn-whatsapp flex items-center gap-2"
+        >
+          <FaWhatsapp />
+          <span>Send Whatsapp Message</span>
+        </button>
+      </div>
     </div>
   );
 }

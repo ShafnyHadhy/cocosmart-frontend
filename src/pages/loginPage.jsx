@@ -1,92 +1,243 @@
-import axios from "axios";
-import { useState } from "react";
-import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+// Import libraries
+import axios from "axios"; // HTTP client for API calls
+import { useState, useEffect } from "react"; // React hooks for state and lifecycle
+import toast from "react-hot-toast"; // Popup notifications
+import { useNavigate } from "react-router-dom"; // Navigation between pages
 
+import {
+  FaEye,
+  FaEyeSlash,
+  FaEnvelope,
+  FaLock,
+  FaUserPlus,
+} from "react-icons/fa"; // Icons for UI
+
+// Main component
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  // State variables
+  const [email, setEmail] = useState(""); // store user's email input
+  const [password, setPassword] = useState(""); // store user's password input
+  const [showPassword, setShowPassword] = useState(false); // toggle password visibility
+  const [isLoading, setIsLoading] = useState(false); // track API call status
+  const navigate = useNavigate(); // function to redirect user after login
 
+  // Reset input fields when component loads
+  useEffect(() => {
+    setEmail("");
+    setPassword("");
+  }, []);
+
+  // Function to handle login
   async function login() {
+    // Validation: check if fields are empty
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    setIsLoading(true); // disable login button while API call is ongoing
     try {
+      // Send POST request to backend login API
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/api/users/login",
-        { email: email, password: password }
+        { email, password }
       );
 
-      localStorage.setItem("token", response.data.token);
-      toast.success("Login successful!");
+      const user = response.data.user; // get user info from response
 
-      const user = response.data.user;
-      if (user.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/");
+      // Save token and email to localStorage for session management
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userEmail", user.email);
+
+      toast.success("Login successful!"); // show success message
+
+      // Redirect user based on role
+      switch (user.role) {
+        case "admin":
+          navigate("/admin");
+          break;
+        case "worker":
+          navigate("/worker");
+          break;
+        case "Pro.Staff":
+          navigate("/prostaff");
+          break;
+        case "HRM":
+          navigate("/hrm");
+          break;
+        default:
+          navigate("/"); // default route
       }
-    } catch (e) {
-      console.error("Login failed:", e);
-      toast.error("Login failed, check your credentials");
+    } catch (error) {
+      console.error("Login failed:", error); // log error for debugging
+      toast.error("Login failed, check your credentials"); // show error message
+    } finally {
+      setIsLoading(false); // re-enable login button
     }
   }
 
+  // JSX: Login Page UI
   return (
-    <div className="w-full h-screen bg-[url('/bgg.jpg')] bg-cover bg-center flex items-center justify-center">
-      <div className="flex w-[70%] max-w-6xl h-[500px] rounded-3xl overflow-hidden shadow-2xl bg-white/10 backdrop-blur-lg">
-        
-        {/* Left Section */}
-        <div className="w-1/2 hidden md:flex flex-col justify-center items-center p-10 bg-accent">
+    <div
+      className="min-h-screen w-full flex items-center justify-center p-4 relative"
+      style={{
+        backgroundImage: `url('/111.png')`, // make sure A2.png is in the public folder
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      {/* Blurred overlay */}
+      <div className="absolute inset-0 bg-black/20 backdrop-blur-[15px]"></div>
+
+      {/* Main Container */}
+      <div className="relative flex flex-col md:flex-row w-full max-w-4xl rounded-3xl overflow-hidden shadow-lg border border-medium-gray">
+        {/* Left Section - Image */}
+        <div className="w-full md:w-3/5">
           <img
-            src="/csCartt.png"
-            alt="Crystal Beauty Cosmetics Logo"
-            className="w-50 mb-15"
+            src="/render-19.png" // your image path
+            alt="CocoSmart Visual"
+            className="w-full h-full object-cover" // cover whole div
           />
-          <h1 className="text-4xl font-bold text-white tracking-wide">
-           CocoSmart (Pvt) Ltd.
-          </h1>
-          <p className="text-white/80 mt-4 text-center text-lg">
-            Discover elegance and beauty with every click.
-          </p>
+          {/* Decorative Cloud Divider */}
+          <div className="relative my-6 flex items-center justify-center">
+            <div className="absolute inset-0 flex justify-center">
+              <svg
+                viewBox="0 0 1440 100"
+                className="w-full h-10"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0 10 Q 25 0, 50 10 Q 75 20, 100 10"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                ></path>
+              </svg>
+            </div>
+            <span className="px-4 py-1 bg-white text-secondary text-sm rounded-full shadow">
+              or
+            </span>
+          </div>
         </div>
 
         {/* Right Section - Login Form */}
-        <div className="w-full md:w-1/2 flex justify-center items-center backdrop-blur-lg shadow-2xl">
-          <div className="w-[350px] p-8 rounded-2xl shadow-xl bg-white">
-            <h2 className="text-2xl font-semibold text-secondary text-center mb-6">
-              Sign In to Your Account
-            </h2>
+        <div className="w-full md:w-3/5 flex justify-center items-center p-10 bg-white">
+          <div className="w-full max-w-sm">
+            {/* COCOSmart Title */}
+            <h1 className="text-4xl font-extrabold text-green-800 tracking-wide text-center mb-8 font-sans">
+              COCOSmart
+            </h1>
 
-            {/* Email Input */}
-            <input
-              type="email"
-              placeholder="Enter your email"
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full h-12 px-4 mb-4 rounded-xl border border-gray-300 focus:border-accent focus:ring-2 focus:ring-accent/50 outline-none transition"
-            />
+            {/* Welcome Message */}
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Welcome Back
+              </h2>
+              <p className="text-gray-500 text-sm">
+                Sign in to your CocoSmart account
+              </p>
+            </div>
 
-            {/* Password Input */}
-            <input
-              type="password"
-              placeholder="Enter your password"
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full h-12 px-4 mb-6 rounded-xl border border-gray-300 focus:border-accent focus:ring-2 focus:ring-accent/50 outline-none transition"
-            />
-
-            {/* Login Button */}
-            <button
-              onClick={login}
-              className="w-full h-12 bg-accent text-white font-semibold rounded-xl shadow-md hover:bg-[#b6ad90ff] transition"
+            {/* Login Form */}
+            <form
+              className="space-y-6"
+              autoComplete="off"
+              onSubmit={(e) => {
+                e.preventDefault(); // prevent page reload
+                login(); // call login function
+              }}
             >
-              Log In
-            </button>
+              {/* Email Input */}
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+                  <FaEnvelope className="h-5 w-5 text-gray-500" />{" "}
+                  {/* email icon */}
+                </div>
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)} // update email state
+                  autoComplete="off"
+                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-medium-gray bg-white focus:border-green-calm outline-none"
+                  required
+                />
+              </div>
 
-            {/* Extra Links */}
-            <p className="text-center text-sm text-gray-600 mt-4">
-              Don’t have an account?{" "}
-              <a href="/register" className="text-accent font-medium hover:underline">
-                Sign Up
-              </a>
-            </p>
+              {/* Password Input */}
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+                  <FaLock className="h-5 w-5 text-gray-500" /> {/* lock icon */}
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"} // toggle visibility
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
+                  className="w-full pl-10 pr-12 py-3 rounded-lg border border-medium-gray bg-white focus:border-green-calm outline-none"
+                  required
+                />
+                {/* Show/Hide Password Button */}
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <FaEyeSlash className="h-5 w-5 text-gray-500" />
+                  ) : (
+                    <FaEye className="h-5 w-5 text-gray-500" />
+                  )}
+                </button>
+              </div>
+
+              {/* Forgot Password Link */}
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => navigate("/forgot-password")} // navigate to forgot password page
+                  className="text-sm text-green-calm font-medium"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+
+              {/* Login Button */}
+              <div className="flex justify-center">
+                <button
+                  type="submit"
+                  disabled={isLoading} // disable button during API call
+                  className="w-3/4 py-2 bg-green-calm text-white font-semibold rounded-full
+               transition-all duration-300 hover:bg-green-700 
+               hover:scale-105  shadow-md hover:shadow-lg
+               disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? "Signing in..." : "Sign In"}{" "}
+                  {/* show loading text */}
+                </button>
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center justify-center my-6">
+                <div className="flex-1 border-t border-medium-gray"></div>
+                <span className="px-3 text-secondary text-sm bg-white">or</span>
+                <div className="flex-1 border-t border-medium-gray"></div>
+              </div>
+
+              {/* Sign Up Button */}
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => navigate("/register")} // navigate to register page
+                  className="inline-flex items-center text-sm text-green-calm bg-medium-gray font-medium px-4 py-2 rounded-lg border border-medium-gray hover:scale-110"
+                >
+                  <FaUserPlus className="mr-2" />
+                  Create a new account
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

@@ -46,45 +46,38 @@ function PlantationsGallery() {
 
   return (
     <div>
-      <div className="pg-header">
-        <p className="pg-sub">
+      <div className="pg-gallery-header">
+        <p className="pg-gallery-sub">
           Monitor and Manage your Coconut Plantations efficiently
         </p>
 
-        {/* ✅ Search bar with icons */}
-        <div className="pg-search relative flex items-center">
-          {/* Icon inside input */}
-         
+        {/* Search bar */}
+        <div className="pg-gallery-search">
           <input
             type="text"
             placeholder="Search plantations by name, location, or plot..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            className="pl-10 pr-3 py-2 border rounded w-full"
           />
-
-          {/* Button with icon */}
-          <button
-            onClick={handleSearch}
-            className="ml-2 flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded"
-          >
+          <button onClick={handleSearch}>
             <IoIosSearch />
             <span>Search</span>
           </button>
         </div>
       </div>
 
-      <div className="pg-grid">
+      <div className="pg-gallery-grid">
         {filtered.map((p) => (
           <PlantationCardView key={p.plotID} plantation={p} />
         ))}
         {filtered.length === 0 && (
-          <p className="pg-empty">No plantations match your search.</p>
+          <p className="pg-gallery-empty">No plantations match your search.</p>
         )}
       </div>
     </div>
-  );
-}
+
+      );
+    }
 
 export default PlantationsGallery;

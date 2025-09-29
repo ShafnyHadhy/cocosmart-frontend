@@ -39,34 +39,34 @@ function PlantationCardView({ plantation }) {
   const plantationImage = plantationImages[name] || coconutImage;
 
   return (
-    <div className="pcv-card">
-      <div className="pcv-media">
+    <div className="pgc-card">
+      <div className="pgc-media">
         <img src={plantationImage} alt={name} />
-        <span className="pcv-badge">Excellent</span>
+        <span className="pgc-badge">Excellent</span>
       </div>
-      <div className="pcv-body">
-        <div className="pcv-top">
-          <h3 className="pcv-title">{name}</h3>
-          <span className="pcv-plot">#{plotID}</span>
-          <p className="pcv-location">📍 {location}</p>
+      <div className="pgc-body">
+        <div className="pgc-top">
+          <h3 className="pgc-title">{name}</h3>
+          <span className="pgc-plot">#{plotID}</span>
+          <p className="pgc-location">📍 {location}</p>
         </div>
 
-        <div className="pcv-metrics">
-          <div className="pcv-metric">
-            <span className="pcv-label">Size</span>
-            <span className="pcv-value">{size} acres</span>
+        <div className="pgc-metrics">
+          <div className="pgc-metric">
+            <span className="pgc-label">Size</span>
+            <span className="pgc-value">{size} acres</span>
           </div>
-          <div className="pcv-metric">
-            <span className="pcv-label">Trees</span>
-            <span className="pcv-value">{noOfTrees}</span>
+          <div className="pgc-metric">
+            <span className="pgc-label">Trees</span>
+            <span className="pgc-value">{noOfTrees}</span>
           </div>
-          <div className="pcv-metric">
-            <span className="pcv-label">Irrigation</span>
-            <span className="pcv-value">{fmtDateOnly(irrigationSchedules)}</span>
+          <div className="pgc-metric">
+            <span className="pgc-label">Irrigation</span>
+            <span className="pgc-value">{fmtDateOnly(irrigationSchedules)}</span>
           </div>
-          <div className="pcv-metric">
-            <span className="pcv-label">Harvest</span>
-            <span className="pcv-value">{harvest} nuts/month</span>
+          <div className="pgc-metric">
+            <span className="pgc-label">Harvest</span>
+            <span className="pgc-value">{harvest} nuts/month</span>
           </div>
         </div>
       </div>

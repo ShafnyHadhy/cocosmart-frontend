@@ -124,106 +124,113 @@ function AddPlantation() {
     fieldErrors.harvest;
 
   return (
-    <div className="add-plantation-container">
-      <h1>Add New Plantation</h1>
-      {error && <p className="error-text">{error}</p>}
+    <div className="add-plantation-page-container">
+      <h1 className="add-plantation-page-title">Add New Plantation</h1>
+      {error && <p className="add-plantation-page-error-text">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="add-plantation-form">
+      <form onSubmit={handleSubmit} className="add-plantation-page-form">
         <div>
-          <label>Plot ID:</label>
+          <label className="add-plantation-page-label">Plot ID:</label>
           <input
             type="text"
             name="plotID"
             onChange={handleChange}
             onBlur={handleIDBlur}
             value={inputs.plotID}
+             className="add-plantation-page-input"
             placeholder="Enter unique plot ID (letters and numbers only)"
             required
           />
         </div>
 
         <div>
-          <label>Name:</label>
+          <label className="add-plantation-page-label">Name:</label>
           <input
             type="text"
             name="name"
             onChange={handleChange}
             onBlur={handleBlur}
             value={inputs.name}
+            className="add-plantation-page-input"
             placeholder="Enter plantation name"
             required
           />
-          {fieldErrors.name && <p className="error-text">{fieldErrors.name}</p>}
+          {fieldErrors.name && <p className="add-plantation-page-error-text">{fieldErrors.name}</p>}
         </div>
 
         <div>
-          <label>Location:</label>
+          <label className="add-plantation-page-label">Location:</label>
           <input
             type="text"
             name="location"
             onChange={handleChange}
             value={inputs.location}
+            className="add-plantation-page-input"
             placeholder="Enter location of the plantation"
             required
           />
         </div>
 
         <div>
-          <label>Size (Acres):</label>
+          <label className="add-plantation-page-label">Size (Acres):</label>
           <input
             type="text"
             name="size"
             value={inputs.size}
             onChange={handleChange}
             onBlur={handleBlur}
+            className="add-plantation-page-input"
             placeholder="Enter size in acres"
             required
           />
-          {fieldErrors.size && <p className="error-text">{fieldErrors.size}</p>}
+          {fieldErrors.size && <p className="add-plantation-page-error-text">{fieldErrors.size}</p>}
         </div>
 
         <div>
-          <label>No of Trees:</label>
+          <label className="add-plantation-page-label">No of Trees:</label>
           <input
             type="number"
             name="noOfTrees"
             onChange={handleChange}
             onBlur={handleBlur}
             value={inputs.noOfTrees}
+            className="add-plantation-page-input"
             placeholder="Enter no of trees (numbers only)"
             required
           />
-          {fieldErrors.noOfTrees && <p className="error-text">{fieldErrors.noOfTrees}</p>}
+          {fieldErrors.noOfTrees && <p className="add-plantation-page-error-text">{fieldErrors.noOfTrees}</p>}
         </div>
 
         <div>
-          <label>Irrigation Schedules:</label>
+          <label className="add-plantation-page-label">Irrigation Schedules:</label>
           <input
             type="date"
             name="irrigationSchedules"
             min={today}
             onChange={handleChange}
+            className="add-plantation-page-input"
             value={inputs.irrigationSchedules}
             required
           />
         </div>
 
         <div>
-          <label>Monthly Harvest (numeric only):</label>
+          <label className="add-plantation-page-label">Monthly Harvest (numeric only):</label>
           <input
             type="text"
             name="harvest"
             onChange={handleHarvestChange}
             onBlur={handleBlur}
             value={inputs.harvest}
+            className="add-plantation-page-input"
             placeholder="Enter harvest amount (numbers only)"
             required
           />
-          {fieldErrors.harvest && <p className="error-text">{fieldErrors.harvest}</p>}
+          {fieldErrors.harvest && <p className="add-plantation-page-error-text">{fieldErrors.harvest}</p>}
         </div>
 
-        <div className="form-actions">
-          <button type="submit" className="btn-submit" disabled={!!hasErrors}>
+        <div className="add-plantation-page-actions">
+          <button type="submit" className="add-plantation-page-btn-submit" disabled={!!hasErrors}>
             Submit
           </button>
         </div>

@@ -1,0 +1,112 @@
+// File: frontend/src/components/Orders.jsx
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { FaRegEye } from "react-icons/fa";
+
+export default function Orders({ user, orders, setOrders }) {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  const getConfig = () => ({
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  // Fetch orders for the logged-in user
+  useEffect(() => {
+    if (!user?._id) return;
+
+    const fetchOrders = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/orders/user/${user._id}`,
+          getConfig()
+        );
+        setOrders(res.data || []);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load orders");
+      }
+    };
+
+    fetchOrders();
+  }, [user, setOrders]);
+
+  const formatDate = (dateStr) =>
+    dateStr ? new Date(dateStr).toLocaleDateString() : "-";
+
+  // Status color coding same as AdminOrdersPage
+  const getStatusClass = (status) => {
+    switch ((status || "").toLowerCase()) {
+      case "completed":
+      case "delivered":
+        return "bg-green-100 text-green-800 px-3 py-1 rounded-full";
+      case "processing":
+        return "bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full  ";
+      case "shipped":
+        return "bg-green-100 text-green-800 px-3 py-1 rounded-full";
+      case "pending":
+        return "bg-red-100 text-red-800 px-5 py-1 rounded-full";
+      case "cancelled":
+      case "canceled":
+        return "bg-red-100 text-red-800 px-3 py-1 rounded-full";
+      default:
+        return "bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-medium";
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold text-gray-800">Order History</h2>
+
+      {orders.length === 0 ? (
+        <p className="text-gray-500">No orders found.</p>
+      ) : (
+        <div className="overflow-x-auto shadow-lg rounded-2xl bg-white">
+          <table className="w-full border-collapse text-sm">
+            <thead className="bg-accent text-white">
+              <tr>
+                <th className="py-3 px-4 text-left rounded-tl-2xl">Order ID</th>
+                <th className="py-3 px-4 text-left">Date</th>
+                <th className="py-3 px-4 text-center">Status</th>
+                <th className="py-3 px-4 text-right">Amount</th>
+                <th className="py-3 px-4 text-center rounded-tr-2xl">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((o, idx) => (
+                <tr
+                  key={o.orderID}
+                  className={`border-b hover:bg-gray-50 transition-colors ${
+                    idx % 2 === 0 ? "bg-gray-50/50" : "bg-white"
+                  }`}
+                >
+                  <td className="py-3 px-4 font-mono text-left">{o.orderID}</td>
+                  <td className="py-3 px-4 text-left">{formatDate(o.date)}</td>
+                  <td className="py-3 px-4 text-center">
+                    <span className={getStatusClass(o.status)}>{o.status}</span>
+                  </td>
+                  <td className="py-3 px-4 text-right text-blue-800 font-semibold">
+                    Rs. {o.total?.toFixed(2)}
+                  </td>
+                  <td className="py-3 px-4 flex justify-center gap-2 text-lg">
+                    <button
+                      onClick={() => navigate(`/orders/${o.orderID}`)}
+                      className="text-[#5c4033] hover:text-[#5c4033]-800 transition-transform duration-200 text-xl hover:scale-125"
+                      title="View Orders"
+                    >
+                      <FaRegEye size={20} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}

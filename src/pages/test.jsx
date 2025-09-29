@@ -1,49 +1,77 @@
-import { useState } from "react"
+import { BsCart2, BsGraphUpArrow } from "react-icons/bs";
+import { FiBox } from "react-icons/fi";
+import { SiExpensify } from "react-icons/si";
+import { Link, Route, Routes, useLocation } from "react-router-dom";
+import { FaInvision } from "react-icons/fa";
 
-export default function TestPage(){
+export default function TestPage() {
+  const location = useLocation();
 
-    const [count, setCount] = useState(10)
-    const [status, setStatus] = useState("online")
+  const menuItems = [
+    { path: "/test", label: "Dashboard", icon: <BsGraphUpArrow className="text-[15px]"/> },
+    { path: "", label: "Plantations", icon: <BsCart2 /> },
+    { path: "", label: "Add Plantation", icon: <FiBox /> },
+    { path: "", label: "Inventory", icon: <FaInvision /> },
+    { path: "", label: "Suppliers", icon: <SiExpensify /> },
+  ];
 
-    return(
-        <div className="w-full h-full flex justify-center items-center">
-            <div className="w-[500px] h-[500px] bg-amber-100 text-white flex flex-col justify-center items-center gap-10">
-                <div className="flex justify-center items-center gap-8">
-                    <button onClick={
-                        ()=>{
-                            console.log("Decreasing...")
-                            setCount(count - 1)
-                        }
-                    } className="w-[100px] h-[40px] bg-accent rounded-lg">
-                        -
-                    </button>
-                    <span className="text-5xl text-accent"> {count} </span>
-                    <button onClick={
-                        ()=>{
-                            console.log("Increasing...")
-                            setCount(count + 1)
-                        }
-                    } className="w-[100px] h-[40px] bg-accent rounded-lg">
-                        +
-                    </button>
-                </div>
-                <div className="flex flex-col justify-center items-center">
+  return (
+    <div className="flex min-h-screen bg-white text-gray-800">
 
-                    <span className="text-accent text-5xl mb-5">{status}</span>
-
-                    <div className="flex flex-row gap-[20px]">
-                        <button onClick={()=>{setStatus("online")}} className="w-[100px] bg-accent h-[40px] rounded-lg">
-                            online
-                        </button>
-                        <button onClick={()=>{setStatus("offline")}} className="w-[100px] bg-accent h-[40px] rounded-lg">
-                            offline
-                        </button>
-                        <button onClick={()=>{setStatus("deactivated")}} className="w-[100px] bg-accent h-[40px] rounded-lg">
-                            deactivated
-                        </button>
-                    </div>
-                </div>
-            </div>
+      <aside className="fixed top-0 left-0 w-64 h-screen flex flex-col bg-white z-20">
+        <div className="flex h-16 items-center gap-2 border-b border-medium-gray px-6">
+          <img src="/clogo.png" alt="logo" className="h-13 rounded-md" />
+          <h1 className="text-xl font-bold tracking-[-0.015em] text-accent">
+            Plantation
+          </h1>
         </div>
-    )
+
+        {/*<nav className="flex-1 p-4 space-y-2 overflow-hidden">*/}
+        <nav className="flex-1 mt-3 p-4 space-y-3 overflow-hidden">
+          {menuItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-all 
+                ${
+                  location.pathname === item.path
+                    ? "bg-green-calm text-white shadow-md scale-[1.02]"
+                    : "text-gray-600 hover:bg-gray-200 hover:text-gray-900"
+                }`}
+            >
+              {/*<span className="text-lg">{item.icon}</span>*/}
+              <span className="text-lg">{item.icon}</span>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="p-4 border-t border-medium-gray text-sm text-center">
+          ©2025CocoSmart
+        </div>
+      </aside>
+
+     <div className="ml-64 flex flex-1 flex-col">
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-end whitespace-nowrap border-b border-gray-200 bg-white/80 px-6 backdrop-blur-sm">
+          <div className="flex items-center gap-4">
+            <button className="rounded-lg px-4 py-1 text-md font-normal text-gray-500 border-1 border-accent cursor-pointer hover:bg-gray-200 hover:text-accent transition">
+              Logout
+            </button>
+            <button className="rounded-full px-3 py-1 font-bold text-white  bg-accent border-1 border-accent cursor-pointer hover:bg-gray-100 hover:text-gray-900 transition">
+              A
+            </button>
+          </div>
+        </header>
+
+        <main className="flex-1 bg-primary p-6 overflow-y-auto">
+          <div className="rounded-2xl shadow-md min-h-[400px] bg-light-gray">
+            <Routes>
+              <Route path="/" element={<h1>Dashboard</h1>} />
+              
+            </Routes>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
 }

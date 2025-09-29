@@ -1,5 +1,5 @@
 /* Container */
-.add-plantation-container {
+.add-plantation-page-container {
   max-width: 900px;
   margin: 40px auto;
   padding: 32px 36px;
@@ -10,7 +10,7 @@
 }
 
 /* Title */
-.add-plantation-container h1 {
+.add-plantation-page-title {
   text-align: center;
   color: #2c3e50;
   margin-bottom: 24px;
@@ -19,7 +19,7 @@
 }
 
 /* Error text */
-.error-text {
+.add-plantation-page-error-text {
   text-align: left;
   color: #e74c3c;
   margin-top: 6px;
@@ -28,14 +28,14 @@
 }
 
 /* Form layout */
-.add-plantation-form {
+.add-plantation-page-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 18px 28px;
 }
 
 /* Labels */
-.add-plantation-form label {
+.add-plantation-page-label {
   display: block;
   font-weight: 600;
   margin-bottom: 8px;
@@ -44,7 +44,7 @@
 }
 
 /* Inputs */
-.add-plantation-form input {
+.add-plantation-page-input {
   width: 100%;
   padding: 12px 14px;
   border: 1px solid #dcdfe3;
@@ -54,20 +54,20 @@
   transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 
-.add-plantation-form input:focus {
+.add-plantation-page-input:focus {
   border-color: #16a085;
   box-shadow: 0 0 0 3px rgba(22, 160, 133, 0.15);
 }
 
 /* Action buttons */
-.form-actions {
+.add-plantation-page-actions {
   grid-column: span 2;
   display: flex;
-  justify-content: center;   /* Center horizontally */
+  justify-content: center;
   margin-top: 28px;
 }
 
-.btn-submit {
+.add-plantation-page-btn-submit {
   background: linear-gradient(135deg, #1e5631, #2f855a);
   color: #fff;
   padding: 12px 28px;
@@ -79,17 +79,17 @@
   transition: transform 0.1s ease, box-shadow 0.2s ease;
 }
 
-.btn-submit:hover {
+.add-plantation-page-btn-submit:hover {
   box-shadow: 0 8px 16px rgba(30, 86, 49, 0.25);
 }
 
 /* Responsive design for smaller screens */
 @media (max-width: 768px) {
-  .add-plantation-form {
-    grid-template-columns: 1fr; /* single column */
+  .add-plantation-page-form {
+    grid-template-columns: 1fr;
   }
 
-  .form-actions {
+  .add-plantation-page-actions {
     grid-column: span 1;
   }
 }
