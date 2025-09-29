@@ -404,8 +404,8 @@ export default function DeliveryPage() {
             className="border px-2 py-1 rounded"
           >
             <option value="">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="processing">Processing</option>
+            {/* <option value="pending">Pending</option> */}
+            <option value="scheduled">Processing</option>
             <option value="completed">Completed</option>
           </select>
         </div>

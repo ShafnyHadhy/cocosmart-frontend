@@ -272,7 +272,7 @@ export default function SignupPage() {
     <div
       className="min-h-screen w-full flex items-center justify-center p-4 relative"
       style={{
-        backgroundImage: `url('/111.png')`, // make sure A2.png is in the public folder
+        backgroundImage: `url('/o2.jpg')`, // make sure A2.png is in the public folder
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
