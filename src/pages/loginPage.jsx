@@ -48,6 +48,9 @@ export default function LoginPage() {
       // Save token and email to localStorage for session management
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userEmail", user.email);
+      localStorage.setItem("role", user.role);
+      localStorage.setItem("firstname", user.firstname);
+      localStorage.setItem("lastname", user.lastname);
 
       toast.success("Login successful!"); // show success message
 

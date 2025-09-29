@@ -34,6 +34,9 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 
 export default function AdminPage() {
   const location = useLocation();
+  const firstname = localStorage.getItem("firstname");
+  const lastname = localStorage.getItem("lastname");
+
 
   const menuItems = [
     { path: "/admin", label: "Dashboard", icon: <RxDashboard /> },
@@ -105,10 +108,16 @@ export default function AdminPage() {
                   <IoMdNotificationsOutline size={22}/>
               </Link>
              
-              <img src="/admin.jpg" alt="User" className="h-8 w-8 rounded-full ring-2 ring-accent object-cover"/>
+              <Link to="/profile">
+                <img
+                  src="/admin.jpg"
+                  alt="User"
+                  className="h-8 w-8 rounded-full ring-2 ring-accent object-cover cursor-pointer"
+                />
+              </Link>
               <div className="hidden md:block">
                 <p className="text-sm font-medium text-slate-500">
-                  Agash Jeevahan
+                  {`${firstname || ""} ${lastname || ""}`}
                 </p>
                 <p className="text-xs text-slate-500">
                   Administrator
