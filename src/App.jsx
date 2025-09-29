@@ -39,8 +39,7 @@ function App() {
     <BrowserRouter>
       <div className="w-full h-[100vh]">
         <Toaster position="top-right" />
-        <Routes path="/">
-          <Route path="/*" element={<HomePage />} />
+        <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<SignupPage />} />
           <Route path="/admin/*" element={<AdminPage />} /> 
@@ -48,37 +47,39 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/plant/*" element={<PlantationManage />} />
-          <Route path="/inventory/*" element={<Inventory/>}/>
-            {/* <Route path="/*" element={<HomePage/>}/>
-            <Route path="/register" element={<h1>Register Page</h1>}/>
-            <Route path="/login" element={<LoginPage/>}/>
-            <Route path="/admin/*" element={<AdminPage/>}/>
-            <Route path="/test" element={<TestPage/>}/> */}
+          <Route path="/inventory/*" element={<Inventory />} />
+
           <Route path="/hr" element={<HRLayout />}>
-            <Route index element={<HRDashboard />} />
-            <Route path="tasks" element={<TaskList />} />
-            <Route path="completed" element={<TaskList statusFilter="Completed" />} />
-            <Route path="in-progress" element={<TaskList statusFilter="In Progress" />} />
-            <Route path="todo" element={<TaskList statusFilter="To Do" />} />
-            <Route path="tasks/new" element={<TaskForm />} />
-            <Route path="tasks/:taskId/edit" element={<TaskForm />} />
-            <Route path="trash" element={<TrashList />} />
-            <Route path="workers" element={<WorkerList />} />
-            <Route path="reports" element={<ReportsPage />} />
-            <Route path="analytics" element={<AnalyticsDashboard />} />
+          <Route index element={<HRDashboard />} />
+          <Route path="tasks" element={<TaskList />} />
+          <Route path="completed" element={<TaskList statusFilter="Completed" />} />
+          <Route path="in-progress" element={<TaskList statusFilter="In Progress" />} />
+          <Route path="todo" element={<TaskList statusFilter="To Do" />} />
+          <Route path="tasks/new" element={<TaskForm />} />
+          <Route path="tasks/:taskId/edit" element={<TaskForm />} />
+          <Route path="trash" element={<TrashList />} />
+          <Route path="workers" element={<WorkerList />} />
+          <Route path="reports" element={<ReportsPage />} />
+          <Route path="analytics" element={<AnalyticsDashboard />} />
           </Route>
 
           <Route path="/worker" element={<WorkerProvider><WorkerLayout /></WorkerProvider>}>
-            <Route index element={<WorkerDashboard />} />
-            <Route path="tasks" element={<WorkerTasks />} />
-            <Route path="profile" element={<WorkerProfile />} />
-            <Route path="notifications" element={<WorkerNotifications />} />
+          <Route index element={<WorkerDashboard />} />
+          <Route path="tasks" element={<WorkerTasks />} />
+          <Route path="profile" element={<WorkerProfile />} />
+          <Route path="notifications" element={<WorkerNotifications />} />
           </Route>
-            
-        </Routes>
+
+          {/* Home + Chatbot */}
+          <Route path="/*" element={
+            <>
+              <HomePage />
+              <ChatBotPage />
+            </>
+            } />
+          </Routes>
+
       </div>
-      
-          <ChatBotPage />
       
     </BrowserRouter>
   );
