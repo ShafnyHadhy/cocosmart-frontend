@@ -166,120 +166,196 @@ export default function DeliveryPage() {
     return matchesText && matchesStatus;
   });
 
-  // Generate PDF
-  const generateDeliveryReport = () => {
+  // Generate Delivery Report PDF
+  const generateDeliveryReport = (startDate, endDate) => {
     const doc = new jsPDF();
+    const logoImg = new Image();
+    logoImg.src = "/clogo.png"; // logo in public folder
 
-    // ===== Header =====
-    const now = new Date();
-    const reportId = `RPT-${now.getFullYear()}${(now.getMonth() + 1)
-      .toString()
-      .padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}-${now
-      .getHours()
-      .toString()
-      .padStart(2, "0")}${now.getMinutes().toString().padStart(2, "0")}${now
-      .getSeconds()
-      .toString()
-      .padStart(2, "0")}`;
+    logoImg.onload = () => {
+      // ===== Company Header =====
+      doc.addImage(logoImg, "PNG", 15, 10, 30, 30);
 
-    doc.setFontSize(18);
-    doc.text("COCOSMART", 105, 20, { align: "center" });
-    doc.setFontSize(14);
-    doc.text("Transport REPORT", 105, 28, { align: "center" });
-    doc.setFontSize(10);
-    doc.text("Comprehensive User FeedbaTransportck Analysis", 105, 36, {
-      align: "center",
-    });
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(20);
+      doc.text("CocoSmart Pvt Ltd", 105, 20, { align: "center" });
 
-    doc.text(
-      `Generated on: ${now.toLocaleString()}    |    Report ID: ${reportId}`,
-      105,
-      42,
-      { align: "center" }
-    );
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(14);
+      doc.text("Smart Solutions for Coconut Plantations", 105, 28, {
+        align: "center",
+      });
 
-    // ===== Summary =====
-    const completedDeliveries = filteredDeliveries.filter(
-      (d) => d.deliveryStatus === "completed"
-    );
-    const totalKM = completedDeliveries.reduce(
-      (sum, d) => sum + (d.km ? parseFloat(d.km) : 0),
-      0
-    );
-    const totalFuel = totalKM / 5; // 1L per 5km
-    const totalCost = completedDeliveries.reduce(
-      (sum, d) => sum + (d.transportCost ? parseFloat(d.transportCost) : 0),
-      0
-    );
+      doc.setFontSize(9);
+      doc.text(
+        "Hotline: +94 77 123 4567 | Email: info@cocosmart.com  |  Fax: +1-234-567-890",
+        105,
+        36,
+        { align: "center" }
+      );
+      doc.text("123/C, Main Street, Colombo 01, Sri Lanka", 105, 42, {
+        align: "center",
+      });
 
-    // Most active driver
-    const driverCounts = {};
-    filteredDeliveries.forEach((d) => {
-      if (d.driver?.name)
-        driverCounts[d.driver.name] = (driverCounts[d.driver.name] || 0) + 1;
-    });
-    const mostActiveDriver =
-      Object.entries(driverCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "-";
+      // ===== Report Title + Period & Generated Time =====
+      const now = new Date();
+      const reportId = `DLV-${Date.now()}`;
+      const year = now.getFullYear();
+      const month = now.getMonth();
 
-    // Most active vehicle
-    const vehicleCounts = {};
-    filteredDeliveries.forEach((d) => {
-      if (d.vehicle?.vehicleId)
-        vehicleCounts[d.vehicle.vehicleId] =
-          (vehicleCounts[d.vehicle.vehicleId] || 0) + 1;
-    });
-    const mostActiveVehicle =
-      Object.entries(vehicleCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "-";
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
 
-    doc.text(`Total Deliveries: ${filteredDeliveries.length}`, 14, 50);
-    doc.text(`Total KM: ${totalKM}`, 14, 56);
-    doc.text(`Fuel Used: ${totalFuel.toFixed(2)} L`, 14, 62);
-    doc.text(`Total Transport Cost: Rs. ${totalCost}`, 14, 68);
-    doc.text(`Most Active Driver: ${mostActiveDriver}`, 14, 74);
-    doc.text(`Most Active Vehicle: ${mostActiveVehicle}`, 14, 80);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text(
+        `Period: ${firstDay.toISOString().split("T")[0]}  -  ${
+          lastDay.toISOString().split("T")[0]
+        }`,
+        15,
+        55,
+        { align: "left" }
+      );
+      doc.text(`Generated on: ${now.toLocaleString()}`, 200, 55, {
+        align: "right",
+      });
 
-    // ===== Table =====
-    const tableColumn = [
-      "Order ID",
-      "Vehicle",
-      "Driver",
-      "Route",
-      "Scheduled Date",
-      "Status",
-      "KM",
-      "Fuel Used (L)",
-      "Transport Cost",
-    ];
-    const tableRows = filteredDeliveries.map((d) => [
-      d.order?.orderID || "-",
-      d.vehicle?.vehicleId || "-",
-      d.driver?.name || "-",
-      d.route || "-",
-      d.scheduledDate ? new Date(d.scheduledDate).toLocaleDateString() : "-",
-      d.deliveryStatus
-        ? d.deliveryStatus.charAt(0).toUpperCase() + d.deliveryStatus.slice(1)
-        : "-",
-      d.km || "-",
-      d.km ? (parseFloat(d.km) / 5).toFixed(2) : "-",
-      d.transportCost ? `Rs. ${d.transportCost}` : "-",
-    ]);
+      // ===== Delivery Report Title =====
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("Delivery Report", 105, 70, { align: "center" });
 
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 90,
-      styles: { fontSize: 9 },
-      headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-      columnStyles: {
-        5: { cellWidth: 25 }, // Status
-      },
-    });
+      const titleWidth = doc.getTextWidth("Delivery Report");
+      doc.line(105 - titleWidth / 2, 72, 105 + titleWidth / 2, 72);
 
-    doc.save(
-      `delivery_report_${now.getFullYear()}${
-        now.getMonth() + 1
-      }${now.getDate()}.pdf`
-    );
+      // ===== Summary Section =====
+      const completedDeliveries = filteredDeliveries.filter(
+        (d) => d.deliveryStatus === "completed"
+      );
+      const totalKM = completedDeliveries.reduce(
+        (sum, d) => sum + (d.km ? parseFloat(d.km) : 0),
+        0
+      );
+      const totalFuel = totalKM / 5;
+      const totalCost = completedDeliveries.reduce(
+        (sum, d) => sum + (d.transportCost ? parseFloat(d.transportCost) : 0),
+        0
+      );
+
+      const driverCounts = {};
+      filteredDeliveries.forEach((d) => {
+        if (d.driver?.name)
+          driverCounts[d.driver.name] = (driverCounts[d.driver.name] || 0) + 1;
+      });
+      const mostActiveDriver =
+        Object.entries(driverCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "-";
+
+      const vehicleCounts = {};
+      filteredDeliveries.forEach((d) => {
+        if (d.vehicle?.vehicleId)
+          vehicleCounts[d.vehicle.vehicleId] =
+            (vehicleCounts[d.vehicle.vehicleId] || 0) + 1;
+      });
+      const mostActiveVehicle =
+        Object.entries(vehicleCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ||
+        "-";
+
+      const summaryStartY = 78;
+      doc.setFontSize(10);
+      doc.text(
+        `Total Deliveries: ${filteredDeliveries.length}`,
+        15,
+        summaryStartY
+      );
+      doc.text(`Total KM: ${totalKM}`, 15, summaryStartY + 6);
+      doc.text(`Fuel Used: ${totalFuel.toFixed(2)} L`, 15, summaryStartY + 12);
+      doc.text(
+        `Most Active Driver: ${mostActiveDriver}`,
+        15,
+        summaryStartY + 18
+      );
+      doc.text(
+        `Most Active Vehicle: ${mostActiveVehicle}`,
+        15,
+        summaryStartY + 24
+      );
+
+      // ===== Total Transport Cost (Delivery only) =====
+      doc.text(
+        `Total Transport Cost (Delivery only): Rs. ${totalCost}`,
+        15,
+        summaryStartY + 30
+      );
+
+      // ===== Table Section =====
+      const tableColumn = [
+        "Order",
+        "Vehicle",
+        "Driver",
+        "Route",
+        "Sch.Date",
+        "Status",
+        "KM",
+        "Fuel(L)",
+        "Cost(Rs.)",
+      ];
+      const tableRows = filteredDeliveries.map((d) => [
+        d.order?.orderID || "-",
+        d.vehicle?.vehicleId || "-",
+        d.driver?.name || "-",
+        d.route || "-",
+        d.scheduledDate ? new Date(d.scheduledDate).toLocaleDateString() : "-",
+        d.deliveryStatus
+          ? d.deliveryStatus.charAt(0).toUpperCase() + d.deliveryStatus.slice(1)
+          : "-",
+        d.km || "-",
+        d.km ? (parseFloat(d.km) / 5).toFixed(2) : "-",
+        d.transportCost ? `Rs. ${d.transportCost}` : "-",
+      ]);
+
+      autoTable(doc, {
+        startY: summaryStartY + 42,
+        head: [tableColumn],
+        body: tableRows,
+        theme: "grid",
+        styles: { fontSize: 9, halign: "left" },
+        headStyles: { fillColor: [42, 85, 64], textColor: 255, halign: "left" },
+        columnStyles: {
+          0: { cellWidth: 25 },
+          1: { cellWidth: 18 },
+          2: { cellWidth: 22 },
+          3: { cellWidth: 23 },
+          4: { cellWidth: 25 },
+          5: { cellWidth: 20 },
+          6: { cellWidth: 15 },
+          7: { cellWidth: 18 },
+          8: { cellWidth: 24 },
+        },
+      });
+
+      // ===== Footer =====
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        doc.text(
+          "Prepared by: Transport Admin | Approved by: Manager",
+          15,
+          290,
+          { align: "left" }
+        );
+        doc.text(
+          `Report ID: ${reportId} | Page ${i} of ${pageCount}`,
+          200,
+          290,
+          { align: "right" }
+        );
+      }
+
+      // Save PDF
+      doc.save(`Cocosmart_Delivery_Report_${Date.now()}.pdf`);
+    };
   };
 
   return (
@@ -287,7 +363,7 @@ export default function DeliveryPage() {
       <div className="w-full flex justify-end gap-3 mb-4">
         {/* Search Button */}
         <button
-          className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 text-black hover:bg-gray-600 hover:scale-110 transition"
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-black hover:bg-gray-300 hover:scale-110 transition"
           onClick={() => setShowSearchFields(!showSearchFields)}
           title="Search Delivery"
         >
@@ -296,7 +372,7 @@ export default function DeliveryPage() {
 
         {/* PDF Button */}
         <button
-          className="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-500 text-black hover:bg-yellow-600 hover:scale-110 transition"
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-300 text-black hover:bg-yellow-200 hover:scale-110 transition"
           title="Generate PDF"
           onClick={generateDeliveryReport}
         >

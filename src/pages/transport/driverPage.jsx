@@ -142,7 +142,7 @@ const DriverPage = () => {
       toast.error("Failed to delete driver");
     }
   };
-
+  //Search
   const filteredDrivers = drivers.filter((d) => {
     const query = searchQuery.toLowerCase();
     const matchText =
@@ -163,13 +163,12 @@ const DriverPage = () => {
         <div className="flex items-center gap-3">
           {/* Search Button */}
           <button
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-400 text-black hover:bg-gray-600 hover:scale-110 transition"
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-black hover:bg-gray-300 hover:scale-110 transition"
             onClick={() => setShowSearchFields(!showSearchFields)}
             title="Search Driver"
           >
             <FaSearch size={20} />
           </button>
-
           {/* Add Driver Button */}
           <Link
             to="/admin/add-driver"

@@ -3,7 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { FaStar, FaLeaf } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import "../../styles/3dEffects.css";
+//import "../../styles/3dEffects.css";
 
 export default function SubmitFeedback() {
   const [username, setUsername] = useState("");
@@ -12,6 +12,7 @@ export default function SubmitFeedback() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
+  const [isAnonymous, setIsAnonymous] = useState(false);
 
   useEffect(() => {
     const userEmail = localStorage.getItem("userEmail");
@@ -47,7 +48,7 @@ export default function SubmitFeedback() {
 
     try {
       await axios.post(`${import.meta.env.VITE_API_URL}/api/feedback`, {
-        username,
+        username: isAnonymous ? "Anonymous" : username,
         rating,
         comment,
         userId: userData?._id,
@@ -76,9 +77,9 @@ export default function SubmitFeedback() {
 
   return (
     <div
-      className="flex items-center justify-center p-4 min-h-[calc(100vh-37px)] relative"
+      className="flex items-center justify-center h-[85vh] relative overflow-hidden pt-4"
       style={{
-        backgroundImage: `url('/A2.jpg')`,
+        backgroundImage: `url('/111.png')`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -87,28 +88,43 @@ export default function SubmitFeedback() {
       <div className="absolute inset-0 bg-black/20 backdrop-blur-[3px]"></div>
 
       {/* Main feedback card with 3D hover effect */}
-      <div className="relative z-10 bg-sec-2 rounded-xl shadow-2xl border border-medium-gray overflow-hidden w-full max-w-md transform-style-3d transition-transform duration-700 hover:translate-z-10">
+      <div className="relative z-10 bg-sec-2 rounded-xl shadow-2xl border border-medium-gray overflow-hidden w-full max-w-lg transform-style-3d transition-transform duration-700 hover:translate-z-10">
         {/* Header */}
         <div className="bg-green-calm p-5">
           <h1 className="text-2xl font-bold text-white text-center flex items-center justify-center gap-2">
             <FaLeaf className="text-earth-white" />
             Share Your Feedback
           </h1>
-          <p className="text-earth-black text-center mt-1 text-sm">
+          <p className="text-white text-center mt-1 text-sm">
             We value your experience with us
           </p>
         </div>
 
         {/* Form */}
-        <div className="p-5 space-y-5 bg-white/95 backdrop-blur-sm">
+        <div className="p-5 space-y-4 bg-white/95 backdrop-blur-sm">
           {/* User info (read-only) */}
           <div className="relative transform transition-transform duration-300 hover:translate-z-3">
-            <label className="block text-secondary mb-1 font-medium text-sm">
+            <label className="block text-green-800 mb-1 font-medium text-sm">
               👤 Your Account
             </label>
             <div className="w-full px-4 py-3 bg-accent-green-20 border border-medium-gray rounded-lg text-green-calm">
               {username}
             </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="anonymous"
+              checked={isAnonymous}
+              onChange={(e) => setIsAnonymous(e.target.checked)}
+              className="w-4 h-4 accent-green-calm"
+            />
+            <label
+              htmlFor="anonymous"
+              className="text-black text-xs font-medium"
+            >
+              Submit feedback as Anonymous
+            </label>
           </div>
 
           {/* Rating */}
@@ -145,7 +161,7 @@ export default function SubmitFeedback() {
 
           {/* Comment box */}
           <div className="relative transform transition-transform duration-300 hover:translate-z-3">
-            <label className="block text-secondary mb-1 font-medium text-sm">
+            <label className="block text-green-800 mb-1 font-medium text-sm">
               💬 Your Feedback *
             </label>
             <textarea
@@ -155,7 +171,7 @@ export default function SubmitFeedback() {
               className="w-full px-4 py-3 bg-white border border-medium-gray rounded-lg 
                          focus:outline-none focus:ring-2 focus:ring-green-calm text-secondary 
                          resize-none shadow-[inset_0_2px_6px_rgba(0,0,0,0.1)] hover:translate-y-1 transition-all"
-              rows={4}
+              rows={3}
               required
             />
           </div>
