@@ -12,6 +12,7 @@ import UserProfile from "./pages/Profile/UserProfile";
 import { Toaster } from "react-hot-toast";
 import PlantationManage from "./pages/plantationManage";
 import ChatBotPage from './pages/chatbotDash'
+import Inventory from './pages/inventory'
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/plant/*" element={<PlantationManage />} />
+          <Route path="/inventory/*" element={<Inventory/>}/>
         </Routes>
       </div>
       
