@@ -79,7 +79,7 @@ export default function SubmitFeedback() {
     <div
       className="flex items-center justify-center h-[85vh] relative overflow-hidden pt-4"
       style={{
-        backgroundImage: `url('/111.png')`,
+        backgroundImage: `url('/o2.jpg')`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
