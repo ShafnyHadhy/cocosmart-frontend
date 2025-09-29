@@ -310,7 +310,7 @@ export default function DeliveryPage() {
           : "-",
         d.km || "-",
         d.km ? (parseFloat(d.km) / 5).toFixed(2) : "-",
-        d.transportCost ? `Rs. ${d.transportCost}` : "-",
+        d.transportCost ? `Rs. ${parseFloat(d.transportCost).toFixed(2)}` : "-",
       ]);
 
       autoTable(doc, {
