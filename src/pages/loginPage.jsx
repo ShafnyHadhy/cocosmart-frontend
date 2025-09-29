@@ -62,6 +62,9 @@ export default function LoginPage() {
         case "Pro.Staff":
           navigate("/prostaff");
           break;
+        case "Inventory":
+          navigate("/inventory");
+          break;
         case "HRM":
           navigate("/hrm");
           break;
