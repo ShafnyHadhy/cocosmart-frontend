@@ -282,7 +282,7 @@ export default function DeliveryPage() {
 
       // ===== Total Transport Cost (Delivery only) =====
       doc.text(
-        `Total Transport Cost (Delivery only): Rs. ${totalCost}`,
+        `Total Transport Cost (Delivery only): Rs. ${totalCost.toFixed(2)}`,
         15,
         summaryStartY + 30
       );
@@ -310,7 +310,7 @@ export default function DeliveryPage() {
           : "-",
         d.km || "-",
         d.km ? (parseFloat(d.km) / 5).toFixed(2) : "-",
-        d.transportCost ? `Rs. ${d.transportCost}` : "-",
+        d.transportCost ? `Rs. ${parseFloat(d.transportCost).toFixed(2)}` : "-",
       ]);
 
       autoTable(doc, {
@@ -556,7 +556,7 @@ export default function DeliveryPage() {
                       className="border px-2 py-1 rounded w-full"
                     />
                   ) : d.transportCost ? (
-                    `Rs. ${d.transportCost}`
+                    `Rs. ${parseFloat(d.transportCost).toFixed(2)}`
                   ) : (
                     "-"
                   )}
