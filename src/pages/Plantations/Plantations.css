@@ -1,32 +1,40 @@
-/* Print-only */
-.pgs-only-print {
-  display: none;
+/* ================================
+   Plantations Page - Scoped Styles
+   Only affects Plantations.jsx + its PDF
+   ================================ */
+
+.pgs-plantations-page {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #f7f9f9;
+  margin: 0;
+  padding: 0;
 }
 
+/* Print-only */
+.pgs-plantations-page .pgs-only-print {
+  display: none;
+}
 @media print {
-  .pgs-no-print {
+  .pgs-plantations-page .pgs-no-print {
     display: none !important;
   }
-  .pgs-only-print {
+  .pgs-plantations-page .pgs-only-print {
     display: block !important;
     text-align: center;
     margin-bottom: 20px;
   }
-
-  .pgs-pdf-header h1 {
+  .pgs-plantations-page .pgs-pdf-header h1 {
     margin: 0;
     font-size: 22px;
     color: #2c3e50;
     font-weight: 600;
   }
-
-  .pgs-pdf-header p {
+  .pgs-plantations-page .pgs-pdf-header p {
     margin: 5px 0;
     font-size: 14px;
     color: #555;
   }
-
-  .pgs-pdf-footer {
+  .pgs-plantations-page .pgs-pdf-footer {
     margin-top: 220px;
     text-align: center;
     font-size: 12px;
@@ -34,54 +42,42 @@
   }
 }
 
-.pgs-body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f7f9f9;
-  margin: 0;
-  padding: 0;
-}
-
-.pgs-search-bar {
+/* Search Bar */
+.pgs-plantations-page .pgs-search-bar {
   margin: 15px auto 20px auto;
-  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 8px;
 }
-
-.pgs-search-wrapper {
+.pgs-plantations-page .pgs-search-wrapper {
   position: relative;
   width: 100%;
   max-width: 300px;
 }
-
-.pgs-search-input {
+.pgs-plantations-page .pgs-search-input {
   width: 100%;
-  padding: 10px 40px; /* padding on both sides to make room for icon */
+  padding: 10px 40px;
   border: 1px solid #ccc;
   border-radius: 6px;
   outline: none;
-  text-align: center; /* centers text inside input */
+  text-align: center;
   font-size: 14px;
   transition: border 0.3s ease;
 }
-
-.pgs-search-input:focus {
+.pgs-plantations-page .pgs-search-input:focus {
   border-color: #16a085;
 }
-
-.pgs-search-icon {
+.pgs-plantations-page .pgs-search-icon {
   position: absolute;
   top: 50%;
-  left: 10%; /* center horizontally */
-  transform: translate(-50%, -50%); /* center perfectly */
+  left: 10%;
+  transform: translate(-50%, -50%);
   color: #888;
   font-size: 18px;
-  pointer-events: none; /* allows clicking input without blocking */
+  pointer-events: none;
 }
-
-.pgs-search-btn {
+.pgs-plantations-page .pgs-search-btn {
   background-color: #45996c;
   color: white;
   padding: 10px 16px;
@@ -91,12 +87,12 @@
   font-size: 14px;
   transition: 0.3s ease;
 }
-
-.pgs-search-btn:hover {
+.pgs-plantations-page .pgs-search-btn:hover {
   background-color: #8cc7a1;
 }
 
-.pgs-plantations-container {
+/* Table Section */
+.pgs-plantations-page .pgs-plantations-container {
   margin: 20px auto;
   max-width: 1100px;
   background: #fff;
@@ -105,47 +101,44 @@
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.08);
   overflow-x: auto;
 }
-
-.pgs-plantation-table {
+.pgs-plantations-page .pgs-plantation-table {
   width: 100%;
   border-collapse: collapse;
 }
-
-.pgs-plantation-table th {
+.pgs-plantations-page .pgs-plantation-table th {
   background-color: #1e5631;
   color: #fff;
   padding: 12px;
   text-align: left;
   font-size: 14px;
 }
-
-.pgs-plantation-table td {
+.pgs-plantations-page .pgs-plantation-table td {
   padding: 12px;
   border-bottom: 1px solid #ddd;
   font-size: 14px;
   color: #2c3e50;
 }
-
-.pgs-plantation-table tr:hover {
+.pgs-plantations-page .pgs-plantation-table tr:hover {
   background-color: #f4f9f4;
   transition: 0.2s ease-in-out;
 }
 
-.pgs-no-results {
+/* Messages */
+.pgs-plantations-page .pgs-no-results {
   text-align: center;
   font-size: 16px;
   color: #e74c3c;
   margin-top: 20px;
 }
 
-.pgs-action-buttons {
+/* Action Buttons */
+.pgs-plantations-page .pgs-action-buttons {
   text-align: center;
   margin-top: 20px;
   padding-bottom: 20px;
 }
-
-.pgs-btn-download,
-.pgs-btn-whatsapp {
+.pgs-plantations-page .pgs-btn-download,
+.pgs-plantations-page .pgs-btn-whatsapp {
   background-color: #45996c;
   color: white;
   padding: 10px 18px;
@@ -157,13 +150,13 @@
   align-items: center;
   gap: 8px;
 }
-
-.pgs-btn-download:hover,
-.pgs-btn-whatsapp:hover {
+.pgs-plantations-page .pgs-btn-download:hover,
+.pgs-plantations-page .pgs-btn-whatsapp:hover {
   background-color: #8cc7a1;
 }
 
-.pgs-totals-section {
+/* Totals + PDF Sections */
+.pgs-plantations-page .pgs-totals-section {
   margin-top: 20px;
   padding: 10px 15px;
   border-top: 2px solid #2c3e50;
@@ -172,8 +165,7 @@
   font-size: 14px;
   line-height: 1.6;
 }
-
-.pgs-pdf-logo {
+.pgs-plantations-page .pgs-pdf-logo {
   width: 50px;
   height: auto;
   position: absolute;
@@ -182,18 +174,52 @@
   background: transparent;
   mix-blend-mode: multiply;
 }
-
-.pgs-report-description {
+.pgs-plantations-page .pgs-report-description {
   font-family: "Times New Roman", Times, serif;
   font-size: 12pt;
   line-height: 1.5;
   text-align: justify;
   margin-bottom: 30px;
 }
-
-.pgs-section-title {
+.pgs-plantations-page .pgs-section-title {
   font-family: "Times New Roman", Times, serif;
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 15px;
+}
+
+/* Badges + Icons */
+.pgs-plantations-page .pgs-harvest-badge {
+  background-color: #d4f8d4;
+  color: #006400;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  display: inline-block;
+  min-width: 50px;
+  text-align: center;
+}
+.pgs-plantations-page .pgs-icon-edit {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #d1f0d1;
+  color: #006400;
+  font-size: 18px;
+  cursor: pointer;
+}
+.pgs-plantations-page .pgs-icon-delete {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #f8d4d4;
+  color: #c00;
+  font-size: 18px;
+  cursor: pointer;
 }

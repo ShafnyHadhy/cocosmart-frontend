@@ -52,19 +52,20 @@ function PlantationsGallery() {
         </p>
 
         {/* Search bar */}
-        <div className="pg-gallery-search">
-          <input
-            type="text"
-            placeholder="Search plantations by name, location, or plot..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          />
-          <button onClick={handleSearch}>
-            <IoIosSearch />
-            <span>Search</span>
-          </button>
-        </div>
+      <div className="pg-gallery-search">
+  <input
+    type="text"
+    placeholder="Search plantations by name, location, or plot..."
+    value={query}
+    onChange={(e) => setQuery(e.target.value)}
+    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+  />
+  <button onClick={handleSearch} className="pg-search-btn">
+    <IoIosSearch className="pg-search-icon" />
+    <span>Search</span>
+  </button>
+</div>
+
       </div>
 
       <div className="pg-gallery-grid">
