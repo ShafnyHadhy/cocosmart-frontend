@@ -48,7 +48,7 @@
   bottom: 90px;
   right: 35px;
   width: 320px;
-  min-height: 400px;         /* force a baseline height */
+  min-height: 500px;         /* force a baseline height */
   max-height: 90vh;          /* prevent going outside screen */
   display: flex;
   flex-direction: column;
