@@ -260,7 +260,7 @@ export default function TaskForm() {
         </div>
 
         <div>
-          <label className="block mb-1 text-sm font-medium mb-3">Available Workers</label>
+          <label className="block text-sm font-medium mb-3">Available Workers</label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-48 overflow-y-auto border rounded-lg p-3">
             {availableWorkers.map((w) => {
               const isAssigned = assignedWorkers.includes(w.workerId);
