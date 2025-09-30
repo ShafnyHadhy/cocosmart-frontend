@@ -174,7 +174,7 @@ export default function HRLayout() {
               }`}
             >
               <FiTrash2 className="text-lg" />
-              Trash
+              Bin
             </NavLink>
           </nav>
         </aside>

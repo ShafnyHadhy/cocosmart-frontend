@@ -188,6 +188,10 @@ export default function WorkerProfile() {
                     </span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <span className="text-gray-600">NIC Number:</span>
+                    <span className="font-medium">{profile.nic || 'Not provided'}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                     <span className="text-gray-600">Availability:</span>
                     <span className={`font-medium ${profile.isAvailable ? 'text-green-600' : 'text-red-600'}`}>
                       {profile.isAvailable ? 'Available' : 'Busy'}

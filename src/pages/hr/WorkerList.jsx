@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { listWorkers, createWorker as apiCreateWorker, deleteWorker as apiDeleteWorker, updateWorker as apiUpdateWorker, listEligibleWorkerUsers as apiListEligible, getWorkerWithTasks } from "../../services/workerService";
-import { createTask } from "../../services/taskService";
+import { createTask, getTasks } from "../../services/taskService";
 
 export default function WorkerList() {
   const location = useLocation();
@@ -21,7 +21,10 @@ export default function WorkerList() {
   const [availabilityFilter, setAvailabilityFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [showUpdateForm, setShowUpdateForm] = useState(false);
-  const [updateForm, setUpdateForm] = useState({ workerId: "", userEmail: "", jobRole: "", dateOfBirth: "" });
+  const [updateForm, setUpdateForm] = useState({ workerId: "", userEmail: "", jobRole: "", dateOfBirth: "", nic: "" });
+  const [existingTasks, setExistingTasks] = useState([]);
+  const [showExistingTasks, setShowExistingTasks] = useState(false);
+  const [loadingTasks, setLoadingTasks] = useState(false);
 
   const cssVars = {
     "--green-calm": "#2a5540",
@@ -35,15 +38,36 @@ export default function WorkerList() {
       const data = await listWorkers();
       setWorkers((data.workers || []).map(w => ({
         workerId: w.workerId,
+        userEmail: w.userEmail,
         name: w.name || w.userEmail, // Use the name field from backend, fallback to email
         jobRole: w.jobRole || "",
         isAvailable: w.isAvailable,
+        dateOfBirth: w.dateOfBirth,
+        nic: w.nic,
         createdAt: w.createdAt
       })));
     } catch (error) {
       console.error("Error loading workers:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadExistingTasks = async () => {
+    setLoadingTasks(true);
+    try {
+      console.log("Loading existing tasks...");
+      const data = await getTasks();
+      console.log("Loaded tasks data:", data);
+      console.log("Tasks array:", data.tasks);
+      console.log("Tasks length:", data.tasks?.length || 0);
+      setExistingTasks(data.tasks || []);
+    } catch (error) {
+      console.error("Error loading existing tasks:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      setExistingTasks([]);
+    } finally {
+      setLoadingTasks(false);
     }
   };
 
@@ -123,7 +147,8 @@ export default function WorkerList() {
       workerId: form.workerId, 
       userEmail: form.userEmail, 
       jobRole: form.jobRole,
-      dateOfBirth: form.dateOfBirth
+      dateOfBirth: form.dateOfBirth,
+      nic: form.nic
     });
     setShowAdd(false);
     load();
@@ -140,16 +165,49 @@ export default function WorkerList() {
     setShowAssignOptions(true);
   };
 
-  const assignExistingTask = () => {
+  const assignExistingTask = async () => {
     setShowAssignOptions(false);
-    setAssignForm({ taskId: "", title: "", priority: "Medium", scheduledDate: "", scheduledTime: "" });
-    setShowAssignForm(true);
+    await loadExistingTasks();
+    setShowExistingTasks(true);
   };
 
   const createNewTask = () => {
     setShowAssignOptions(false);
     // Redirect to create new task form with the worker pre-selected
     window.location.href = `/hr/tasks/new?workerId=${selectedWorkerForTask}`;
+  };
+
+  const assignWorkerToTask = async (taskId) => {
+    try {
+      console.log('Assigning worker to task:', { taskId, workerId: selectedWorkerForTask });
+      const response = await fetch(`http://localhost:5000/api/tasks/${taskId}/assign`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          workerId: selectedWorkerForTask
+        })
+      });
+      
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Assignment successful:', result);
+        alert('Worker assigned to task successfully!');
+        setShowExistingTasks(false);
+        load(); // Refresh workers list
+      } else {
+        const error = await response.json();
+        console.error('Assignment error:', error);
+        alert('Error assigning worker: ' + (error.message || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error assigning worker to task:', error);
+      alert('Error assigning worker to task: ' + error.message);
+    }
   };
 
   const submitAssign = async (e) => {
@@ -175,23 +233,38 @@ export default function WorkerList() {
   };
 
   const openUpdate = async (worker) => {
+    console.log("Opening update for worker:", worker); // Debug log
     setUpdateForm({
       workerId: worker.workerId,
-      userEmail: worker.name,
+      userEmail: worker.name || worker.userEmail || "",
       jobRole: worker.jobRole || "",
-      dateOfBirth: worker.dateOfBirth || ""
+      dateOfBirth: worker.dateOfBirth ? new Date(worker.dateOfBirth).toISOString().split('T')[0] : "",
+      nic: worker.nic || ""
     });
     setShowUpdateForm(true);
   };
 
   const submitUpdate = async (e) => {
     e.preventDefault();
-    if (!updateForm.workerId || !updateForm.userEmail) return;
+    if (!updateForm.workerId || !updateForm.dateOfBirth || !updateForm.nic) return;
+    
+    const today = new Date();
+    const birthDate = new Date(updateForm.dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    if (age < 18 || age > 40) {
+      alert("Age must be between 18 and 40 years");
+      return;
+    }
     
     await apiUpdateWorker(updateForm.workerId, {
-      userEmail: updateForm.userEmail,
       jobRole: updateForm.jobRole,
-      dateOfBirth: updateForm.dateOfBirth
+      dateOfBirth: updateForm.dateOfBirth,
+      nic: updateForm.nic
     });
     setShowUpdateForm(false);
     load();
@@ -432,7 +505,7 @@ export default function WorkerList() {
 
       {/* Register Worker Modal */}
       {showAdd && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-[var(--green-calm)] bg-opacity-30 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 relative shadow-2xl">
             <button
               onClick={() => setShowAdd(false)}
@@ -569,7 +642,7 @@ export default function WorkerList() {
 
       {/* Worker Profile Modal */}
       {showProfile && selectedWorker && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-[var(--green-calm)] bg-opacity-30 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto relative shadow-2xl">
             <button
               onClick={() => setShowProfile(false)}
@@ -643,7 +716,7 @@ export default function WorkerList() {
 
       {/* Assign Task Options Modal */}
       {showAssignOptions && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-[var(--green-calm)] bg-opacity-30 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 relative shadow-2xl">
             <button
               onClick={() => setShowAssignOptions(false)}
@@ -686,9 +759,75 @@ export default function WorkerList() {
         </div>
       )}
 
+      {/* Existing Tasks Modal */}
+      {showExistingTasks && (
+        <div className="fixed inset-0 bg-[var(--green-calm)] bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto relative shadow-2xl">
+            <button
+              onClick={() => setShowExistingTasks(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold"
+            >
+              ×
+            </button>
+            <h2 className="text-2xl font-bold mb-6 pr-8 text-[var(--green-calm)]">Select Existing Task</h2>
+            
+            <div className="space-y-4">
+              {loadingTasks ? (
+                <div className="text-center py-8">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--green-calm)]"></div>
+                  <p className="text-gray-500 mt-2">Loading tasks...</p>
+                </div>
+              ) : existingTasks.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No existing tasks found.</p>
+                  <p className="text-xs text-gray-400 mt-2">Debug: {existingTasks.length} tasks loaded</p>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {existingTasks.map((task) => (
+                    <div key={task.taskId} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="text-sm font-medium text-gray-600">Task ID:</span>
+                            <span className="font-semibold text-[var(--green-calm)]">{task.taskId}</span>
+                          </div>
+                          <h3 className="text-lg font-semibold text-gray-800 mb-2">{task.title}</h3>
+                          <p className="text-gray-600 text-sm mb-2">{task.description}</p>
+                          <div className="flex items-center gap-4 text-sm text-gray-500">
+                            <span className="flex items-center gap-1">
+                              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                              {task.priority}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <span className="w-2 h-2 bg-gray-500 rounded-full"></span>
+                              {task.status}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                              {task.category}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => assignWorkerToTask(task.taskId)}
+                          className="ml-4 px-4 py-2 bg-[var(--green-calm)] text-white rounded-lg hover:bg-[var(--green-calm)]/90 transition-colors font-medium"
+                        >
+                          Add Worker
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Assign Task Modal */}
       {showAssignForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-[var(--green-calm)] bg-opacity-30 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 relative shadow-2xl">
             <button
               onClick={() => setShowAssignForm(false)}
@@ -780,7 +919,7 @@ export default function WorkerList() {
 
       {/* Update Worker Modal */}
       {showUpdateForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-[var(--green-calm)] bg-opacity-30 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 relative shadow-2xl">
             <button
               onClick={() => setShowUpdateForm(false)}
@@ -788,36 +927,39 @@ export default function WorkerList() {
             >
               ×
             </button>
-            <h2 className="text-2xl font-bold mb-6 pr-8">Update Worker</h2>
+            <h2 className="text-2xl font-bold mb-6 pr-8 text-[var(--green-calm)]">Update Worker</h2>
             
             <form onSubmit={submitUpdate} className="space-y-4">
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Worker ID</label>
                 <input
                   type="text"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 text-gray-600 cursor-not-allowed"
                   value={updateForm.workerId}
                   disabled
+                  readOnly
                   placeholder="Worker ID"
                 />
+                <p className="text-xs text-gray-500 mt-1">Worker ID cannot be changed</p>
               </div>
 
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Email</label>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Name</label>
                 <input
-                  type="email"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  type="text"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 text-gray-600 cursor-not-allowed"
                   value={updateForm.userEmail}
-                  onChange={(e) => setUpdateForm(prev => ({ ...prev, userEmail: e.target.value }))}
-                  required
-                  placeholder="Enter email"
+                  disabled
+                  readOnly
+                  placeholder="Name (from user account)"
                 />
+                <p className="text-xs text-gray-500 mt-1">Name cannot be changed here. Update in user account.</p>
               </div>
 
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">Job Role</label>
                 <select
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent"
                   value={updateForm.jobRole}
                   onChange={(e) => setUpdateForm(prev => ({ ...prev, jobRole: e.target.value }))}
                   required
@@ -837,9 +979,56 @@ export default function WorkerList() {
                 <label className="block mb-2 text-sm font-medium text-gray-700">Date of Birth</label>
                 <input
                   type="date"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent"
                   value={updateForm.dateOfBirth}
-                  onChange={(e) => setUpdateForm(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                  onChange={(e) => {
+                    const selectedDate = e.target.value;
+                    if (selectedDate) {
+                      const today = new Date();
+                      const birthDate = new Date(selectedDate);
+                      let age = today.getFullYear() - birthDate.getFullYear();
+                      const monthDiff = today.getMonth() - birthDate.getMonth();
+                      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                        age--;
+                      }
+                      
+                      // If age is less than 18, auto-correct to exactly 18 years ago
+                      if (age < 18) {
+                        const correctedDate = new Date();
+                        correctedDate.setFullYear(correctedDate.getFullYear() - 18);
+                        setUpdateForm(prev => ({ ...prev, dateOfBirth: correctedDate.toISOString().split('T')[0] }));
+                      } else {
+                        setUpdateForm(prev => ({ ...prev, dateOfBirth: selectedDate }));
+                      }
+                    } else {
+                      setUpdateForm(prev => ({ ...prev, dateOfBirth: selectedDate }));
+                    }
+                  }}
+                  max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+                  min={new Date(new Date().setFullYear(new Date().getFullYear() - 40)).toISOString().split('T')[0]}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">NIC</label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent"
+                  value={updateForm.nic}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const name = "nic";
+                    if (name === "nic") {
+                      if (/^[0-9]{0,9}[Vv]?$/.test(value) || /^[0-9]{0,12}$/.test(value)) {
+                        setUpdateForm((prev) => ({ ...prev, [name]: value }));
+                      }
+                      return;
+                    }
+                  }}
+                  required
+                  placeholder="Enter NIC number (9 digits + V or 12 digits)"
+                  maxLength={12}
                 />
               </div>
 
