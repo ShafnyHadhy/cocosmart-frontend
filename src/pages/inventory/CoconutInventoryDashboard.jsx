@@ -33,6 +33,12 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+const API_BASE =
+  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_URL) ||
+  (typeof process !== "undefined" && process.env && process.env.VITE_API_URL) ||
+  "http://localhost:5000";
+
+
 // Mock data for the dashboard
 const revenueData = [
   { month: "Jan", revenue: 45000, expenses: 32000 },
@@ -99,13 +105,13 @@ const MetricCard = ({
       </div>
       <div className="relative">
         <div
-          className="w-18 h-18 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110"
+          className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110"
           style={{
             background: `linear-gradient(135deg, ${color}, ${color}CC)`,
             boxShadow: `0 8px 32px ${color}40`,
           }}
         >
-          <Icon className="w-9 h-9 text-white" />
+          <Icon className="w-7 h-7 text-white" />
         </div>
         {/* Pulse animation */}
         <div
@@ -204,6 +210,59 @@ export default function CoconutInventoryDashboard() {
     }
     setNotifOpen((s) => !s);
   };
+
+  // format YYYY-MM-DD
+const fmtDate = (d) => {
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+
+// Example: last 30 days period
+const today = new Date();
+const thirtyDaysAgo = new Date();
+thirtyDaysAgo.setDate(today.getDate() - 30);
+const defaultStart = fmtDate(thirtyDaysAgo);
+const defaultEnd = fmtDate(today);
+
+// If your frontend and backend share the same origin, this path is enough.
+// If not, put your API base URL here, e.g. const API = "http://localhost:5000";
+const API = API_BASE;
+
+
+const handleExportReport = async (start = defaultStart, end = defaultEnd) => {
+  try {
+   const url = `${API_BASE}/api/stocks/report/pdf`;
+
+    const res = await fetch(url, {
+      method: "GET",
+      // if you need cookies for auth:
+      // credentials: "include",
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || `Failed to download report (${res.status})`);
+    }
+
+    const blob = await res.blob();
+    const cd = res.headers.get("Content-Disposition") || "";
+    const m = cd.match(/filename="?([^"]+)"?/i);
+    const filename = m?.[1] || "stock-movements-summary.pdf";
+
+    const link = document.createElement("a");
+    const objectUrl = URL.createObjectURL(blob);
+    link.href = objectUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(objectUrl);
+  } catch (e) {
+    console.error(e);
+    alert("Could not export the report. Check console for details.");
+  }
+};
+
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#f7f9f9" }}>
@@ -351,6 +410,7 @@ export default function CoconutInventoryDashboard() {
                   background: "linear-gradient(135deg, #2a5540, #1e3a2e)",
                   boxShadow: "0 4px 20px rgba(42, 85, 64, 0.4)",
                 }}
+                onClick={() => handleExportReport()} 
               >
                 Export Report
               </button>
