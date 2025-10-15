@@ -23,6 +23,7 @@ function toTodayLocalISODate() {
   return d.toISOString().slice(0, 10);
 }
 
+//Formats integers with grouping
 const formatInt = (n) =>
   new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(n);
 
@@ -636,7 +637,7 @@ export default function AddCocoProduct() {
                   type="date"
                   name="expire_date"
                   value={inputs.expire_date}
-                  min={toTodayLocalISODate()}
+                  //min={toTodayLocalISODate()}
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"

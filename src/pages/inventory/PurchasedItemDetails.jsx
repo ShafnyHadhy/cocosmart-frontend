@@ -108,7 +108,7 @@ function DisplayPurchasedItem({ item, onDelete, onEdit  }) {
     "text-sm hover:bg-green-50/30 transition-colors",
     isExpired ? "border-l-4 border-l-red-500" : "",
     !isExpired && isExpiringSoon ? "border-l-4 border-l-amber-500" : "",
-    isLowStock ? "bg-red-50/60 text-red-900" : "",
+    isLowStock ? "bg-red-50/100 text-red-900" : "",
   ]
     .filter(Boolean)
     .join(" ");

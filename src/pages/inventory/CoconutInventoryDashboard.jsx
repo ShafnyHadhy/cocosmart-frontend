@@ -178,14 +178,14 @@ export default function CoconutInventoryDashboard() {
   const initialOrderNotifications = [
     {
       id: "REQ-001",
-      productId: "P-CO-500",
-      name: "Coconut Oil 500ml",
+      productId: "COCO001",
+      name: "Virgin Coconut Oil 500ml",
       qty: 120,
     },
     {
       id: "REQ-002",
-      productId: "P-CW-1000",
-      name: "Coconut Water 1L",
+      productId: "COCO006",
+      name: "Coconut Sugar 1kg",
       qty: 80,
     },
   ];
@@ -373,7 +373,7 @@ export default function CoconutInventoryDashboard() {
           />
           <MetricCard
             title="Purchased Items"
-            value="423"
+            value="9"
             change="+8.7%"
             changeType="increase"
             icon={ShoppingCart}
@@ -382,7 +382,7 @@ export default function CoconutInventoryDashboard() {
           />
           <MetricCard
             title="Active Suppliers"
-            value="24"
+            value="4"
             change="+2"
             changeType="increase"
             icon={Truck}
@@ -408,7 +408,7 @@ export default function CoconutInventoryDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <AlertCard
               title="Low-Products"
-              count="18"
+              count="3"
               icon={AlertTriangle}
               color="#ef4444"
               bgColor="rgba(239, 68, 68, 0.1)"
@@ -416,7 +416,7 @@ export default function CoconutInventoryDashboard() {
             />
             <AlertCard
               title="Low-Purchases"
-              count="12"
+              count="2"
               icon={Box}
               color="#f59e0b"
               bgColor="rgba(245, 158, 11, 0.1)"
@@ -424,7 +424,7 @@ export default function CoconutInventoryDashboard() {
             />
             <AlertCard
               title="Expiring Soon"
-              count="7"
+              count="4"
               icon={Clock}
               color="#8b5cf6"
               bgColor="rgba(139, 92, 246, 0.1)"
@@ -432,7 +432,7 @@ export default function CoconutInventoryDashboard() {
             />
             <AlertCard
               title="Expired Items"
-              count="3"
+              count="1"
               icon={AlertTriangle}
               color="#ef4444"
               bgColor="rgba(239, 68, 68, 0.1)"
