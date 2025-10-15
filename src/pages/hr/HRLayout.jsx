@@ -151,7 +151,7 @@ export default function HRLayout() {
               Reports
             </NavLink>
 
-
+          
             <NavLink
               to="/hr/trash"
               className={`flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
@@ -180,7 +180,7 @@ export default function HRLayout() {
                 <button
                   onClick={() => setShowProfileDropdown(!showProfileDropdown)}
                   className="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-10 h-10 cursor-pointer hover:ring-2 hover:ring-gray-300 transition-all"
-                  style={{ backgroundImage: `url("https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face&auto=format&q=80")` }}
+                  style={{ backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuDpsYYWf6MRv9HKu0OsboL6ji_8RqY7vTqjC-U_rQzjtYYgcwjoTdCzMqBLwUIEJrkBLSh6W4q7ZLHoL1Fdn8Ex7SByzaWKUwrOZzBkmtaio8QQMlRFDIALhHlRqo-g5VBBiId1mwmGC5FOllgxAPsbM-a8A5kLv4CEjEi-ANfiKV_ydNSy4VRDe7-Mwdn8_y0HgSmlWvKSPLcT4i84i68fLEZkgKOD_XFaFax_gD8qWSwQJceyIVMBVhweOgDZtP0SnKc1uu5uxUrR")` }}
                 />
                 {showProfileDropdown && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
