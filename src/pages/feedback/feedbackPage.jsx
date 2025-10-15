@@ -93,11 +93,14 @@ const FeedbackPage = () => {
 
   // Filter feedbacks
   const filteredFeedbacks = feedbacks.filter((f) => {
-    const query = searchQuery.toLowerCase();
+    const query = searchQuery.trim().toLowerCase();
+
+    if (!query && !searchRating) return true; // show all if no search input
+
     const matchText =
-      f.username.toLowerCase().includes(query) ||
-      f.comment.toLowerCase().includes(query) ||
-      (f.adminReply ? f.adminReply.toLowerCase().includes(query) : false);
+      f.username.toLowerCase().startsWith(query) ||
+      f.comment.toLowerCase().startsWith(query) ||
+      (f.adminReply ? f.adminReply.toLowerCase().startsWith(query) : false);
 
     const matchRating = searchRating ? f.rating === Number(searchRating) : true;
 

@@ -154,10 +154,10 @@ export default function DeliveryPage() {
     const query = searchQuery.toLowerCase();
 
     const matchesText =
-      orderID.includes(query) ||
-      vehicleId.includes(query) ||
-      driverName.includes(query) ||
-      route.includes(query);
+      orderID.startsWith(query) ||
+      vehicleId.startsWith(query) ||
+      driverName.startsWith(query) ||
+      route.startsWith(query);
 
     const matchesStatus = searchStatus
       ? d.deliveryStatus?.toLowerCase() === searchStatus.toLowerCase()

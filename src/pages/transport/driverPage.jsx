@@ -145,12 +145,15 @@ const DriverPage = () => {
   //Search
   const filteredDrivers = drivers.filter((d) => {
     const query = searchQuery.toLowerCase();
+
+    // Match only if the field STARTS WITH the entered letters
     const matchText =
-      d.name.toLowerCase().includes(query) ||
-      d.licenseNumber.toLowerCase().includes(query) ||
-      d.phone.includes(query) ||
-      (d.email ? d.email.toLowerCase().includes(query) : false) ||
-      (d.address ? d.address.toLowerCase().includes(query) : false);
+      d.name.toLowerCase().startsWith(query) ||
+      d.licenseNumber.toLowerCase().startsWith(query) ||
+      d.phone.startsWith(query) ||
+      (d.email ? d.email.toLowerCase().startsWith(query) : false) ||
+      (d.address ? d.address.toLowerCase().startsWith(query) : false);
+
     const matchStatus = searchStatus ? d.status === searchStatus : true;
     return matchText && matchStatus;
   });

@@ -125,10 +125,13 @@ export default function VehiclePage() {
 
   const filteredVehicles = vehicles.filter((v) => {
     const query = searchQuery.toLowerCase();
+
+    // Show only if the text STARTS WITH the entered query
     const matchText =
-      v.plateNumber.toLowerCase().includes(query) ||
-      v.type.toLowerCase().includes(query) ||
-      (v.fuelType ? v.fuelType.toLowerCase().includes(query) : false);
+      v.plateNumber.toLowerCase().startsWith(query) ||
+      v.type.toLowerCase().startsWith(query) ||
+      (v.fuelType ? v.fuelType.toLowerCase().startsWith(query) : false);
+
     const matchStatus = searchStatus ? v.status === searchStatus : true;
     return matchText && matchStatus;
   });
