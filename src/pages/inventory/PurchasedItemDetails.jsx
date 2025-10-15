@@ -265,26 +265,27 @@ export default function PurchasedItemDetails() {
   const lowStockCount = allItems.filter(LOW_STOCK_BY_ROL).length;
 
   const handleSearch = () => {
-    const q = searchQuery.trim().toLowerCase();
-    let list = [...allItems];
+  const q = (searchQuery || "").trim().toLowerCase();
+  let list = [...allItems];
 
-    if (selectedFilter === "restock") list = list.filter(LOW_STOCK_BY_ROL);
-    else if (selectedFilter === "expiring")
-      list = list.filter(isExpiringSoonOrExpired);
+  // Keep your dropdown filters
+  if (selectedFilter === "restock") {
+    list = list.filter(LOW_STOCK_BY_ROL);
+  } else if (selectedFilter === "expiring") {
+    list = list.filter(isExpiringSoonOrExpired);
+  }
 
-    if (q) {
-      list = list.filter((item) =>
-        Object.values(item).some((field) =>
-          String(field ?? "")
-            .toLowerCase()
-            .includes(q)
-        )
-      );
-    }
+  // Prefix-based search on the NAME column only
+  if (q) {
+    list = list.filter((it) =>
+      String(it.item_name || "").toLowerCase().startsWith(q)
+    );
+  }
 
-    setItems(list);
-    setNoResults(list.length === 0);
-  };
+  setItems(list);
+  setNoResults(list.length === 0);
+};
+
 
   return (
     <div className="min-h-screen p-6 font-sans" style={{ backgroundColor: '#f5f5f5' }}>

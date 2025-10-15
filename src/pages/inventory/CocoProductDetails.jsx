@@ -267,22 +267,26 @@ const currentQrItem = useMemo(
   const totalProducts = allCocoProducts.length;
   const lowStockCount = allCocoProducts.filter(isRestock).length;
 
-  const handleSearch = () => {
-    const q = searchQuery.trim().toLowerCase();
-    let list = [...allCocoProducts];
+const handleSearch = () => {
+  const q = searchQuery.trim().toLowerCase();
+  let list = [...allCocoProducts];
 
-    if (selectedFilter === "restock") list = list.filter(isRestock);
-    else if (selectedFilter === "expiring") list = list.filter(isExpiringSoonOrExpired);
+  // Apply filter dropdowns (restock / expiring)
+  if (selectedFilter === "restock") list = list.filter(isRestock);
+  else if (selectedFilter === "expiring") list = list.filter(isExpiringSoonOrExpired);
 
-    if (q) {
-      list = list.filter((item) =>
-        Object.values(item).some((field) => String(field ?? "").toLowerCase().includes(q))
-      );
-    }
+  // Prefix-based search on product name
+  if (q) {
+    list = list.filter((item) => {
+      const name = String(item.pro_name || "").toLowerCase();
+      return name.startsWith(q); // only match names that BEGIN with query
+    });
+  }
 
-    setCocoProducts(list);
-    setNoResults(list.length === 0);
-  };
+  setCocoProducts(list);
+  setNoResults(list.length === 0);
+};
+
 
   // auto-filter when typing / changing dropdown, but only after data is loaded
   useEffect(() => {
