@@ -19,6 +19,12 @@ export default function FeaturesCarousel() {
         "Get instant guidance about best practices in coconut cultivation, care, and productivity improvements.",
     },
     {
+      icon: <FaStore className="text-4xl text-green-700" />,
+      title: "Marketplace Integration",
+      description:
+        "Sell your products directly through our online marketplace with secure order and payment management.",
+    },
+    {
       icon: <FaUsersCog className="text-4xl text-green-700" />,
       title: "Labour Scheduling",
       description:
@@ -36,19 +42,13 @@ export default function FeaturesCarousel() {
       description:
         "Plan, manage, and track transport for your produce to ensure timely delivery and reduced costs.",
     },
-    {
-      icon: <FaStore className="text-4xl text-green-700" />,
-      title: "Marketplace Integration",
-      description:
-        "Sell your products directly through our online marketplace with secure order and payment management.",
-    },
   ];
 
   return (
     <section className="bg-primary py-16">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-          Powerful Features for Smarter Plantation Management
+          Features of Smarter Coconut Plantation Management
         </h2>
 
         <Swiper

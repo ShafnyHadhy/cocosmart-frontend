@@ -11,6 +11,8 @@ import FeaturesCarousel from "../components/featuresSection";
 import SubmitFeedback from "./feedback/SubmitFeedback";
 import UserProfile from "./Profile/UserProfile";
 import ViewOrder from "./Profile/viewOrder";
+import AboutUs from "./aboutUs";
+import ContactUs from "./contactUs";
 
 export default function HomePage() {
   return (
@@ -23,8 +25,8 @@ export default function HomePage() {
           <TestimonialSection/>
           </>} />
         <Route path="product" element={<ProductPage />} />
-        <Route path="about" element={<h1>About Us</h1>} />
-        <Route path="contact" element={<h1>Contact Us</h1>} />
+        <Route path="about" element={<AboutUs/>} />
+        <Route path="contact" element={<ContactUs/>} />
         <Route path="overview/:id" element={<ProductOverview/>}/>
         <Route path="cart" element={<CartPage/>}/>
         <Route path="checkout" element={<CheckoutPage/>}/>

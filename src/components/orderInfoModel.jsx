@@ -82,7 +82,7 @@ export default function OrderModal({
         <div className="max-h-[70vh] overflow-y-auto px-6 py-5 space-y-6">
           {/* Summary */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="rounded-xl bg-white p-5 shadow ring-1 ring-secondary/5">
+            <div className="rounded-xl bg-white p-5 shadow ring-1 ring-secondary/50">
               <h3 className="mb-4 text-sm font-semibold text-secondary/80 uppercase tracking-wide">
                 Customer Info
               </h3>
@@ -108,7 +108,7 @@ export default function OrderModal({
               </dl>
             </div>
 
-            <div className="rounded-xl bg-white p-5 shadow ring-1 ring-secondary/5">
+            <div className="rounded-xl bg-white p-5 shadow ring-1 ring-secondary/50">
               <h3 className="mb-4 text-sm font-semibold text-secondary/80 uppercase tracking-wide">
                 Payment Details
               </h3>
@@ -130,9 +130,9 @@ export default function OrderModal({
           </div>
 
           {/* Items */}
-          <div className="rounded-xl bg-white shadow ring-1 ring-secondary/5">
+          <div className="rounded-xl bg-white shadow ring-1 ring-secondary/50">
             <div className="border-b border-secondary/10 px-4 py-3 text-sm font-semibold text-secondary/80 uppercase tracking-wide">
-              Line Items
+              Ordered Items
             </div>
             <ul className="divide-y divide-secondary/10">
               {selectedOrder.items?.map((it) => {

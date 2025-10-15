@@ -6,7 +6,7 @@ import { SiExpensify } from "react-icons/si";
 const stats = [
   {
     title: "Total Revenue",
-    value: "LKR 522,082.00",
+    value: "LKR 533,392.00",
     change: "+12.5%",
     trend: "up",
     icon: FaDollarSign,
@@ -16,7 +16,7 @@ const stats = [
   },
   {
     title: "Total Expense",
-    value: "LKR 231,950.00",
+    value: "LKR 310,150.00",
     change: "+2.8%",
     trend: "up",
     icon: SiExpensify,
@@ -26,7 +26,7 @@ const stats = [
   },
   {
     title: "Active Users",
-    value: "20",
+    value: "28",
     change: "+1.2%",
     trend: "up",
     icon: FaUserSecret,

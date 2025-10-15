@@ -94,7 +94,7 @@ export default function Orders({ user, orders, setOrders }) {
                   </td>
                   <td className="py-3 px-4 flex justify-center gap-2 text-lg">
                     <button
-                      onClick={() => navigate(`/orders/${o.orderID}`)}
+                      onClick={() => navigate(`/orders/id/${o.orderID}`)}
                       className="text-[#5c4033] hover:text-[#5c4033]-800 transition-transform duration-200 text-xl hover:scale-125"
                       title="View Orders"
                     >
