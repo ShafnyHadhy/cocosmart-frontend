@@ -8,15 +8,24 @@ import coco1Image from "../../assets/coco1.jpg";
 import teaImage from "../../assets/tea.jpg";
 import coco2Image from "../../assets/coco2.jpg";
 import coco3Image from "../../assets/coco3.jpg";
+import coco4Image from "../../assets/coco5.jpg";
+import coco5Image from "../../assets/coco6.webp";
+import coco6Image from "../../assets/coco7.webp";
+import coco7Image from "../../assets/coco8.webp";
+import coco8Image from "../../assets/coco9.jpg";
+
 
 // map plantation names to images
 const plantationImages = {
   "North Plantation": bananaImage,
   "South Plantation": coco1Image,
   "East Coconut Field": teaImage,
-  "West Agro Land": coconutImage,
+  "West Agro Land": coco7Image,
   "Dhiyan": coco2Image,
   "West Cocos": coco3Image,
+  "East Cocos": coco4Image,
+  "South Cocos": coco5Image,
+  "North Cocos": coco8Image,
 };
 
 function fmtDateOnly(value) {

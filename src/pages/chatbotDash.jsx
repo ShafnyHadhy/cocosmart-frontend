@@ -2,42 +2,77 @@ import ChatbotIcon from "./chatbot/ChatbotIcon";
 import ChatMessage from "./chatbot/ChatMessage";
 import ChatForm from "./chatbot/ChatForm";
 import "./chatbot/chatbot.css";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { companyInfo } from "./companyInfo";
 
 const ChatBotPage = () => {
   const [chatHistory, setChatHistory] = useState([{ hideInChat: true, role: "model", text: companyInfo }]);
   const [showChatbot, setShowChatbot] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const chatBodyRef = useRef();
 
+  const speakText = useCallback((text) => {
+    if (isMuted || !text || !('speechSynthesis' in window)) return;
+
+    // Filter the text to include only letters, numbers, and essential punctuation for natural speech.
+    // This regex removes most symbols and emojis.
+    const filteredText = text.replace(/[^a-zA-Z0-9\s.,?!'":-]/g, '');
+
+    // Cancel any ongoing speech before starting a new one
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(filteredText);
+    window.speechSynthesis.speak(utterance);
+  }, [isMuted]);
+
   const generateBotResponse = async (history) => {
-    const updateHistory = (text, isError = false) => {
-      setChatHistory(prev => [...prev.filter(msg => msg.text !== "Thinking..."), { role: "model", text, isError }]);
-    };
-
-    history = history.map(({ role, text }) => ({ role, parts: [{ text }] }));
-
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: history }),
-    };
+    // Add a "typing" indicator for the bot
+    setChatHistory(prev => [...prev, { role: "model", text: "Typing..." }]);
 
     try {
-      const response = await fetch(import.meta.env.VITE_API_URLL, requestOptions);
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error.message || "Something went wrong!");
+      const response = await fetch('http://localhost:5000/api/chat', { // Your new backend URL
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ history: history }), // Send the history
+      });
 
-      const apiResponseText = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, "$1").trim();
-      updateHistory(apiResponseText);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Something went wrong!");
+      
+      const apiResponseText = data.response;
+      
+      // Replace "Typing..." with the actual response
+      setChatHistory(prev => {
+        const updatedHistory = [...prev];
+        updatedHistory[updatedHistory.length - 1] = { role: "model", text: apiResponseText };
+        return updatedHistory;
+      });
+      
+      speakText(apiResponseText);
     } catch (error) {
-      updateHistory(error.message, true);
+      // Replace "Typing..." with an error message
+      setChatHistory(prev => {
+          const updatedHistory = [...prev];
+          updatedHistory[updatedHistory.length - 1] = { role: "model", text: "Sorry, something went wrong.", isError: true };
+          return updatedHistory;
+      });
     }
   };
 
   useEffect(() => {
     chatBodyRef.current.scrollTo({ top: chatBodyRef.current.scrollHeight, behavior: "smooth" });
   }, [chatHistory]);
+
+  useEffect(() => {
+    if (showChatbot) {
+      const initialGreeting = "Hey there! How can I help you today?";
+      speakText(initialGreeting);
+    } else {
+      window.speechSynthesis.cancel(); // Stop speech when chatbot is closed
+    }
+  }, [showChatbot, speakText]);
 
   return (
     <div className={`chatbot-container ${showChatbot ? "show-chatbot" : ""}`}>
@@ -53,7 +88,10 @@ const ChatBotPage = () => {
             <ChatbotIcon />
             <h2 className="logo-text">Chatbot</h2>
           </div>
-          <button onClick={() => setShowChatbot(prev => !prev)} className="material-symbols-rounded">keyboard_arrow_down</button>
+          <div className="header-buttons">
+            <button onClick={() => setIsMuted(prev => !prev)} className="material-symbols-rounded">{isMuted ? 'volume_off' : 'volume_up'}</button>
+            <button onClick={() => setShowChatbot(prev => !prev)} className="material-symbols-rounded">keyboard_arrow_down</button>
+          </div>
         </div>
 
         {/* Chatbot Body */}

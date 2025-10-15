@@ -199,6 +199,19 @@
   min-width: 50px;
   text-align: center;
 }
+
+.pgs-plantations-page .pgs-plantation-table tr:nth-child(even) {
+  background-color: #f0fdf4; /* Light green for even rows */
+}
+
+/* Style for the 'Name' column to be bold */
+.pgs-plantation-table th:nth-child(2),
+.pgs-plantation-table td:nth-child(2) {
+  font-weight: 600; /* semibold, or use 'bold' */
+}
+
+
+
 .pgs-plantations-page .pgs-icon-edit {
   width: 40px;
   height: 40px;
