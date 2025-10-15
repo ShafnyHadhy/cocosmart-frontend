@@ -5,7 +5,7 @@ import Footer from "../components/footer";
 import ProductOverview from "./admin/productOverview";
 import CartPage from "./cartPage";
 import CheckoutPage from "./checkoutPage";
-import HomeBody from "../components/homeBody";
+import HomeBody from "../components/HomeBody";
 import TestimonialSection from "../components/testimonialSection";
 import FeaturesCarousel from "../components/featuresSection";
 import SubmitFeedback from "./feedback/SubmitFeedback";
