@@ -181,24 +181,31 @@ export default function CoconutInventoryDashboard() {
   const [timeRange, setTimeRange] = useState("6M");
 
   // --- notifications that should reappear after refresh ---
-  const initialOrderNotifications = [
-    {
-      id: "REQ-001",
-      productId: "COCO001",
-      name: "Virgin Coconut Oil 500ml",
-      qty: 120,
-    },
-    {
-      id: "REQ-002",
-      productId: "COCO006",
-      name: "Coconut Sugar 1kg",
-      qty: 80,
-    },
-  ];
+const [notifications, setNotifications] = useState([]);
+const [notifOpen, setNotifOpen] = useState(false);
+const [hasSeen, setHasSeen] = useState(false);
 
-  const [notifications, setNotifications] = useState(initialOrderNotifications);
-  const [notifOpen, setNotifOpen] = useState(false);
-  const [hasSeen, setHasSeen] = useState(false);
+// FE-only qty map (not saved to DB)
+const FAKE_QTY = {
+  COCO001: 120,
+  COCO006: 80,
+  COCO009: 100
+  // add more as needed...
+};
+const getQty = (r) => r.qty ?? FAKE_QTY[r.productID] ?? 0;
+
+
+// map API → UI
+const mapFromApi = (r) => ({
+  id: r._id,
+  productId: r.productID,
+  name: r.productName,
+  qty: getQty(r),            // <--- FE-only qty
+  description: r.description ?? "",
+  status: r.status ?? "Pending",
+  createdAt: r.createdAt,
+});
+
 
   const toggleNotifications = () => {
     if (!notifOpen) {
@@ -206,10 +213,71 @@ export default function CoconutInventoryDashboard() {
       setHasSeen(true);
     } else {
       // closing → clear messages (session only)
-      if (notifications.length) setNotifications([]);
     }
     setNotifOpen((s) => !s);
   };
+
+  // Load from backend and filter to Pending on the client
+const loadNotifications = async () => {
+  try {
+    const res = await fetch(`${API_BASE}/api/inventory/requests`, {
+      headers: {
+        "Content-Type": "application/json",
+        // Authorization: `Bearer ${token}`, // if your API needs it
+      },
+    });
+
+    const ct = res.headers.get("content-type") || "";
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}...`);
+    }
+    if (!ct.includes("application/json")) {
+      const text = await res.text();
+      throw new Error(`Expected JSON, got: ${text.slice(0, 200)}...`);
+    }
+
+    const data = await res.json();
+    const list = (Array.isArray(data) ? data : []).map(mapFromApi);
+    setNotifications(list.filter((n) => n.status === "Pending"));
+  } catch (e) {
+    console.error("Failed to load notifications", e);
+  }
+};
+
+
+React.useEffect(() => {
+  loadNotifications();
+}, []);
+
+
+// PUT status update to backend (your router uses PUT)
+const updateRequestStatus = async (id, nextStatus) => {
+  const prev = notifications;
+  // optimistic UI
+  setNotifications((ns) =>
+    ns.map((n) => (n.id === id ? { ...n, status: nextStatus } : n))
+  );
+
+  try {
+    const res = await fetch(`${API_BASE}/api/inventory/requests/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: nextStatus }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+
+    // Remove from "Pending" list after change
+    setNotifications((ns) => ns.filter((n) => n.id !== id));
+    // Or re-fetch to be extra safe:
+    // await loadNotifications();
+  } catch (e) {
+    console.error("Update failed", e);
+    setNotifications(prev); // revert
+    alert("Could not update status.");
+  }
+};
+
 
   // format YYYY-MM-DD
 const fmtDate = (d) => {
@@ -338,54 +406,70 @@ const handleExportReport = async (start = defaultStart, end = defaultEnd) => {
                               key={n.id}
                               className="p-4 border-b border-gray-100 hover:bg-gray-50 transition"
                             >
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="text-xs font-semibold text-gray-500">
-                                  Order Request • {n.id}
-                                </span>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
-                                  New
-                                </span>
-                              </div>
-                              <div className="text-sm">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-semibold text-gray-800">
-                                    Product:
-                                  </span>
-                                  <span className="font-mono text-gray-700">
-                                    {n.productId}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="font-semibold text-gray-800">
-                                    Name:
-                                  </span>
-                                  <span className="text-gray-700">
-                                    {n.name}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="font-semibold text-gray-800">
-                                    Qty:
-                                  </span>
-                                  <span className="text-gray-700">{n.qty}</span>
-                                </div>
-                              </div>
+                           <div className="flex items-center justify-between mb-1">
+  <span className="text-xs font-semibold text-gray-500">
+  Order Request • {n.requestNo || `REQ${String(n.id).slice(-3).toUpperCase()}`}
+</span>
+  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+    {n.status || "Pending"}
+  </span>
+</div>
+
+<div className="text-sm mb-3">
+  <div className="flex items-center gap-2">
+    <span className="font-semibold text-gray-800">Product:</span>
+    <span className="font-mono text-gray-700">{n.productId}</span>
+  </div>
+  <div className="flex items-center gap-2">
+    <span className="font-semibold text-gray-800">Name:</span>
+    <span className="text-gray-700">{n.name}</span>
+  </div>
+  <div className="flex items-center gap-2">
+    <span className="font-semibold text-gray-800">Qty:</span>
+    <span className="text-gray-700">{n.qty}</span>
+  </div>
+</div>
+
+<div className="flex gap-2">
+  <button
+    className="px-3 py-1 text-xs font-bold rounded-lg text-white"
+    style={{ backgroundColor: "#16a34a" }}
+    onClick={() => updateRequestStatus(n.id, "Approved")}
+  >
+    Approve
+  </button>
+  <button
+    className="px-3 py-1 text-xs font-bold rounded-lg text-white"
+    style={{ backgroundColor: "#ef4444" }}
+    onClick={() => updateRequestStatus(n.id, "Rejected")}
+  >
+    Reject
+  </button>
+  <button
+    className="px-3 py-1 text-xs font-bold rounded-lg text-white"
+    style={{ backgroundColor: "#334155" }}
+    onClick={() => updateRequestStatus(n.id, "Resolved")}
+  >
+    Resolve
+  </button>
+</div>
+
                             </div>
                           ))
                         )}
                       </div>
                       {notifications.length > 0 && (
                         <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-right">
-                          <button
+                          {/* <button
                             className="text-sm font-semibold text-white px-4 py-2 rounded-xl"
                             style={{ backgroundColor: "#2a5540" }}
                             onClick={() => {
                               setNotifOpen(false);
-                              setNotifications([]);
+                              //setNotifications([]);
                             }}
                           >
                             View Requests
-                          </button>
+                          </button> */}
                         </div>
                       )}
                     </div>
