@@ -7,6 +7,10 @@ import { listAvailableWorkers } from "../../services/workerService";
 export default function TaskForm() {
   const { taskId: routeTaskId } = useParams(); // present when editing
   const navigate = useNavigate();
+  
+  // Get workerId from URL params if present
+  const urlParams = new URLSearchParams(window.location.search);
+  const preSelectedWorkerId = urlParams.get('workerId');
 
   const cssVars = {
     "--green-calm": "#2a5540",
@@ -32,6 +36,7 @@ export default function TaskForm() {
     (async () => {
       const w = await listAvailableWorkers();
       setAvailableWorkers(w.workers || []);
+      
       if (editing) {
         const t = await getTaskById(routeTaskId);
         setTaskId(t.taskId);
@@ -46,43 +51,65 @@ export default function TaskForm() {
         setStatus(t.status || "To Do");
         setEstimatedHours(t.estimatedHours || "");
         setAssignedWorkers(Array.isArray(t.assignedWorkers) ? t.assignedWorkers : []);
+      } else if (preSelectedWorkerId) {
+        // Pre-select the worker if workerId is provided in URL
+        setAssignedWorkers([preSelectedWorkerId]);
       }
     })();
-  }, [editing, routeTaskId]);
+  }, [editing, routeTaskId, preSelectedWorkerId]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate scheduled date is not in the past
-    if (scheduledDate) {
-      const today = new Date();
-      const scheduled = new Date(scheduledDate);
-      if (scheduled < today.setHours(0, 0, 0, 0)) {
-        alert("Cannot schedule tasks for past dates");
+    try {
+      console.log('Form submission started...');
+      
+      // Validate required fields
+      if (!taskId || !title) {
+        alert("Task ID and Title are required");
         return;
       }
-    }
-    
-    const payload = {
-      taskId,
-      title,
-      description,
-      priority,
-      category,
-      scheduledDate: scheduledDate || undefined,
-      scheduledTime: scheduledTime || undefined,
-      status,
-      assignedWorkers,
-      estimatedHours
-    };
+      
+      // Validate scheduled date is not in the past
+      if (scheduledDate) {
+        const today = new Date();
+        const scheduled = new Date(scheduledDate);
+        if (scheduled < today.setHours(0, 0, 0, 0)) {
+          alert("Cannot schedule tasks for past dates");
+          return;
+        }
+      }
+      
+      const payload = {
+        taskId,
+        title,
+        description,
+        priority,
+        category,
+        scheduledDate: scheduledDate || undefined,
+        scheduledTime: scheduledTime || undefined,
+        status,
+        assignedWorkers,
+        estimatedHours: estimatedHours ? parseFloat(estimatedHours) : undefined
+      };
 
-    if (editing) {
-      await updateTask(routeTaskId, payload);
-    } else {
-      await createTask(payload);
-    }
+      console.log('Payload:', payload);
 
-    navigate("/hr/tasks");
+      if (editing) {
+        console.log('Updating task...');
+        await updateTask(routeTaskId, payload);
+        console.log('Task updated successfully');
+      } else {
+        console.log('Creating task...');
+        await createTask(payload);
+        console.log('Task created successfully');
+      }
+
+      navigate("/hr/tasks");
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('Error: ' + (error.response?.data?.message || error.message || 'Unknown error'));
+    }
   };
 
   const addWorker = (workerId) => {
@@ -114,13 +141,29 @@ export default function TaskForm() {
             <label className="block mb-2 text-sm font-medium text-gray-700">Task ID</label>
             <input
               type="text"
-              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                taskId && !/^[a-zA-Z0-9\-]*$/.test(taskId) 
+                  ? 'border-red-500 bg-red-50' 
+                  : 'border-gray-300'
+              }`}
               value={taskId}
-              onChange={(e) => setTaskId(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                // Only allow alphanumeric and hyphens
+                const isValid = value.split('').every(char => 
+                  /[a-zA-Z0-9\-]/.test(char)
+                );
+                if (isValid) {
+                  setTaskId(value);
+                }
+              }}
               required
               disabled={editing}
-              placeholder="Enter task ID"
+              placeholder="Enter unique task ID (letters, numbers, hyphens only)"
             />
+            {taskId && !/^[a-zA-Z0-9\-]+$/.test(taskId) && (
+              <p className="text-red-500 text-sm mt-1">Task ID can only contain letters, numbers, and hyphens (-)</p>
+            )}
           </div>
 
           <div>
@@ -260,7 +303,7 @@ export default function TaskForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-3">Available Workers</label>
+          <label className="block mb-1 text-sm font-medium mb-3">Available Workers</label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-48 overflow-y-auto border rounded-lg p-3">
             {availableWorkers.map((w) => {
               const isAssigned = assignedWorkers.includes(w.workerId);

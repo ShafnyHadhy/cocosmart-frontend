@@ -95,9 +95,9 @@ export default function WorkerList() {
     if (q.trim()) {
       const qq = q.toLowerCase();
       result = result.filter((w) =>
-        w.workerId.toLowerCase().includes(qq) ||
-        (w.name || "").toLowerCase().includes(qq) ||
-        (w.jobRole || "").toLowerCase().includes(qq)
+        w.workerId.toLowerCase().startsWith(qq) ||
+        (w.name || "").toLowerCase().startsWith(qq) ||
+        (w.jobRole || "").toLowerCase().startsWith(qq)
       );
     }
     
@@ -130,6 +130,7 @@ export default function WorkerList() {
     e.preventDefault();
     if (!form.workerId || !form.userEmail || !form.dateOfBirth || !form.nic) return;
     
+    
     const today = new Date();
     const birthDate = new Date(form.dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -138,8 +139,8 @@ export default function WorkerList() {
       age--;
     }
     
-    if (age < 18 || age > 40) {
-      alert("Age must be between 18 and 40 years");
+    if (age < 18 || age > 45) {
+      alert("Age must be between 18 and 45 years");
       return;
     }
     
@@ -248,6 +249,7 @@ export default function WorkerList() {
     e.preventDefault();
     if (!updateForm.workerId || !updateForm.dateOfBirth || !updateForm.nic) return;
     
+    
     const today = new Date();
     const birthDate = new Date(updateForm.dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -256,8 +258,8 @@ export default function WorkerList() {
       age--;
     }
     
-    if (age < 18 || age > 40) {
-      alert("Age must be between 18 and 40 years");
+    if (age < 18 || age > 45) {
+      alert("Age must be between 18 and 45 years");
       return;
     }
     
@@ -520,12 +522,28 @@ export default function WorkerList() {
                 <label className="block mb-2 text-sm font-medium text-gray-700">Worker ID</label>
                 <input
                   type="text"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    form.workerId && !/^[a-zA-Z0-9\-]*$/.test(form.workerId) 
+                      ? 'border-red-500 bg-red-50' 
+                      : 'border-gray-300'
+                  }`}
                   value={form.workerId}
-                  onChange={(e) => setForm(prev => ({ ...prev, workerId: e.target.value }))}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Only allow alphanumeric and hyphens
+                    const isValid = value.split('').every(char => 
+                      /[a-zA-Z0-9\-]/.test(char)
+                    );
+                    if (isValid) {
+                      setForm(prev => ({ ...prev, workerId: value }));
+                    }
+                  }}
                   required
-                  placeholder="Enter worker ID"
+                  placeholder="Enter unique worker ID (letters, numbers, hyphens only)"
                 />
+                {form.workerId && !/^[a-zA-Z0-9\-]+$/.test(form.workerId) && (
+                  <p className="text-red-500 text-sm mt-1">Worker ID can only contain letters, numbers, and hyphens (-)</p>
+                )}
               </div>
 
               <div>
@@ -562,7 +580,7 @@ export default function WorkerList() {
                     }
                   }}
                   required
-                  placeholder="Enter NIC number"
+                  placeholder="Enter NIC number (9 digits + V or 12 digits)"
                 />
               </div>
 
@@ -573,6 +591,9 @@ export default function WorkerList() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent"
                   value={form.dateOfBirth}
                   onChange={(e) => {
+                    setForm(prev => ({ ...prev, dateOfBirth: e.target.value }));
+                  }}
+                  onBlur={(e) => {
                     const selectedDate = e.target.value;
                     if (selectedDate) {
                       const today = new Date();
@@ -588,15 +609,17 @@ export default function WorkerList() {
                         const correctedDate = new Date();
                         correctedDate.setFullYear(correctedDate.getFullYear() - 18);
                         setForm(prev => ({ ...prev, dateOfBirth: correctedDate.toISOString().split('T')[0] }));
-                      } else {
-                        setForm(prev => ({ ...prev, dateOfBirth: selectedDate }));
+                      } 
+                      // If age is more than 45, auto-correct to exactly 45 years ago
+                      else if (age > 45) {
+                        const correctedDate = new Date();
+                        correctedDate.setFullYear(correctedDate.getFullYear() - 45);
+                        setForm(prev => ({ ...prev, dateOfBirth: correctedDate.toISOString().split('T')[0] }));
                       }
-                    } else {
-                      setForm(prev => ({ ...prev, dateOfBirth: selectedDate }));
                     }
                   }}
                   max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-                  min={new Date(new Date().setFullYear(new Date().getFullYear() - 40)).toISOString().split('T')[0]}
+                  min={new Date(new Date().setFullYear(new Date().getFullYear() - 45)).toISOString().split('T')[0]}
                   required
                 />
               </div>
@@ -982,6 +1005,9 @@ export default function WorkerList() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--green-calm)] focus:border-transparent"
                   value={updateForm.dateOfBirth}
                   onChange={(e) => {
+                    setUpdateForm(prev => ({ ...prev, dateOfBirth: e.target.value }));
+                  }}
+                  onBlur={(e) => {
                     const selectedDate = e.target.value;
                     if (selectedDate) {
                       const today = new Date();
@@ -997,15 +1023,17 @@ export default function WorkerList() {
                         const correctedDate = new Date();
                         correctedDate.setFullYear(correctedDate.getFullYear() - 18);
                         setUpdateForm(prev => ({ ...prev, dateOfBirth: correctedDate.toISOString().split('T')[0] }));
-                      } else {
-                        setUpdateForm(prev => ({ ...prev, dateOfBirth: selectedDate }));
+                      } 
+                      // If age is more than 45, auto-correct to exactly 45 years ago
+                      else if (age > 45) {
+                        const correctedDate = new Date();
+                        correctedDate.setFullYear(correctedDate.getFullYear() - 45);
+                        setUpdateForm(prev => ({ ...prev, dateOfBirth: correctedDate.toISOString().split('T')[0] }));
                       }
-                    } else {
-                      setUpdateForm(prev => ({ ...prev, dateOfBirth: selectedDate }));
                     }
                   }}
                   max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-                  min={new Date(new Date().setFullYear(new Date().getFullYear() - 40)).toISOString().split('T')[0]}
+                  min={new Date(new Date().setFullYear(new Date().getFullYear() - 45)).toISOString().split('T')[0]}
                   required
                 />
               </div>
