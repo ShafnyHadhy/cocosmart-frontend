@@ -353,13 +353,13 @@ export default function ReorderDetails() {
           </Link>
 
           {/* Download Button */}
-          <button
+          {/* <button
             className="rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
             style={{ backgroundColor: "#16a34a" }}
             onClick={handleDownloadReorderPdf}
           >
             Download Report
-          </button>
+          </button> */}
         </div>
       </div>
 
