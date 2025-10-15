@@ -119,7 +119,7 @@ export default function TaskForm() {
               onChange={(e) => setTaskId(e.target.value)}
               required
               disabled={editing}
-              placeholder="Enter unique task ID"
+              placeholder="Enter task ID"
             />
           </div>
 

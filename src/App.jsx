@@ -32,7 +32,6 @@ import WorkerProfile from './pages/worker/WorkerProfile'
 import WorkerNotifications from './pages/worker/WorkerNotifications'
 import { WorkerProvider } from './contexts/WorkerContext'
 import ReportsPage from './pages/hr/ReportsPage'
-import AnalyticsDashboard from './pages/hr/AnalyticsDashboard'
 
 function App() {
   return (
@@ -60,7 +59,6 @@ function App() {
           <Route path="trash" element={<TrashList />} />
           <Route path="workers" element={<WorkerList />} />
           <Route path="reports" element={<ReportsPage />} />
-          <Route path="analytics" element={<AnalyticsDashboard />} />
           </Route>
 
           <Route path="/worker" element={<WorkerProvider><WorkerLayout /></WorkerProvider>}>

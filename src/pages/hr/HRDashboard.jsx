@@ -73,11 +73,15 @@ export default function HRDashboard() {
         avgPerformanceRating: workforceAnalytics.avgPerformanceRating || 0
       });
       
-      // Get recent workers (last 5)
-      setRecentWorkers(workers.slice(0, 5));
+      // Get recent workers (most recent 5) - sort by createdAt descending
+      setRecentWorkers(workers
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+        .slice(0, 5));
       
-      // Get recent tasks (last 5)
-      setRecentTasks(tasks.slice(0, 5));
+      // Get recent tasks (most recent 5) - sort by createdAt descending
+      setRecentTasks(tasks
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+        .slice(0, 5));
       
       // Generate real notifications based on actual data
       const realNotifications = [];
@@ -215,21 +219,22 @@ export default function HRDashboard() {
         </Link>
 
         <Link
-          to="/hr/analytics"
-          className="group bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 text-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+          to="/hr/tasks"
+          className="group bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 text-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
         >
           <div className="flex items-center">
             <div className="p-3 rounded-xl group-hover:scale-110 transition-all duration-300">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
             </div>
             <div className="ml-4">
-              <h3 className="text-lg font-semibold">Analytics</h3>
-              <p className="text-indigo-100 text-sm">Detailed insights</p>
+              <h3 className="text-lg font-semibold">View All Tasks</h3>
+              <p className="text-purple-100 text-sm">Task management</p>
             </div>
           </div>
         </Link>
+
       </div>
 
 
@@ -271,7 +276,7 @@ export default function HRDashboard() {
 
         <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
           <div className="flex items-center justify-between">
-            <div>
+    <div>
               <p className="text-sm font-medium text-gray-600 mb-1">Total Tasks</p>
               <p className="text-3xl font-bold text-purple-600">{stats.totalTasks}</p>
               <p className="text-xs text-red-600 mt-1">{stats.overdueTasks} overdue</p>
@@ -286,7 +291,7 @@ export default function HRDashboard() {
 
         <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
           <div className="flex items-center justify-between">
-            <div>
+        <div>
               <p className="text-sm font-medium text-gray-600 mb-1">Completion Rate</p>
               <p className="text-3xl font-bold text-blue-600">
                 {Math.round(stats.completionRate)}%
@@ -304,100 +309,248 @@ export default function HRDashboard() {
         </div>
       </div>
 
-      {/* Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Workers */}
+      {/* Comprehensive Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        {/* Task Status Distribution */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">Recent Workers</h3>
-            <Link to="/hr/workers" className="text-sm text-blue-600 hover:text-blue-800 font-medium">
-              View All
-            </Link>
+          <h3 className="text-lg font-semibold mb-4 text-gray-800">Task Status Distribution</h3>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
+                <span className="text-sm font-medium">Completed</span>
+              </div>
+              <div className="flex items-center">
+                <span className="text-lg font-bold text-green-600 mr-2">
+                  {analytics.taskAnalytics?.completedTasks || 0}
+                </span>
+                <div className="w-20 bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-green-500 h-2 rounded-full" 
+                    style={{ 
+                      width: `${analytics.taskAnalytics?.totalTasks > 0 
+                        ? (analytics.taskAnalytics.completedTasks / analytics.taskAnalytics.totalTasks) * 100 
+                        : 0}%` 
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="w-4 h-4 bg-yellow-500 rounded-full mr-3"></div>
+                <span className="text-sm font-medium">In Progress</span>
+              </div>
+              <div className="flex items-center">
+                <span className="text-lg font-bold text-yellow-600 mr-2">
+                  {analytics.taskAnalytics?.inProgressTasks || 0}
+                </span>
+                <div className="w-20 bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-yellow-500 h-2 rounded-full" 
+                    style={{ 
+                      width: `${analytics.taskAnalytics?.totalTasks > 0 
+                        ? (analytics.taskAnalytics.inProgressTasks / analytics.taskAnalytics.totalTasks) * 100 
+                        : 0}%` 
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="w-4 h-4 bg-gray-500 rounded-full mr-3"></div>
+                <span className="text-sm font-medium">To Do</span>
+              </div>
+              <div className="flex items-center">
+                <span className="text-lg font-bold text-gray-600 mr-2">
+                  {analytics.taskAnalytics?.todoTasks || 0}
+                </span>
+                <div className="w-20 bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-gray-500 h-2 rounded-full" 
+                    style={{ 
+                      width: `${analytics.taskAnalytics?.totalTasks > 0 
+                        ? (analytics.taskAnalytics.todoTasks / analytics.taskAnalytics.totalTasks) * 100 
+                        : 0}%` 
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="w-4 h-4 bg-orange-500 rounded-full mr-3"></div>
+                <span className="text-sm font-medium">On Hold</span>
+              </div>
+              <div className="flex items-center">
+                <span className="text-lg font-bold text-orange-600 mr-2">
+                  {analytics.taskAnalytics?.onHoldTasks || 0}
+                </span>
+                <div className="w-20 bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-orange-500 h-2 rounded-full" 
+                    style={{ 
+                      width: `${analytics.taskAnalytics?.totalTasks > 0 
+                        ? (analytics.taskAnalytics.onHoldTasks / analytics.taskAnalytics.totalTasks) * 100 
+                        : 0}%` 
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="space-y-3">
-            {recentWorkers.length > 0 ? (
-              recentWorkers.map((worker) => (
-                <div key={worker.workerId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                      {worker.name?.charAt(0) || worker.workerId?.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{worker.name}</p>
-                      <p className="text-sm text-gray-500">{worker.jobRole || 'No role'}</p>
-                    </div>
-                  </div>
-                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                    worker.isAvailable 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {worker.isAvailable ? 'Available' : 'Busy'}
-                  </span>
         </div>
-              ))
-            ) : (
-              <p className="text-gray-500 text-center py-4">No workers registered yet</p>
-            )}
+
+        {/* Priority Distribution */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+          <h3 className="text-lg font-semibold mb-4 text-gray-800">Priority Distribution</h3>
+          <div className="space-y-3">
+            {analytics.taskAnalytics?.priorityStats && Object.entries(analytics.taskAnalytics.priorityStats).map(([priority, count]) => (
+              <div key={priority} className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className={`w-3 h-3 rounded-full mr-3 ${
+                    priority === 'Critical' ? 'bg-red-500' :
+                    priority === 'High' ? 'bg-orange-500' :
+                    priority === 'Medium' ? 'bg-yellow-500' :
+                    'bg-green-500'
+                  }`}></div>
+                  <span className="text-sm font-medium">{priority}</span>
+                </div>
+                <span className="text-sm font-bold">{count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Workforce Analytics */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+          <h3 className="text-lg font-semibold mb-4 text-gray-800">Workforce Analytics</h3>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
+                <span className="text-sm font-medium">Available Workers</span>
+              </div>
+              <span className="text-lg font-bold text-green-600">
+                {analytics.workforceAnalytics?.availableWorkers || 0}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="w-4 h-4 bg-red-500 rounded-full mr-3"></div>
+                <span className="text-sm font-medium">Busy Workers</span>
+              </div>
+              <span className="text-lg font-bold text-red-600">
+                {analytics.workforceAnalytics?.busyWorkers || 0}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="w-4 h-4 bg-blue-500 rounded-full mr-3"></div>
+                <span className="text-sm font-medium">Recent Registrations</span>
+              </div>
+              <span className="text-lg font-bold text-blue-600">
+                {analytics.workforceAnalytics?.recentRegistrations || 0}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="w-4 h-4 bg-purple-500 rounded-full mr-3"></div>
+                <span className="text-sm font-medium">Utilization Rate</span>
+              </div>
+              <span className="text-lg font-bold text-purple-600">
+                {analytics.workforceAnalytics?.utilizationRate?.toFixed(1) || 0}%
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
-        {/* Recent Tasks */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">Recent Tasks</h3>
-            <Link to="/hr/tasks" className="text-sm text-blue-600 hover:text-blue-800 font-medium">
-              View All
-            </Link>
-        </div>
-          <div className="space-y-3">
-            {recentTasks.length > 0 ? (
-              recentTasks.map((task) => (
-                <div key={task.taskId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">{task.title}</p>
-                    <p className="text-sm text-gray-500">{task.taskId}</p>
-        </div>
-                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                    task.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                    task.status === 'In Progress' ? 'bg-blue-100 text-blue-800' :
-                    task.status === 'To Do' ? 'bg-gray-100 text-gray-800' :
-                    'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {task.status}
-                  </span>
-        </div>
-              ))
-            ) : (
-              <p className="text-gray-500 text-center py-4">No tasks created yet</p>
-            )}
-        </div>
-      </div>
-      </div>
-
-      {/* Notifications */}
-      {notifications.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Notifications</h3>
-          <div className="space-y-3">
-            {notifications.map((notification) => (
-              <div key={notification.id} className={`flex items-center gap-3 p-3 rounded-lg ${
-                notification.type === 'warning' ? 'bg-yellow-50 border border-yellow-200' :
-                notification.type === 'success' ? 'bg-green-50 border border-green-200' :
-                'bg-blue-50 border border-blue-200'
-              }`}>
-                <div className={`w-2 h-2 rounded-full ${
-                  notification.type === 'warning' ? 'bg-yellow-500' :
-                  notification.type === 'success' ? 'bg-green-500' :
-                  'bg-blue-500'
-                }`}></div>
-                <p className="text-sm text-gray-700">{notification.message}</p>
-                <span className="text-xs text-gray-500 ml-auto">{notification.time}</span>
+      {/* Compact Category Distribution */}
+      {analytics.taskAnalytics?.categoryStats && Object.keys(analytics.taskAnalytics.categoryStats).length > 0 && (
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 mb-8">
+          <h3 className="text-lg font-semibold mb-3 text-gray-800">Task Categories</h3>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(analytics.taskAnalytics.categoryStats).map(([category, count]) => (
+              <div key={category} className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
+                <span className="text-sm font-bold text-gray-900">{count}</span>
+                <span className="text-xs text-gray-600">{category}</span>
               </div>
             ))}
           </div>
         </div>
       )}
+
+      {/* Compact Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Workers - Compact */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold text-gray-800">Recent Workers</h3>
+            <Link to="/hr/workers" className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+              View All
+            </Link>
+        </div>
+          <div className="space-y-2">
+            {recentWorkers.slice(0, 3).map((worker) => (
+              <div key={worker.workerId} className="flex items-center justify-between py-2">
+        <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                    {worker.name?.charAt(0) || worker.workerId?.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{worker.name}</p>
+                    <p className="text-xs text-gray-500">{worker.jobRole || 'No role'}</p>
+                  </div>
+                </div>
+                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                  worker.isAvailable 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-red-100 text-red-800'
+                }`}>
+                  {worker.isAvailable ? 'Available' : 'Busy'}
+                </span>
+              </div>
+            ))}
+            {recentWorkers.length === 0 && (
+              <p className="text-gray-500 text-center py-2 text-sm">No workers registered yet</p>
+            )}
+        </div>
+      </div>
+
+        {/* Recent Tasks - Compact */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold text-gray-800">Recent Tasks</h3>
+            <Link to="/hr/tasks" className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+              View All
+            </Link>
+        </div>
+          <div className="space-y-2">
+            {recentTasks.slice(0, 3).map((task) => (
+              <div key={task.taskId} className="flex items-center justify-between py-2">
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{task.title}</p>
+                  <p className="text-xs text-gray-500">{task.taskId}</p>
+        </div>
+                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                  task.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                  task.status === 'In Progress' ? 'bg-blue-100 text-blue-800' :
+                  task.status === 'To Do' ? 'bg-gray-100 text-gray-800' :
+                  'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {task.status}
+                </span>
+        </div>
+            ))}
+            {recentTasks.length === 0 && (
+              <p className="text-gray-500 text-center py-2 text-sm">No tasks created yet</p>
+            )}
+        </div>
+      </div>
+      </div>
+
     </div>
   );
 }

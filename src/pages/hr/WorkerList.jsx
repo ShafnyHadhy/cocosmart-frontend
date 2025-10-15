@@ -524,7 +524,7 @@ export default function WorkerList() {
                   value={form.workerId}
                   onChange={(e) => setForm(prev => ({ ...prev, workerId: e.target.value }))}
                   required
-                  placeholder="Enter unique worker ID"
+                  placeholder="Enter worker ID"
                 />
               </div>
 
@@ -562,7 +562,7 @@ export default function WorkerList() {
                     }
                   }}
                   required
-                  placeholder="Enter NIC number (9 digits + V or 12 digits)"
+                  placeholder="Enter NIC number"
                 />
               </div>
 
