@@ -636,7 +636,7 @@ export default function DeliveryPage() {
                         />
                         {d.deliveryStatus !== "completed" && (
                           <IoCheckmarkDoneSharp
-                            className="text-green-500 text-2xl cursor-pointer transition-transform duration-200 hover:text-green-700 transition-colors hover:scale-125"
+                            className="text-green-500 text-2xl cursor-pointer duration-200 hover:text-green-700 transition-colors hover:scale-125"
                             title="Mark Delivered"
                             onClick={() => handleMarkDelivery(d._id)}
                           />
