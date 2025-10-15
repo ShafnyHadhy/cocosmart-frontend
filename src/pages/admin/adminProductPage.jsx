@@ -189,8 +189,8 @@ export default function AdminProductPage() {
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
-      product.productID.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.name.toLowerCase().includes(searchTerm.toLowerCase());
+      // product.productID.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.name.toLowerCase().startsWith(searchTerm.toLowerCase());
 
     const matchesCategory = categoryFilter ? product.category === categoryFilter : true;
 

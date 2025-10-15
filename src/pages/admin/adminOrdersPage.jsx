@@ -43,9 +43,9 @@ export default function AdminOrdersPage() {
   // Filter logic
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
-      order.orderID.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.email.toLowerCase().includes(searchTerm.toLowerCase());
+      order.orderID.toLowerCase().startsWith(searchTerm.toLowerCase()) ||
+      order.customerName.toLowerCase().startsWith(searchTerm.toLowerCase()) ||
+      order.email.toLowerCase().startsWith(searchTerm.toLowerCase());
 
     const orderDate = new Date(order.date);
     const afterStart = startDate ? orderDate >= new Date(startDate) : true;
@@ -159,57 +159,68 @@ export default function AdminOrdersPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredOrders.map((item, index) => (
-                  <tr
-                    key={item.orderID}
-                    className={`transition-colors hover:bg-gray-100 ${
-                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                    }`}
-                  >
-                    <td className="py-3 px-4 font-medium text-gray-800">{item.orderID}</td>
-                    <td className="py-3 px-4 text-center">{item.items.length}</td>
-                    <td className="py-3 px-4 text-gray-700">{item.customerName}</td>
-                    <td className="py-3 px-4 text-gray-700">{item.email}</td>
-                    <td className="py-3 px-4 text-right font-semibold text-gray-800">
-                      Rs.{" "}
-                      {item.total.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          item.status === "Completed"
-                            ? "bg-green-100 text-green-700"
-                            : item.status === "Pending"
-                            ? "bg-yellow-100 text-yellow-700"
-                            : item.status === "Cancelled"
-                            ? "bg-red-100 text-red-700"
-                            : item.status === "shipped"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 text-gray-700"
-                        }`}
-                      >
-                        {item.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-center text-gray-600">
-                      {new Date(item.date).toLocaleDateString()}
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      <MdOutlineOpenInFull
-                        size={18}
-                        className="mx-auto text-gray-600 hover:text-accent cursor-pointer transition-transform hover:scale-110"
-                        onClick={() => {
-                          setSelectedOrder(item);
-                          setIsModelOpen(true);
-                        }}
-                        title="View Order Details"
-                      />
+                {filteredOrders.length > 0 ? (
+                  filteredOrders.map((item, index) => (
+                    <tr
+                      key={item.orderID}
+                      className={`transition-colors hover:bg-gray-100 ${
+                        index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                      }`}
+                    >
+                      <td className="py-3 px-4 font-medium text-gray-800">{item.orderID}</td>
+                      <td className="py-3 px-4 text-center">{item.items.length}</td>
+                      <td className="py-3 px-4 text-gray-700">{item.customerName}</td>
+                      <td className="py-3 px-4 text-gray-700">{item.email}</td>
+                      <td className="py-3 px-4 text-right font-semibold text-gray-800">
+                        Rs.{" "}
+                        {item.total.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            item.status === "Completed"
+                              ? "bg-green-100 text-green-700"
+                              : item.status === "Pending"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : item.status === "Cancelled"
+                              ? "bg-red-100 text-red-700"
+                              : item.status === "shipped"
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-center text-gray-600">
+                        {new Date(item.date).toLocaleDateString()}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <MdOutlineOpenInFull
+                          size={18}
+                          className="mx-auto text-gray-600 hover:text-accent cursor-pointer transition-transform hover:scale-110"
+                          onClick={() => {
+                            setSelectedOrder(item);
+                            setIsModelOpen(true);
+                          }}
+                          title="View Order Details"
+                        />
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="8"
+                      className="text-center py-6 text-gray-500 font-medium"
+                    >
+                      🚫 No orders available for the selected filters.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

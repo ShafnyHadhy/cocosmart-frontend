@@ -318,36 +318,44 @@ export default function CheckoutPage() {
 
                 {/* Mock Payment Modal */}
                 {showPaymentModal && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-black/50 bg-opacity-50 z-50">
-                        <div className="bg-white rounded-lg shadow-lg p-6 w-96 relative">
-                            <h2 className="text-xl font-bold mb-4 text-center">Card Payment</h2>
-                            <p className="text-sm text-gray-500 mb-4 text-center">Use fake card details to simulate payment</p>
+                    <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50">
+                        <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 w-96 relative border border-gray-100">
+                            {/* Header */}
+                            <h2 className="text-2xl font-semibold mb-2 text-center text-gray-800">Secure Card Payment</h2>
+                            <p className="text-sm text-gray-500 mb-6 text-center">
+                            Enter fake card details to simulate a transaction
+                            </p>
 
-                            <div className="space-y-3">
-                                {/* Card Number */}
-                                <div>
-                                    <input
-                                        type="text"
-                                        placeholder="Card Number (16 digits)"
-                                        maxLength={16}
-                                        value={cardNumber}
-                                        onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, ""))}
-                                        className="w-full border rounded-md p-2 text-sm focus:ring-accent focus:border-accent"
-                                    />
-                                    {errors.cardNumber && (
-                                        <p className="text-xs text-red-500 mt-1">{errors.cardNumber}</p>
-                                    )}
+                            {/* Card Fields */}
+                            <div className="space-y-4">
+                            {/* Card Number */}
+                            <div>
+                                <label className="text-xs font-medium text-gray-600">Card Number</label>
+                                <div className="flex items-center border rounded-lg shadow-sm px-3 py-2 bg-white focus-within:ring-1 focus-within:ring-accent transition">
+                                <input
+                                    type="text"
+                                    placeholder="XXXX XXXX XXXX XXXX"
+                                    maxLength={16}
+                                    value={cardNumber}
+                                    onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, ""))}
+                                    className="w-full text-sm bg-transparent outline-none"
+                                />
                                 </div>
+                                {errors.cardNumber && (
+                                <p className="text-xs text-red-500 mt-1">{errors.cardNumber}</p>
+                                )}
+                            </div>
 
-                                {/* Expiry & CVV */}
-                                <div className="flex gap-3">
-                                {/* Expiry Dropdowns */}
-                                <div className="w-1/2 flex space-x-2">
-                                    {/* Month Select */}
+                            {/* Expiry & CVV */}
+                            <div className="flex gap-4">
+                                {/* Expiry */}
+                                <div className="flex-1">
+                                <label className="text-xs font-medium text-gray-600">Expiry</label>
+                                <div className="flex gap-2">
                                     <select
                                     value={expiryMonth}
                                     onChange={(e) => setExpiryMonth(e.target.value)}
-                                    className="w-1/2 border rounded-md p-2 text-sm focus:ring-accent focus:border-accent"
+                                    className="w-1/2 border rounded-lg shadow-sm p-2 text-sm bg-white focus:ring-accent focus:border-accent transition"
                                     >
                                     <option value="">MM</option>
                                     {[...Array(12)].map((_, i) => (
@@ -357,11 +365,10 @@ export default function CheckoutPage() {
                                     ))}
                                     </select>
 
-                                    {/* Year Select */}
                                     <select
                                     value={expiryYear}
                                     onChange={(e) => setExpiryYear(e.target.value)}
-                                    className="w-1/2 border rounded-md p-2 text-sm focus:ring-accent focus:border-accent"
+                                    className="w-1/2 border rounded-lg shadow-sm p-2 text-sm bg-white focus:ring-accent focus:border-accent transition"
                                     >
                                     <option value="">YY</option>
                                     {[...Array(12)].map((_, i) => {
@@ -374,70 +381,75 @@ export default function CheckoutPage() {
                                     })}
                                     </select>
                                 </div>
+                                {errors.expiry && (
+                                    <p className="text-xs text-red-500 mt-1">{errors.expiry}</p>
+                                )}
+                                </div>
 
-                                {/* CVV Field */}
-                                <div className="w-1/2">
-                                    <input
+                                {/* CVV */}
+                                <div className="flex-1">
+                                <label className="text-xs font-medium text-gray-600">CVV</label>
+                                <input
                                     type="text"
                                     placeholder="CVV"
                                     maxLength={3}
                                     value={cvv}
                                     onChange={(e) => setCvv(e.target.value.replace(/\D/g, ""))}
-                                    className="w-full border rounded-md p-2 text-sm focus:ring-accent focus:border-accent"
-                                    />
-                                    {errors.cvv && (
+                                    className="w-full border rounded-lg shadow-sm p-2 text-sm bg-white focus:ring-accent focus:border-accent transition"
+                                />
+                                {errors.cvv && (
                                     <p className="text-xs text-red-500 mt-1">{errors.cvv}</p>
-                                    )}
-                                </div>
-                                </div>
-
-                                {/* Expiry Validation */}
-                                {errors.expiry && (
-                                <p className="text-xs text-red-500 mt-1">{errors.expiry}</p>
                                 )}
+                                </div>
+                            </div>
                             </div>
 
-                            <div className="flex justify-between mt-6">
-                                <button
-                                    onClick={() => setShowPaymentModal(false)}
-                                    className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-700"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        const newErrors = {};
-                                        if (!/^\d{16}$/.test(cardNumber)) newErrors.cardNumber = "Card number must be 16 digits";
-                                        if (!expiryMonth || !expiryYear) {
-                                            newErrors.expiry = "Expiry month and year are required";
-                                            } else {
-                                            const currentYear = new Date().getFullYear() % 100;
-                                            const currentMonth = new Date().getMonth() + 1;
-                                            const expMonth = parseInt(expiryMonth);
-                                            const expYear = parseInt(expiryYear);
-                                            if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
-                                                newErrors.expiry = "Card has expired";
-                                            }
-                                            }
-                                        if (!/^\d{3}$/.test(cvv)) newErrors.cvv = "CVV must be 3 digits";
-                                        setErrors(newErrors);
-                                        if (Object.keys(newErrors).length > 0) return;
+                            {/* Action Buttons */}
+                            <div className="flex justify-between mt-8">
+                            <button
+                                onClick={() => setShowPaymentModal(false)}
+                                className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                const newErrors = {};
+                                if (!/^\d{16}$/.test(cardNumber))
+                                    newErrors.cardNumber = "Card number must be 16 digits";
+                                if (!expiryMonth || !expiryYear) {
+                                    newErrors.expiry = "Expiry month and year are required";
+                                } else {
+                                    const currentYear = new Date().getFullYear() % 100;
+                                    const currentMonth = new Date().getMonth() + 1;
+                                    const expMonth = parseInt(expiryMonth);
+                                    const expYear = parseInt(expiryYear);
+                                    if (
+                                    expYear < currentYear ||
+                                    (expYear === currentYear && expMonth < currentMonth)
+                                    ) {
+                                    newErrors.expiry = "Card has expired";
+                                    }
+                                }
+                                if (!/^\d{3}$/.test(cvv)) newErrors.cvv = "CVV must be 3 digits";
+                                setErrors(newErrors);
+                                if (Object.keys(newErrors).length > 0) return;
 
-                                        setIsPaying(true);
-                                        toast.loading("Processing payment...");
-                                        setTimeout(() => {
-                                            toast.dismiss();
-                                            toast.success("Payment successful!");
-                                            setShowPaymentModal(false);
-                                            setIsPaying(false);
-                                            purchaseCart(new Event("submit"));
-                                        }, 2000);
-                                    }}
-                                    disabled={isPaying}
-                                    className="px-4 py-2 rounded-md bg-accent text-white hover:bg-opacity-90"
-                                >
-                                    {isPaying ? "Processing..." : "Pay Now"}
-                                </button>
+                                setIsPaying(true);
+                                toast.loading("Processing payment...");
+                                setTimeout(() => {
+                                    toast.dismiss();
+                                    toast.success("Payment successful!");
+                                    setShowPaymentModal(false);
+                                    setIsPaying(false);
+                                    purchaseCart(new Event("submit"));
+                                }, 2000);
+                                }}
+                                disabled={isPaying}
+                                className="px-5 py-2.5 rounded-lg bg-gradient-to-r from-accent to-blue-500 text-white font-semibold hover:opacity-90 shadow-md transition"
+                            >
+                                {isPaying ? "Processing..." : "Pay Now"}
+                            </button>
                             </div>
                         </div>
                     </div>

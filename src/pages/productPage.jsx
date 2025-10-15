@@ -69,7 +69,7 @@ export default function ProductPage() {
 
     if (searchTerm.trim() !== "") {
       filtered = filtered.filter((p) =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+        p.name.toLowerCase().startsWith(searchTerm.toLowerCase())
       );
     }
 
@@ -85,7 +85,7 @@ export default function ProductPage() {
   }, [searchTerm, selectedCategory, products, trendingProducts, userInteracted]);
 
   // Categories including Trending
-  const categories = ["All", "Trending", "Oil", "Powder", "Liquid", "Snacks"];
+  const categories = ["All", "Trending", "Oil", "Powder", "Liquid", "Raw"];
 
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-primary">

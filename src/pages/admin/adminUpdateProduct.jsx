@@ -223,6 +223,7 @@ export default function AdminUpdateProduct() {
                 <option value="Oil">Oil</option>
                 <option value="Powder">Powder</option>
                 <option value="Raw">Raw</option>
+                <option value="Liquid">Liquid</option>
               </select>
             </div>
 
