@@ -85,7 +85,7 @@ export default function AdminPage() {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-medium-gray text-sm text-center">
+        <div className="p-4 border-t border-medium-gray text-xs text-center">
           ©2025CocoSmart
         </div>
       </aside>

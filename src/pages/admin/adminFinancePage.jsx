@@ -64,13 +64,13 @@ function FinanceDeleteConfirmation({ financeID, close, refresh }) {
   );
 }
 
-  export default function AdminFinancePage() {
-    const [finances, setFinances] = useState([]);
-    const [isDeleteConfirmVisible, setIsDeleteConfirmVisible] = useState(false);
-    const [financeToBeDeleted, setFinanceToBeDeleted] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
+export default function AdminFinancePage() {
+  const [finances, setFinances] = useState([]);
+  const [isDeleteConfirmVisible, setIsDeleteConfirmVisible] = useState(false);
+  const [financeToBeDeleted, setFinanceToBeDeleted] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
     
 
@@ -263,9 +263,16 @@ function generatePDF(finances, startDate, endDate) {
     return matchesType && matchesMonth;
   });
 
-  return (
+  // Calculate summary totals
+  const totalIncome = filteredFinances
+    .filter((f) => f.type === "income")
+    .reduce((sum, f) => sum + f.amount, 0);
+  const totalExpense = filteredFinances
+    .filter((f) => f.type === "expense")
+    .reduce((sum, f) => sum + f.amount, 0);
+
+    return (
     <div className="h-full w-full p-6">
-      {/* Delete Modal */}
       {isDeleteConfirmVisible && (
         <FinanceDeleteConfirmation
           refresh={() => setIsLoading(true)}
@@ -274,75 +281,128 @@ function generatePDF(finances, startDate, endDate) {
         />
       )}
 
-      {/* Header with Add Button */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-        <h1 className="text-2xl font-bold text-gray-800">Finances</h1>
-        <div className="flex items-center gap-4">
-          <label className="text-sm font-medium text-gray-700">Add Income</label>
-          <Link
-            to="/admin/add-finance"
-            className="w-10 h-10 flex justify-center items-center bg-accent text-white text-3xl rounded-full drop-shadow-md hover:scale-110 transition-transform"
-            title="Add Finance"
+      {/* --- Header --- */}
+      <div className="bg-white border border-secondary/20 shadow-sm rounded-xl p-4 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Finance Management</h1>
+          <p className="text-sm text-gray-500">
+            Manage, filter, and generate finance reports
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/admin/add-finance")}
+            className="flex items-center gap-2 bg-accent text-white px-4 py-2 rounded-lg text-sm hover:bg-accent/90 transition"
           >
-            <CiCirclePlus />
-          </Link>
-        </div>
-      </div>
+            <CiCirclePlus className="text-xl" /> Add Finance
+          </button>
 
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-        <div className="flex flex-col md:flex-row md:justify-between items-center gap-3">
-        <div className="flex gap-3">
-          <label className="self-center text-sm font-medium text-gray-700">From:</label>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            max={new Date().toISOString().split("T")[0]}
-            className="p-2 border rounded-lg border-gray-300 text-sm"
-          />
-          <label className="self-center text-sm font-medium text-gray-700">To:</label>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            min={startDate}
-            max={new Date().toISOString().split("T")[0]}
-            className="p-2 border rounded-lg border-gray-300 text-sm"
-          />
-          <Link className="p-2 border rounded-lg border-gray-300 text-md hover:bg-gray-100 transition" title="Download Finance Report">
-            <MdDownload size={20} onClick={() => generatePDF(finances, startDate, endDate)}/>
-          </Link>
-        </div>
-      </div>
-        <div className="flex flex-col md:flex-row md:justify-end gap-3 items-center">
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="p-2 border rounded-lg border-gray-300 text-sm focus:ring-1 focus:ring-accent focus:outline-none"
+          <button
+            onClick={() => generatePDF(finances, startDate, endDate)}
+            className="flex items-center gap-2 border border-accent text-accent px-4 py-2 rounded-lg text-sm hover:bg-accent/90 hover:text-white transition"
           >
-            <option value="">All Types</option>
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-          </select>
-
-          <input
-            type="month"
-            value={monthFilter}
-            onChange={(e) => setMonthFilter(e.target.value)}
-            max={new Date().toISOString().slice(0, 7)}
-            className="p-2 border rounded-lg border-gray-300 text-sm focus:ring-1 focus:ring-accent focus:outline-none"
-          />
-          <Link className="p-2 border rounded-lg border-gray-300 text-md hover:bg-gray-100 transition"  title="Clear Filter">
-            <RiFilterOffFill size={18} onClick={() => {
-              setTypeFilter("");
-              setMonthFilter("");
-            }}/>
-          </Link>
+            <MdDownload className="text-lg" /> Export PDF
+          </button>
         </div>
       </div>
 
-      {/* Table */}
+      {/* --- Summary Cards --- */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-green-50 p-4 rounded-xl border border-green-300">
+          <h3 className="text-sm font-medium text-gray-700">Total Income</h3>
+          <p className="text-2xl font-bold text-green-600">
+            Rs. {totalIncome.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+          </p>
+        </div>
+        <div className="bg-red-50 p-4 rounded-xl border border-red-300">
+          <h3 className="text-sm font-medium text-gray-700">Total Expense</h3>
+          <p className="text-2xl font-bold text-red-600">
+            Rs. {totalExpense.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+          </p>
+        </div>
+        <div className="bg-blue-50 p-4 rounded-xl border border-blue-300">
+          <h3 className="text-sm font-medium text-gray-700">Net Balance</h3>
+          <p className="text-2xl font-bold text-blue-600">
+            Rs. {(totalIncome - totalExpense).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+          </p>
+        </div>
+      </div>
+
+      {/* --- Collapsible Filters --- */}
+      <details className="bg-white shadow-sm rounded-xl border border-gray-100 mb-6">
+        <summary className="cursor-pointer py-3 px-4 font-semibold text-accent">
+          🔍 Filter Options
+        </summary>
+
+        <div className="px-4 pb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          {/* Date Range */}
+          <div className="flex flex-wrap gap-3 items-center">
+            <label className="text-sm text-gray-700">From:</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              max={new Date().toISOString().split("T")[0]}
+              className="p-2 border rounded-lg border-gray-300 text-sm"
+            />
+
+            <label className="text-sm text-gray-700">To:</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              min={startDate}
+              max={new Date().toISOString().split("T")[0]}
+              className="p-2 border rounded-lg border-gray-300 text-sm"
+            />
+          </div>
+
+          {/* Type and Month Filters */}
+          <div className="flex flex-wrap gap-3 items-center">
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="p-2 border rounded-lg border-gray-300 text-sm focus:ring-1 focus:ring-accent"
+            >
+              <option value="">All Types</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+
+            <input
+              type="month"
+              value={monthFilter}
+              onChange={(e) => setMonthFilter(e.target.value)}
+              max={new Date().toISOString().slice(0, 7)}
+              className="p-2 border rounded-lg border-gray-300 text-sm focus:ring-1 focus:ring-accent"
+            />
+
+            <button
+              onClick={() => {
+                setTypeFilter("");
+                setMonthFilter("");
+                setStartDate("");
+                setEndDate("");
+              }}
+              className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 text-sm"
+            >
+              <RiFilterOffFill /> Clear
+            </button>
+          </div>
+        </div>
+      </details>
+
+      {/* --- Table --- */}
       <div className="w-full h-full">
         {isLoading ? (
           <Loader />
@@ -351,13 +411,13 @@ function generatePDF(finances, startDate, endDate) {
             <table className="w-full border-collapse text-sm">
               <thead className="bg-accent text-white">
                 <tr>
-                  <th className="py-3 px-4 text-left rounded-tl-lg">Finance ID</th>
-                  <th className="py-3 px-4 text-left">Type</th>
-                  <th className="py-3 px-4 text-left">Source</th>
-                  <th className="py-3 px-4 text-left">Amount</th>
-                  <th className="py-3 px-4 text-left">Date</th>
-                  <th className="py-3 px-4 text-left">Linked Expense</th>
-                  <th className="py-3 px-4 text-center rounded-tr-lg">Actions</th>
+                  <th className="py-3 px-4 text-left rounded-tl-lg">FINANCE ID</th>
+                  <th className="py-3 px-4 text-left">TYPE</th>
+                  <th className="py-3 px-4 text-left">SOURCE</th>
+                  <th className="py-3 px-4 text-left">AMOUNT</th>
+                  <th className="py-3 px-4 text-left">DATE</th>
+                  {/* <th className="py-3 px-4 text-left">LINKED EXPENSE</th> */}
+                  <th className="py-3 px-4 text-center rounded-tr-lg">ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
@@ -368,7 +428,16 @@ function generatePDF(finances, startDate, endDate) {
                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
                     }`}
                   >
-                    <td className="py-3 px-4 font-medium text-gray-700">{item.financeID}</td>
+                    <td className="py-3 px-4 font-medium text-gray-700">
+                      <div className="flex flex-col">
+                        <span className="font-bold">{item.financeID}</span>
+                        {item.expenseID && (
+                          <span className="text-xs text-gray-500 mt-0.5">
+                            {item.expenseID}
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td
                       className={`py-3 px-4 font-semibold ${
                         item.type === "income" ? "text-green-600" : "text-red-600"
@@ -378,10 +447,16 @@ function generatePDF(finances, startDate, endDate) {
                     </td>
                     <td className="py-3 px-4 text-gray-800">{item.source}</td>
                     <td className="py-3 px-4 font-bold text-gray-700">
-                      Rs. {item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      Rs.{" "}
+                      {item.amount.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </td>
-                    <td className="py-3 px-4 text-gray-500">{new Date(item.date).toLocaleDateString()}</td>
-                    <td className="py-3 px-4 text-gray-500">{item.expenseID || "-"}</td>
+                    <td className="py-3 px-4 text-gray-500">
+                      {new Date(item.date).toLocaleDateString()}
+                    </td>
+                    {/* <td className="py-3 px-4 text-gray-500">{item.expenseID || "-"}</td> */}
                     <td className="py-3 px-4">
                       <div className="flex justify-center gap-3">
                         <button

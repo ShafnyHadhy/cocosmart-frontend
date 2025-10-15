@@ -77,7 +77,7 @@ export default function SubmitFeedback() {
 
   return (
     <div
-      className="flex items-center justify-center h-[85vh] relative overflow-hidden pt-4"
+      className="flex items-center justify-center h-[100vh] relative overflow-hidden pt-4"
       style={{
         backgroundImage: `url('/o2.jpg')`,
         backgroundSize: "cover",

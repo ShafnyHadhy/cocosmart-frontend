@@ -259,6 +259,7 @@ export default function AdminAddNewProduct() {
                 <option value="Oil">Oil</option>
                 <option value="Powder">Powder</option>
                 <option value="Raw">Raw</option>
+                <option value="Liquid">Liquid</option>
               </select>
               {errors.category && (
                 <p className="text-red-500 text-xs mt-1">{errors.category}</p>

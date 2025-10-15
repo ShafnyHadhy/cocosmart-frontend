@@ -5,6 +5,12 @@ import { Link } from "react-router-dom";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import Swal from "sweetalert2";
 import UpdateCocoProductModal from "./UpdateCocoProductModal.jsx";
+import { MdQrCode2 } from "react-icons/md";
+import QrCodeModal from "../../components/Nav/QrCodeModal.jsx";
+
+
+import { useMemo } from "react";
+
 
 // ===== Shared helpers & constants =====
 // Works in both Vite (import.meta.env.VITE_API_BASE) and CRA (process.env.REACT_APP_API_BASE)
@@ -13,7 +19,7 @@ const API_BASE =
   (typeof process !== 'undefined' && process.env && process.env.VITE_API_URL) ||
   "http://localhost:5000";
 const LIST_URL = `${API_BASE}/api/cocoProducts`;
-const LOW_STOCK_THRESHOLD = 10000; // match backend
+const LOW_STOCK_THRESHOLD = 150; // match backend
 const EXPIRY_SOON_DAYS = 30;
 
 const fmt2 = (n) => {
@@ -74,7 +80,8 @@ async function handleDownloadPdf() {
 }
 
 // ===== Row component (inlined) =====
-function DisplayCocoProduct({ cocoProduct, onDelete, onEdit }) {
+function DisplayCocoProduct({ cocoProduct, onDelete, onEdit, onShowQr }) {
+
   const {
     _id,
     pro_id,
@@ -102,7 +109,7 @@ function DisplayCocoProduct({ cocoProduct, onDelete, onEdit }) {
     "text-sm hover:bg-green-50/30 transition-colors",
     isExpired ? "border-l-4 border-l-red-500" : "",
     !isExpired && isExpiringSoon ? "border-l-4 border-l-amber-500" : "",
-    isLowStock ? "bg-red-50/60 text-red-900" : "",
+    isLowStock ? "bg-red-50/100 text-red-900" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -190,6 +197,16 @@ function DisplayCocoProduct({ cocoProduct, onDelete, onEdit }) {
             <FiTrash2 size={16} aria-hidden="true" />
             <span className="sr-only">Delete</span>
           </button>
+          <button
+  type="button"
+  onClick={() => onShowQr?.(cocoProduct)}
+  className="p-2 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 hover:text-emerald-700 transition-all duration-200 hover:scale-110 focus:scale-110 focus:outline-none"
+  title="Show QR"
+>
+  <MdQrCode2 size={18} aria-hidden="true" />
+  <span className="sr-only">Show QR</span>
+</button>
+
         </div>
       </td>
     </tr>
@@ -205,6 +222,18 @@ export default function CocoProductDetails() {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [editOpen, setEditOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+
+const [qrOpen, setQrOpen] = useState(false);
+const [qrProId, setQrProId] = useState(null);
+
+const openQr = (item) => { setQrProId(item.pro_id); setQrOpen(true); };
+const closeQr = () => { setQrOpen(false); setQrProId(null); };
+
+const currentQrItem = useMemo(
+  () => allCocoProducts.find(p => String(p.pro_id) === String(qrProId)) || null,
+  [qrProId, allCocoProducts]
+);
+
 
   useEffect(() => {
     fetchHandler()
@@ -238,22 +267,26 @@ export default function CocoProductDetails() {
   const totalProducts = allCocoProducts.length;
   const lowStockCount = allCocoProducts.filter(isRestock).length;
 
-  const handleSearch = () => {
-    const q = searchQuery.trim().toLowerCase();
-    let list = [...allCocoProducts];
+const handleSearch = () => {
+  const q = searchQuery.trim().toLowerCase();
+  let list = [...allCocoProducts];
 
-    if (selectedFilter === "restock") list = list.filter(isRestock);
-    else if (selectedFilter === "expiring") list = list.filter(isExpiringSoonOrExpired);
+  // Apply filter dropdowns (restock / expiring)
+  if (selectedFilter === "restock") list = list.filter(isRestock);
+  else if (selectedFilter === "expiring") list = list.filter(isExpiringSoonOrExpired);
 
-    if (q) {
-      list = list.filter((item) =>
-        Object.values(item).some((field) => String(field ?? "").toLowerCase().includes(q))
-      );
-    }
+  // Prefix-based search on product name
+  if (q) {
+    list = list.filter((item) => {
+      const name = String(item.pro_name || "").toLowerCase();
+      return name.startsWith(q); // only match names that BEGIN with query
+    });
+  }
 
-    setCocoProducts(list);
-    setNoResults(list.length === 0);
-  };
+  setCocoProducts(list);
+  setNoResults(list.length === 0);
+};
+
 
   // auto-filter when typing / changing dropdown, but only after data is loaded
   useEffect(() => {
@@ -437,6 +470,7 @@ export default function CocoProductDetails() {
                       cocoProduct={cocoProduct}
                       onDelete={handleDeleteFromState}
                       onEdit={openEdit}
+                      onShowQr={openQr} 
                     />
                   ))}
                 </tbody>
@@ -453,6 +487,12 @@ export default function CocoProductDetails() {
         item={selectedItem}
         onUpdated={reloadAfterUpdate}
       />
+
+      <QrCodeModal
+  open={qrOpen}
+  onClose={closeQr}
+  product={currentQrItem}
+/>
     </div>
   );
 }

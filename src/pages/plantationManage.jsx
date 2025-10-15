@@ -8,6 +8,7 @@ import PlantationsGallery from "./Plantations/PlantationsGallery";
 import AddPlantation from "./Plantations/AddPlantation";
 import Plantation from "./Plantations/Plantation";
 import UpdatePlantation from "./Plantations/UpdatePlantation";
+import Weather from "./Plantations/Weather";
 import { GiPalmTree } from "react-icons/gi";
 import { IoMdAddCircle, IoMdNotificationsOutline } from "react-icons/io";
 import { RiDashboardFill } from "react-icons/ri";
@@ -111,13 +112,14 @@ export default function PlantationManage() {
 
 
         <main className="flex-1 bg-primary p-6 overflow-y-auto">
-          <div className="rounded-2xl shadow-md min-h-[400px] bg-light-gray">
+          <div className="rounded-2xl shadow-md min-h-[600px] bg-light-gray">
             <Routes>
               <Route path="/" element={<PlantationsGallery />} />
               <Route path="/plantations" element={<Plantations />} />
               <Route path="/addplantation" element={<AddPlantation />} />
               <Route path="/plantation" element={<Plantation />} />
               <Route path="/viewplantations/:plotID" element={<UpdatePlantation />} />
+              <Route path="/weather" element={<Weather />} />
             </Routes>
           </div>
         </main>

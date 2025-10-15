@@ -90,10 +90,10 @@ const UserPage = () => {
     const query = searchQuery.toLowerCase();
 
     const matchText =
-      fullName.includes(query) ||
-      email.includes(query) ||
-      phone.includes(query) ||
-      date.includes(query);
+      fullName.startsWith(query) ||
+      email.startsWith(query) ||
+      phone.startsWith(query) ||
+      date.startsWith(query);
 
     const matchRole = searchRole ? user.role === searchRole : true;
 

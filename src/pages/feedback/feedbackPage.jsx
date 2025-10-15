@@ -95,8 +95,8 @@ const FeedbackPage = () => {
   const filteredFeedbacks = feedbacks.filter((f) => {
     const query = searchQuery.toLowerCase();
     const matchText =
-      f.username.toLowerCase().includes(query) ||
-      f.comment.toLowerCase().includes(query) ||
+      f.username.toLowerCase().startsWith(query) ||
+      f.comment.toLowerCase().startsWith(query) ||
       (f.adminReply ? f.adminReply.toLowerCase().includes(query) : false);
 
     const matchRating = searchRating ? f.rating === Number(searchRating) : true;

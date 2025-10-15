@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Nav from '../../components/Nav/Nav';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import './AddPlantation.css';
 
 function AddPlantation() {
@@ -33,58 +34,76 @@ function AddPlantation() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === "size") {
-      if (value === "" || (/^[0-9]*$/.test(value) && value.length <= 5)) {
-        setInputs((prev) => ({ ...prev, size: value }));
-      }
-      return;
-    }
-
     if (name === "plotID") {
-      if (value === "" || /^[A-Za-z0-9]+$/.test(value)) {
+      // Allow only letters and numbers
+      if (/^[A-Za-z0-9]*$/.test(value)) {
         setInputs((prev) => ({ ...prev, plotID: value }));
         setError("");
-      } else {
-        setError("Plot ID can contain letters and numbers only.");
       }
       return;
     }
 
+    if (name === "name") {
+      // Allow only letters and spaces
+      if (/^[A-Za-z\s]*$/.test(value)) {
+        setInputs((prev) => ({ ...prev, [name]: value }));
+      }
+      return;
+    }
+
+    if (name === "size") {
+      // Allow only positive decimal numbers (digits and one dot)
+      if (/^[0-9]*\.?[0-9]*$/.test(value) && value.length <= 5) {
+        setInputs((prev) => ({ ...prev, [name]: value }));
+      }
+      return;
+    }
+
+    if (name === "noOfTrees") {
+      // Allow only numbers
+      if (/^[0-9]*$/.test(value) && value.length <= 5) {
+        setInputs((prev) => ({ ...prev, [name]: value }));
+      }
+      return;
+    }
+
+    if (name === "harvest") {
+      // Allow only numbers
+      if (/^[0-9]*$/.test(value) && value.length <= 7) {
+        setInputs((prev) => ({ ...prev, [name]: value }));
+      }
+      return;
+    }
+
+    // For other inputs like location and date
     setInputs((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleIDBlur = () => {
-    if (existingIDs.includes(inputs.plotID)) {
+    if (inputs.plotID && existingIDs.includes(inputs.plotID)) {
       setError("Plot ID already exists! Please choose a unique one.");
     }
   };
 
-  const handleHarvestChange = (e) => {
-    const value = e.target.value;
-    if (value === "" || /^[0-9]+$/.test(value)) {
-      setInputs(prev => ({ ...prev, harvest: value }));
-    }
-  };
-
   const handleBlur = (e) => {
-    const { name, value } = e.target;
-    if (name === "name") {
-      const valid = value === "" ? false : /^[A-Za-z].*/.test(value);
-      setFieldErrors((prev) => ({ ...prev, name: valid ? "" : "Name must start with a letter." }));
-      return;
-    }
+    // const { name, value } = e.target;
+    // if (name === "name") {
+    //   const valid = value === "" ? false : /^[A-Za-z].*/.test(value);
+    //   setFieldErrors((prev) => ({ ...prev, name: valid ? "" : "Name must start with a letter." }));
+    //   return;
+    // }
     if (name === "size") {
-      const valid = /^[1-9][0-9]*$/.test(value);
-      setFieldErrors((prev) => ({ ...prev, size: valid ? "" : "Size must be a positive integer." }));
+      const valid = value === "" || (parseFloat(value) > 0 && !isNaN(parseFloat(value)));
+      setFieldErrors((prev) => ({ ...prev, size: valid ? "" : "Size must be a positive number." }));
       return;
     }
     if (name === "noOfTrees") {
-      const valid = /^[1-9][0-9]*$/.test(value);
+      const valid = value === "" || /^[1-9][0-9]*$/.test(value);
       setFieldErrors((prev) => ({ ...prev, noOfTrees: valid ? "" : "No of Trees must be a positive integer." }));
       return;
     }
     if (name === "harvest") {
-      const valid = /^[1-9][0-9]*$/.test(value);
+      const valid = value === "" || /^[1-9][0-9]*$/.test(value);
       setFieldErrors((prev) => ({ ...prev, harvest: valid ? "" : "Harvest must be a positive integer." }));
       return;
     }
@@ -105,17 +124,17 @@ function AddPlantation() {
 
     try {
       await axios.post("http://localhost:5000/api/plots/", dataToSend);
-      window.alert("Plantation added successfully!");
+      toast.success("Plantation added successfully!");
       navigate("/plant/plantations");
     } catch (err) {
       console.error(err);
-      setError("Failed to add plantation. Try again.");
+      toast.error("Failed to add plantation. Please try again.");
     }
   };
 
   const today = new Date().toISOString().split("T")[0];
 
-  // ✅ Disable button if there is any error
+  //  Disable button if there is any error
   const hasErrors =
     error ||
     fieldErrors.name ||
@@ -189,7 +208,7 @@ function AddPlantation() {
         <div>
           <label className="add-plantation-page-label">No of Trees:</label>
           <input
-            type="number"
+            type="text"
             name="noOfTrees"
             onChange={handleChange}
             onBlur={handleBlur}
@@ -219,7 +238,7 @@ function AddPlantation() {
           <input
             type="text"
             name="harvest"
-            onChange={handleHarvestChange}
+            onChange={handleChange}
             onBlur={handleBlur}
             value={inputs.harvest}
             className="add-plantation-page-input"

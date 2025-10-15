@@ -108,7 +108,7 @@ function DisplayPurchasedItem({ item, onDelete, onEdit  }) {
     "text-sm hover:bg-green-50/30 transition-colors",
     isExpired ? "border-l-4 border-l-red-500" : "",
     !isExpired && isExpiringSoon ? "border-l-4 border-l-amber-500" : "",
-    isLowStock ? "bg-red-50/60 text-red-900" : "",
+    isLowStock ? "bg-red-50/100 text-red-900" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -265,26 +265,27 @@ export default function PurchasedItemDetails() {
   const lowStockCount = allItems.filter(LOW_STOCK_BY_ROL).length;
 
   const handleSearch = () => {
-    const q = searchQuery.trim().toLowerCase();
-    let list = [...allItems];
+  const q = (searchQuery || "").trim().toLowerCase();
+  let list = [...allItems];
 
-    if (selectedFilter === "restock") list = list.filter(LOW_STOCK_BY_ROL);
-    else if (selectedFilter === "expiring")
-      list = list.filter(isExpiringSoonOrExpired);
+  // Keep your dropdown filters
+  if (selectedFilter === "restock") {
+    list = list.filter(LOW_STOCK_BY_ROL);
+  } else if (selectedFilter === "expiring") {
+    list = list.filter(isExpiringSoonOrExpired);
+  }
 
-    if (q) {
-      list = list.filter((item) =>
-        Object.values(item).some((field) =>
-          String(field ?? "")
-            .toLowerCase()
-            .includes(q)
-        )
-      );
-    }
+  // Prefix-based search on the NAME column only
+  if (q) {
+    list = list.filter((it) =>
+      String(it.item_name || "").toLowerCase().startsWith(q)
+    );
+  }
 
-    setItems(list);
-    setNoResults(list.length === 0);
-  };
+  setItems(list);
+  setNoResults(list.length === 0);
+};
+
 
   return (
     <div className="min-h-screen p-6 font-sans" style={{ backgroundColor: '#f5f5f5' }}>

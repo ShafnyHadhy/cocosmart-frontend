@@ -8,7 +8,7 @@ import "./PlantationsGallery.css";
 const URL = "http://localhost:5000/api/plots/";
 
 function PlantationsGallery() {
-  const [plantations, setPlantations] = useState([]);
+  const [allPlantations, setAllPlantations] = useState([]);
   const [query, setQuery] = useState("");
   const [filtered, setFiltered] = useState([]);
 
@@ -16,33 +16,27 @@ function PlantationsGallery() {
     axios
       .get(URL)
       .then((res) => {
-        setPlantations(res.data || []);
+        setAllPlantations(res.data || []);
         setFiltered(res.data || []);
       })
       .catch((err) => console.error(err));
   }, []);
 
-  const handleSearch = () => {
+  useEffect(() => {
     if (!query.trim()) {
-      setFiltered(plantations);
+      setFiltered(allPlantations);
       return;
     }
-    const q = query.toLowerCase();
+    const lowercasedFilter = query.toLowerCase();
     setFiltered(
-      plantations.filter((p) =>
-        [
-          p.plotID,
-          p.name,
-          p.location,
-          p.size,
-          p.noOfTrees,
-          p.irrigationSchedules,
-        ]
-          .map((v) => (v ?? "").toString().toLowerCase())
-          .some((txt) => txt.includes(q))
+      allPlantations.filter(
+        (p) =>
+          p.name.toLowerCase().startsWith(lowercasedFilter) ||
+          p.location.toLowerCase().startsWith(lowercasedFilter) ||
+          p.plotID.toLowerCase().startsWith(lowercasedFilter)
       )
     );
-  };
+  }, [query, allPlantations]);
 
   return (
     <div>
@@ -58,12 +52,7 @@ function PlantationsGallery() {
     placeholder="Search plantations by name, location, or plot..."
     value={query}
     onChange={(e) => setQuery(e.target.value)}
-    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
   />
-  <button onClick={handleSearch} className="pg-search-btn">
-    <IoIosSearch className="pg-search-icon" />
-    <span>Search</span>
-  </button>
 </div>
 
       </div>

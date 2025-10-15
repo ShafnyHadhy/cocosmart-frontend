@@ -4,85 +4,66 @@ import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <footer className="flex justify-center bg-[#cacaca] text-accent">
-      <div className="flex w-full flex-1 flex-col">
-        <div className="flex flex-col gap-10 px-5 py-10">
-
-          {/* Top Section: Company Info | About+Support */}
-          <div className="flex flex-row justify-between mx-20">
-
-            {/* Company Info */}
-            <div className="flex flex-col items-center md:items-start gap-2 text-center md:text-left">
-              <img src="/clogo.png" alt="CocoSmart Logo" className="w-16 h-16" />
-              <h1 className="text-2xl font-bold text-black">CocoSmart Pvt Ltd.</h1>
-              <p className="text-sm mb-5">Smart Solutions for Coconut Plantations</p>
-              <p className="text-sm ">123 Coconut Street, Kurunegala, Sri Lanka</p>
-              <p className="text-sm ">Email: info@cocosmart.com</p>
-              <p className="flex items-center gap-2 text-sm">
-                <IoCall className="text-lg" />
-                +94 77 123 4567
+    <footer className="bg-accent text-sec-2">
+      <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col gap-10">
+        <div className="flex flex-col md:flex-row justify-between gap-10">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-3">
+              <img src="/clogo.png" alt="CocoSmart Logo" className="w-12 h-12" />
+              <h1 className="text-2xl font-bold text-white">CocoSmart Pvt Ltd.</h1>
+            </div>
+            <p className="text-tertiary text-sm">Smart Solutions for Coconut Plantations</p>
+            <div className="text-sec-2/90 text-sm space-y-1 mt-3">
+              <p>123 Coconut Street, Kurunegala, Sri Lanka</p>
+              <p>Email: info@cocosmart.com</p>
+              <p className="flex items-center gap-2">
+                <IoCall className="text-md" /> +94 77 123 4567
               </p>
             </div>
+          </div>
 
-            {/* About + Support + Feedback */}
-            <div className="flex flex-col items-center md:items-start gap-6">
-
-              {/* About & Support */}
-              <div className="flex flex-col md:flex-row gap-10">
-
-                {/* About */}
-                <div className="flex flex-col items-center md:items-start gap-2 text-center md:text-left">
-                  <h3 className="text-sm font-bold text-stone-800">About</h3>
-                  <a className="text-base" href="#">Our Story</a>
-                  <a className="text-base" href="#">Sustainability</a>
-                  <a className="text-base" href="#">Recipes</a>
-                </div>
-
-                {/* Support */}
-                <div className="flex flex-col items-center md:items-start gap-2 text-center md:text-left">
-                  <h3 className="text-sm font-bold text-stone-800">Support</h3>
-                  <a className="text-base" href="#">Contact Us</a>
-                  <a className="text-base" href="#">FAQ</a>
-                  <a className="text-base" href="#">Privacy Policy</a>
-                  <a className="text-base" href="#">Terms of Service</a>
-                </div>
-
-              </div>
-
-              {/* Feedback Button below About & Support */}
-              <div className="flex justify-center md:justify-start items-center gap-5 mt-4">
-                <label className="text-md font-bold">We value your feedback!</label>
-                <Link
-                to="/feedback"
-                className="bg-white/70 hover:bg-transparent text-secondary 
-                          border border-accent hover:border-accent 
-                          font-semibold py-3 px-6 rounded-md shadow transition-colors"
-              >
-                Give Feedback
-              </Link>
-              </div>
-
+          <div className="flex flex-wrap gap-16">
+            <div>
+              <h3 className="text-lg font-semibold mb-3 text-white">About</h3>
+              <ul className="space-y-2 text-sm">
+                <li><Link to="/about" className="hover:text-tertiary transition-colors">Our Story</Link></li>
+                <li><a href="#" className="hover:text-tertiary transition-colors">Sustainability</a></li>
+                <li><a href="#" className="hover:text-tertiary transition-colors">Recipes</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-3 text-white">Support</h3>
+              <ul className="space-y-2 text-sm">
+                <li><Link to="/contact" className="hover:text-tertiary transition-colors">Contact Us</Link></li>
+                <li><a href="#" className="hover:text-tertiary transition-colors">FAQ</a></li>
+                <li><a href="#" className="hover:text-tertiary transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-tertiary transition-colors">Terms of Service</a></li>
+              </ul>
             </div>
           </div>
 
-          {/* Social Icons & Copyright */}
-          <div className="flex flex-col items-center gap-4 mt-5">
-            <div className="flex justify-center gap-6 text-stone-800">
-              <Link to="#" className="hover:text-white transition-colors text-xl">
-                <FaLinkedin />
-              </Link>
-              <Link to="#" className="hover:text-white transition-colors text-xl">
-                <FaFacebook />
-              </Link>
-              <Link to="#" className="hover:text-white transition-colors text-xl">
-                <FaTwitter />
-              </Link>
-            </div>
-            <p className="text-center text-base">
-              © 2025 CocoSmart. All rights reserved.
-            </p>
+          <div className="flex flex-col justify-center">
+            <p className="text-base font-semibold mb-2">We value your feedback!</p>
+            <Link
+              to="/feedback"
+              className="bg-white text-accent font-semibold py-2 px-5 rounded-md 
+              border border-transparent hover:bg-transparent hover:text-white 
+              hover:border-white transition-colors duration-300 text-center"
+            >
+              Give Feedback
+            </Link>
           </div>
+        </div>
 
+        <div className="border-t border-white/30"></div>
+
+        <div className="flex flex-col md:flex-row justify-between items-center text-sm gap-4">
+          <div className="flex gap-5 text-white text-xl">
+            <Link to="#" className="hover:text-tertiary transition-colors"><FaLinkedin /></Link>
+            <Link to="#" className="hover:text-tertiary transition-colors"><FaFacebook /></Link>
+            <Link to="#" className="hover:text-tertiary transition-colors"><FaTwitter /></Link>
+          </div>
+          <p className="text-sec-2/90">© 2025 CocoSmart. All rights reserved.</p>
         </div>
       </div>
     </footer>

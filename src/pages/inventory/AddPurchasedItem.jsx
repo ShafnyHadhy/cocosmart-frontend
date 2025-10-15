@@ -250,7 +250,7 @@ export default function AddPurchasedItem() {
                   name="item_id"
                   onChange={handleChange}
                   value={inputs.item_id}
-                  placeholder="Enter unique item identifier (e.g., ITM001)"
+                  placeholder="ITM001"
                   required
                   className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
                   style={{ 
@@ -281,7 +281,7 @@ export default function AddPurchasedItem() {
                   name="item_name"
                   onChange={handleChange}
                   value={inputs.item_name}
-                  placeholder="Enter descriptive item name"
+                  placeholder="Potassium Fertilizer"
                   required
                   className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
                   style={{ 
@@ -400,7 +400,7 @@ export default function AddPurchasedItem() {
                   type="text"
                   name="unit_cost"
                   value={inputs.unit_cost}
-                  placeholder="Enter cost per unit (e.g., 1,250.00)"
+                  placeholder="150.25"
                   onChange={handleChange}
                   onFocus={(e) => {
                     const raw = String(e.target.value || "").replace(/,/g, "");
@@ -463,7 +463,7 @@ export default function AddPurchasedItem() {
                     if (v !== "" && Number(v) > 1000) v = "1000";
                     setInputs((prev) => ({ ...prev, ROL: v }));
                   }}
-                  placeholder="Minimum stock level (max 1000)"
+                  // placeholder="Minimum stock level (max 1000)"
                   required
                   className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
                   style={{ 
@@ -487,7 +487,7 @@ export default function AddPurchasedItem() {
                   className="block text-sm font-semibold mb-2"
                   style={{ color: '#2D3748' }}
                 >
-                  Initial Quantity *
+                  Quantity *
                 </label>
                 <input
                   type="text"
@@ -498,7 +498,7 @@ export default function AddPurchasedItem() {
                     if (v !== "" && Number(v) > 10000) v = "10000";
                     setInputs((prev) => ({ ...prev, quantity: v }));
                   }}
-                  placeholder="Starting inventory quantity (max 10,000)"
+                  // placeholder="Starting inventory quantity (max 10,000)"
                   required
                   className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
                   style={{ 

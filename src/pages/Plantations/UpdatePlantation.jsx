@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import './UpdatePlantation.css';
+import toast from 'react-hot-toast';
 
 function UpdatePlantation() {
   const { plotID } = useParams();
@@ -29,7 +30,7 @@ function UpdatePlantation() {
         });
       } catch (err) {
         console.error(err);
-        setError("Failed to fetch plantation data.");
+        toast.error("Failed to fetch plantation data.");
       }
     };
     if (plotID) fetchPlantation();
@@ -38,47 +39,62 @@ function UpdatePlantation() {
   // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "name") {
+      // Allow only letters and spaces
+      if (/^[A-Za-z\s]*$/.test(value)) {
+        setInputs((prev) => ({ ...prev, [name]: value }));
+      }
+      return;
+    }
+
+    if (name === "size") {
+      // Allow only positive decimal numbers (digits and one dot)
+      if (/^[0-9]*\.?[0-9]*$/.test(value) && value.length <= 5) {
+        setInputs((prev) => ({ ...prev, [name]: value }));
+      }
+      return;
+    }
+
+    if (name === "noOfTrees") {
+      // Allow only numbers
+      if (/^[0-9]*$/.test(value) && value.length <= 5) {
+        setInputs((prev) => ({ ...prev, [name]: value }));
+      }
+      return;
+    }
+
+    if (name === "harvest") {
+      // Allow only numbers
+      if (/^[0-9]*$/.test(value) && value.length <= 7) {
+        setInputs((prev) => ({ ...prev, [name]: value }));
+      }
+      return;
+    }
+
+    // For other inputs like location and date
     setInputs((prev) => ({ ...prev, [name]: value }));
-    setError("");
   };
 
   // Field-level validation on blur
   const handleBlur = (e) => {
     const { name, value } = e.target;
 
-    if (name === "name") {
-      const valid = value === "" ? false : /^[A-Za-z].*/.test(value);
-      setFieldErrors((prev) => ({
-        ...prev,
-        name: valid ? "" : "Name must start with a letter."
-      }));
-      return;
-    }
-
     if (name === "size") {
-      const valid = /^[1-9][0-9]*$/.test(value);
-      setFieldErrors((prev) => ({
-        ...prev,
-        size: valid ? "" : "Size must be a positive integer."
-      }));
+      const valid = value === "" || (parseFloat(value) > 0 && !isNaN(parseFloat(value)));
+      setFieldErrors((prev) => ({ ...prev, size: valid ? "" : "Size must be a positive number." }));
       return;
     }
 
     if (name === "noOfTrees") {
       const valid = /^[1-9][0-9]*$/.test(value);
-      setFieldErrors((prev) => ({
-        ...prev,
-        noOfTrees: valid ? "" : "No of Trees must be a positive integer."
-      }));
+      setFieldErrors((prev) => ({ ...prev, noOfTrees: valid ? "" : "No of Trees must be a positive integer." }));
       return;
     }
 
     if (name === "harvest") {
       const valid = /^[1-9][0-9]*$/.test(value);
-      setFieldErrors((prev) => ({
-        ...prev,
-        harvest: valid ? "" : "Harvest must be a positive integer."
-      }));
+      setFieldErrors((prev) => ({ ...prev, harvest: valid ? "" : "Harvest must be a positive integer." }));
       return;
     }
   };
@@ -86,25 +102,23 @@ function UpdatePlantation() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const hasErrors =
+    const hasFieldErrors =
       fieldErrors.name ||
       fieldErrors.size ||
       fieldErrors.noOfTrees ||
       fieldErrors.harvest;
 
-    if (hasErrors) {
-      setError("Please fix validation errors before submitting.");
+    if (hasFieldErrors) {
+      toast.error("Please fix validation errors before submitting.");
       return;
     }
 
     try {
       await axios.put(`http://localhost:5000/api/plots/${plotID}`, {
         ...inputs,
-        size: Number(inputs.size),
-        noOfTrees: Number(inputs.noOfTrees),
-        harvest: Number(inputs.harvest)
+        size: Number(inputs.size)
       });
-      window.alert("Plantation updated successfully!");
+      toast.success("Plantation updated successfully!");
       navigate("/plant/plantations");
     } catch (err) {
       console.error(err);
@@ -114,7 +128,7 @@ function UpdatePlantation() {
 
   const today = new Date().toISOString().split("T")[0];
 
-  const hasErrors =
+  const hasFieldErrors =
     error ||
     fieldErrors.name ||
     fieldErrors.size ||
@@ -178,7 +192,7 @@ function UpdatePlantation() {
         <div>
           <label>No of Trees:</label>
           <input
-            type="number"
+            type="text"
             name="noOfTrees"
             onChange={handleChange}
             onBlur={handleBlur}
@@ -204,7 +218,7 @@ function UpdatePlantation() {
         <div>
           <label>Monthly Harvest:</label>
           <input
-            type="number"
+            type="text"
             name="harvest"
             onChange={handleChange}
             onBlur={handleBlur}
@@ -216,7 +230,7 @@ function UpdatePlantation() {
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="btn-update" disabled={!!hasErrors}>
+          <button type="submit" className="btn-update" disabled={!!hasFieldErrors}>
             Update
           </button>
         </div>

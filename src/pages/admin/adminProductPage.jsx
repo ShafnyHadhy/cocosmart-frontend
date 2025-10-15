@@ -3,14 +3,116 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { CiCirclePlus } from "react-icons/ci";
-import { FaRegEdit } from "react-icons/fa";
+import { FaRegEdit, FaTimes } from "react-icons/fa";
 import { TfiTrash } from "react-icons/tfi";
 import { Link, useNavigate } from "react-router-dom";
 import { Loader } from "../../components/loader";
-import { FaTimes } from "react-icons/fa";
 import { RiFilterOffFill } from "react-icons/ri";
 import { BsSendPlus } from "react-icons/bs";
 
+//Request Modal Component
+function RequestProductModal({ products, close }) {
+  const [selectedProduct, setSelectedProduct] = useState("");
+  const [description, setDescription] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSendRequest = async () => {
+    if (!selectedProduct || !description.trim()) {
+      toast.error("Please select a product and enter a description.");
+      return;
+    }
+
+    const { productID: productID, name: productName } = JSON.parse(selectedProduct);
+    const token = localStorage.getItem("token");
+    setIsSubmitting(true);
+
+    try {
+      await axios.post(
+        import.meta.env.VITE_API_URL + "/api/inventory/requests",
+        {
+          productID,
+          productName,
+          description,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      toast.success("Request sent successfully!");
+      close();
+    } catch (error) {
+      console.log("loads...")
+      toast.error("Failed to send request!");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-[100] flex justify-center items-center">
+      <div className="w-[460px] bg-white rounded-2xl shadow-lg p-6 relative">
+        <button
+          onClick={close}
+          className="absolute -right-3 -top-3 w-8 h-8 bg-red-600 rounded-full text-white flex justify-center items-center hover:bg-white hover:text-red-600 border border-red-600 transition"
+        >
+          <FaTimes size={16} />
+        </button>
+        <h2 className="text-2xl font-bold mb-10 text-gray-800 text-center">
+          Request Product
+        </h2>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Select Product
+          </label>
+          <select
+            value={selectedProduct}
+            onChange={(e) => setSelectedProduct(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-1 focus:ring-accent focus:outline-none"
+          >
+            <option value="">-- Choose Product --</option>
+            {products.map((p) => (
+              <option key={p.productID} value={JSON.stringify({ productID: p.productID, name: p.name })}>
+                {p.productID} - {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-5">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Description
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Enter request details..."
+            rows={3}
+            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-1 focus:ring-accent focus:outline-none resize-none"
+          ></textarea>
+        </div>
+
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={close}
+            className="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium transition"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSendRequest}
+            disabled={isSubmitting}
+            className="px-4 py-2 rounded-md bg-accent hover:bg-secondary text-white font-medium transition disabled:opacity-70"
+          >
+            {isSubmitting ? "Sending..." : "Send Request"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+//Delete Confirmation (unchanged)
 function ProductDeleteConfirmation({ productID, close, refresh }) {
   function deleteProduct() {
     const token = localStorage.getItem("token");
@@ -60,15 +162,17 @@ function ProductDeleteConfirmation({ productID, close, refresh }) {
   );
 }
 
+//Main Page
 export default function AdminProductPage() {
   const [products, setProducts] = useState([]);
   const [isdeleteConfirmVisible, setIsdeleteconfirmVisible] = useState(false);
   const [productToBeDeleted, setProductToBeDeleted] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRequestModalVisible, setIsRequestModalVisible] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
-  const [stockFilter, setStockFilter] = useState(""); // New state for stock status
+  const [stockFilter, setStockFilter] = useState("");
 
   const navigate = useNavigate();
 
@@ -81,14 +185,12 @@ export default function AdminProductPage() {
     }
   }, [isLoading]);
 
-  // Extract unique categories
   const categories = [...new Set(products.map((p) => p.category))];
 
-  // Filter products
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
-      product.productID.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.name.toLowerCase().includes(searchTerm.toLowerCase());
+      // product.productID.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.name.toLowerCase().startsWith(searchTerm.toLowerCase());
 
     const matchesCategory = categoryFilter ? product.category === categoryFilter : true;
 
@@ -110,27 +212,48 @@ export default function AdminProductPage() {
         />
       )}
 
+      {/* 🔹 Request Modal */}
+      {isRequestModalVisible && (
+        <RequestProductModal
+          products={products}
+          close={() => setIsRequestModalVisible(false)}
+        />
+      )}
+
       {/* Header + Add Button */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
-        <h1 className="text-2xl font-bold text-gray-800">Products</h1>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4 bg-white p-4 shadow-sm rounded-xl  border border-secondary/20">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Sales Products</h1>
+          <p className="text-sm text-gray-500">
+              Manage, filter, and generate reports
+          </p>
+        </div>
         <div className="flex items-center gap-4">
           <label className="text-sm font-medium text-gray-700">Add Product</label>
           <Link
-          to="/admin/add-product"
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-accent text-white text-3xl shadow-lg hover:scale-110 transition-transform"
-        >
-          <CiCirclePlus />
-        </Link>
+            to="/admin/add-product"
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-accent text-white text-3xl shadow-lg hover:scale-110 transition-transform"
+          >
+            <CiCirclePlus />
+          </Link>
         </div>
       </div>
 
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-3 items-center mb-4 md:justify-end">
-        <div className="flex items-center justify-start">
-          <Link className="p-2 border rounded-lg border-gray-300 text-md hover:bg-gray-100 transition"  title="Send Request">
+        <div className="flex items-center justify-start gap-2 mr-60">
+          <label className="self-center text-sm font-medium text-gray-700">
+            Request Product:
+          </label>
+          <button
+            onClick={() => setIsRequestModalVisible(true)}
+            className="p-2 border rounded-lg border-gray-300 text-md hover:bg-gray-100 transition"
+            title="Send Request"
+          >
             <BsSendPlus />
-          </Link>
+          </button>
         </div>
+
         <input
           type="text"
           placeholder="Search by ID or Name..."
@@ -160,13 +283,19 @@ export default function AdminProductPage() {
           <option value="lowStock">Low Stock (&lt;10)</option>
           <option value="outOfStock">Out of Stock</option>
         </select>
-        
-        <Link className="p-2 border rounded-lg border-gray-300 text-md hover:bg-gray-100 transition"  title="Clear Filter">
-          <RiFilterOffFill size={18} onClick={() => {
-            setCategoryFilter("");
-            setStockFilter("");
-            setSearchTerm("");
-          }}/>
+
+        <Link
+          className="p-2 border rounded-lg border-gray-300 text-md hover:bg-gray-100 transition"
+          title="Clear Filter"
+        >
+          <RiFilterOffFill
+            size={18}
+            onClick={() => {
+              setCategoryFilter("");
+              setStockFilter("");
+              setSearchTerm("");
+            }}
+          />
         </Link>
       </div>
 
@@ -234,7 +363,9 @@ export default function AdminProductPage() {
                     <td className="py-3 px-4">
                       <span
                         className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                          item.isTrending ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-600"
+                          item.isTrending
+                            ? "bg-green-100 text-green-600"
+                            : "bg-gray-100 text-gray-600"
                         }`}
                       >
                         {item.isTrending ? "Yes" : "No"}

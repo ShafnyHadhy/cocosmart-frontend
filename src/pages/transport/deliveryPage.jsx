@@ -154,10 +154,10 @@ export default function DeliveryPage() {
     const query = searchQuery.toLowerCase();
 
     const matchesText =
-      orderID.includes(query) ||
-      vehicleId.includes(query) ||
-      driverName.includes(query) ||
-      route.includes(query);
+      orderID.startsWith(query) ||
+      vehicleId.startsWith(query) ||
+      driverName.startsWith(query) ||
+      route.startsWith(query);
 
     const matchesStatus = searchStatus
       ? d.deliveryStatus?.toLowerCase() === searchStatus.toLowerCase()
@@ -636,7 +636,7 @@ export default function DeliveryPage() {
                         />
                         {d.deliveryStatus !== "completed" && (
                           <IoCheckmarkDoneSharp
-                            className="text-green-500 text-2xl cursor-pointer transition-transform duration-200 hover:text-green-700 transition-colors hover:scale-125"
+                            className="text-green-500 text-2xl cursor-pointer duration-200 hover:text-green-700 transition-colors hover:scale-125"
                             title="Mark Delivered"
                             onClick={() => handleMarkDelivery(d._id)}
                           />

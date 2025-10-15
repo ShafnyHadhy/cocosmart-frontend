@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-// ✅ Swiper v11 imports
+// Swiper v11 imports
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 
-// ✅ Swiper styles
+// Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -69,7 +69,7 @@ export default function ProductPage() {
 
     if (searchTerm.trim() !== "") {
       filtered = filtered.filter((p) =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+        p.name.toLowerCase().startsWith(searchTerm.toLowerCase())
       );
     }
 
@@ -85,7 +85,7 @@ export default function ProductPage() {
   }, [searchTerm, selectedCategory, products, trendingProducts, userInteracted]);
 
   // Categories including Trending
-  const categories = ["All", "Trending", "Oil", "Powder", "Liquid", "Snacks"];
+  const categories = ["All", "Trending", "Oil", "Powder", "Liquid", "Raw"];
 
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-primary">

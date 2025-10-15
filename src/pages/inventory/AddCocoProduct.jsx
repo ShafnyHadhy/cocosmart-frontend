@@ -23,6 +23,7 @@ function toTodayLocalISODate() {
   return d.toISOString().slice(0, 10);
 }
 
+//Formats integers with grouping
 const formatInt = (n) =>
   new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(n);
 
@@ -546,7 +547,7 @@ export default function AddCocoProduct() {
                   type="text"
                   name="std_cost"
                   value={inputs.std_cost}
-                  placeholder="e.g., 1,250.00"
+                  placeholder="150.25"
                   onChange={handleStdCostChange}
                   onFocus={handleStdCostFocus}
                   onBlur={handleStdCostBlur}
@@ -556,7 +557,7 @@ export default function AddCocoProduct() {
                   style={{ borderColor: "#e7e9e9", backgroundColor: "#f5f3f1" }}
                 />
                 <p className="mt-2 text-sm" style={{ color: "#a4ac86" }}>
-                  Max 10,000.00 • formats as 1,000.00 on blur.
+                 
                 </p>
               </div>
 
@@ -636,7 +637,7 @@ export default function AddCocoProduct() {
                   type="date"
                   name="expire_date"
                   value={inputs.expire_date}
-                  min={toTodayLocalISODate()}
+                  //min={toTodayLocalISODate()}
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
@@ -652,7 +653,7 @@ export default function AddCocoProduct() {
                   }}
                 />
                 <p className="mt-2 text-sm" style={{ color: "#a4ac86" }}>
-                  Past dates are blocked.
+                 
                 </p>
               </div>
 

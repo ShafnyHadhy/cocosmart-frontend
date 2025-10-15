@@ -176,14 +176,12 @@ export default function SignupPage() {
 
   // Validate phone number input
   const validatePhone = (val) => {
-    if (val.length === 1 && val === "0") {
-      handleInputChange("phone", "");
-      return;
-    }
-    const onlyDigits = val.replace(/[^0-9]/g, "");
-    handleInputChange("phone", onlyDigits.slice(0, 9));
+    const digitsOnly = val.replace(/\D/g, "").slice(0, 9); // limit to 9 digits
+    handleInputChange("phone", digitsOnly);
 
-    if (onlyDigits && onlyDigits.length !== 9) {
+    if (digitsOnly.length === 0) {
+      setErrors((prev) => ({ ...prev, phone: "Only numbers allowed" }));
+    } else if (digitsOnly.length !== 9) {
       setErrors((prev) => ({ ...prev, phone: "Must be exactly 9 digits" }));
     } else {
       setErrors((prev) => ({ ...prev, phone: "" }));
