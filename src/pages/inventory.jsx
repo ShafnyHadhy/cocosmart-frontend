@@ -38,7 +38,7 @@ export default function Inventory() {
     { path: "/inventory/purchasedItemDetails", label: "Purchased Items", icon: <FiShoppingCart  /> },////////////////
     { path: "/inventory/supplierDetails", label: "Suppliers", icon: <FiUsers  /> },////////////////
     { path: "/inventory/stockDetails", label: "Stock Movements", icon: <FiArchive  /> },////////////////
-        { path: "/inventory/rorderDetails", label: "Rorders", icon: <FiRepeat  /> },////////////////
+        { path: "/inventory/rorderDetails", label: "ReOrders", icon: <FiRepeat  /> },////////////////
         
     
   ];

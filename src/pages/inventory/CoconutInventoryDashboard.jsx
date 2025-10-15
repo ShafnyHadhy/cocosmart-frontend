@@ -189,7 +189,8 @@ const [hasSeen, setHasSeen] = useState(false);
 const FAKE_QTY = {
   COCO001: 120,
   COCO006: 80,
-  COCO009: 100
+  COCO009: 100,
+  COCO008: 150
   // add more as needed...
 };
 const getQty = (r) => r.qty ?? FAKE_QTY[r.productID] ?? 0;
