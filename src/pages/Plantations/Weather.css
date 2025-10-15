@@ -1,0 +1,193 @@
+.weather-page * {
+  font-family: "Montserrat", sans-serif;
+}
+
+.weather-page div, .weather-page h2, .weather-page p, .weather-page ul, .weather-page li {
+    margin: 0;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+.weather-page .container {
+    position: relative;
+    overflow: hidden;
+    margin: 0px 200px 0px 200px;
+    width: 100%;
+    max-width: 800px;
+    z-index: 1;
+    border-radius: 10px;
+    background: linear-gradient(#47935c, #021d12);
+    font-family: "Montserrat", sans-serif; /* Apply base font here */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Background image overlay */
+.weather-page .container::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    background: url("/clouds.png") no-repeat center center;
+    background-size: cover;
+    opacity:200; /* Optional: adjust cloud opacity */
+}
+
+/* Ensure all content appears above background */
+.weather-page .container > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Search Section */
+.weather-page .search-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 25px;
+}
+
+.weather-page .search-section .search-form {
+    height: 54px;
+    width: 100%;
+    position: relative;
+}
+
+.weather-page .search-section .search-form span {
+    color: #fff;
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+}
+
+.weather-page .search-section .search-input {
+    width: 100%;
+    height: 100%;
+    outline: none;
+    color: #fff;
+    font-size: 1rem;
+    text-transform: uppercase;
+    border-radius: 6px;
+    padding: 0 20px 0 50px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    transition: 0.1s ease;
+}
+
+.weather-page .search-section .search-input:focus {
+    border-color: #91f1a1;
+}
+
+.weather-page .search-section .search-input::placeholder {
+    color: #ddd;
+    text-transform: none;
+}
+
+.weather-page .search-section .location-button {
+    height: 54px;
+    width: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    transition: 0.2s ease;
+}
+
+.weather-page .search-section .location-button span {
+    font-size: 1.3rem;
+}
+
+.weather-page .search-section .location-button:hover {
+    color: #9fdfb0;
+    border-color: #a6e4a4;
+}
+
+/* Weather Section */
+.weather-page .weather-section :where(h2, p) {
+    color: #fff;
+}
+
+/* Current Weather */
+.weather-page .weather-section .current-weather {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0 50px;
+}
+
+.weather-page .current-weather .weather-icon {
+    width: 140px;
+    aspect-ratio: 1;
+}
+
+.weather-page .current-weather .temperature {
+    margin: 18px 0;
+    display: flex;
+    font-size: 3.38rem;
+}
+
+.weather-page .current-weather .temperature span {
+    font-size: 1.56rem;
+    font-weight: 400;
+    margin: 5px 0 0 2px;
+}
+
+.weather-page .current-weather .description {
+    font-size: 1.25rem;
+}
+
+/* Hourly Forecast */
+.weather-page .hourly-forecast {
+    padding: 16px 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.weather-page .hourly-forecast .weather-list {
+    display: flex;
+    gap: 32px;
+    overflow-x: auto;
+    list-style: none;
+    scrollbar-width: thin;
+    padding-bottom: 16px;
+    margin-bottom: -16px;
+    scrollbar-color: transparent transparent;
+}
+
+.weather-page .hourly-forecast:hover .weather-list {
+    scrollbar-color: #a1d0a6 transparent;
+}
+
+.weather-page .hourly-forecast .weather-item {
+    display: flex;
+    gap: 7px;
+    flex-direction: column;
+    align-items: center;
+}
+
+.weather-page .hourly-forecast .weather-item .weather-icon {
+    width: 28px;
+    aspect-ratio: 1;
+}
+
+/* No Results */
+.weather-page .no-results {
+    color: #fff;
+    display: flex;
+    text-align: center;
+    min-height: 460px;
+    padding: 60px 40px 40px;
+    flex-direction: column;
+    align-items: center;
+}
+
+.weather-page .no-results .title {
+    margin: 25px 0 15px;
+}

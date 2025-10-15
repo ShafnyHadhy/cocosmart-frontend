@@ -3,6 +3,7 @@
 
 .chatbot-container {
   font-family: 'Inter', sans-serif;
+
 }
 
 /* Toggle Button */
@@ -24,7 +25,8 @@
 
 .chatbot-container #chatbot-toggle span {
   position: absolute;
-  color: #fff;
+  color: #f5eeee;
+ 
 }
 
 .chatbot-container.show-chatbot #chatbot-toggle {
@@ -52,7 +54,7 @@
   max-height: 90vh;          /* prevent going outside screen */
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: #fcfcfc; /* Changed main chatbot background */
   border-radius: 15px;
   transform: scale(0.2);
   transform-origin: bottom right;
@@ -127,6 +129,27 @@
   display: flex;
   flex-direction: column;
   max-height: calc(90vh - 120px);      /* header + footer space */
+  scrollbar-width: thin;
+  scrollbar-color: #b0c7b8 #f1f1f1;
+}
+
+/* Scrollbar styles for WebKit browsers (Chrome, Safari, Edge) */
+.chatbot-container .chat-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chatbot-container .chat-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 25px;
+}
+
+.chatbot-container .chat-body::-webkit-scrollbar-thumb {
+  background: #40826D;
+  border-radius: 25px;
+}
+
+.chatbot-container .chat-body::-webkit-scrollbar-thumb:hover {
+  background: #1fae8b;
 }
 
 
@@ -178,10 +201,8 @@
 
 /* Footer */
 .chatbot-container .chat-footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  background: #fff;
+
+  background: #fcfcfc; /* Changed footer background */
   padding: 15px 22px 20px;
 }
 
@@ -204,11 +225,39 @@
   width: 100%;
   background: none;
   height: 47px;
-  padding: 0 17px;
+  padding: 14px 17px;
   font-size: 0.95rem;
+  resize: none;
+  overflow-y: hidden;
 }
 
-.chatbot-container .chat-form button {
+.chatbot-container .chat-form .form-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 6px;
+}
+
+.chatbot-container .chat-form .mic-btn {
+  height: 35px;
+  width: 35px;
+  border: none;
+  display: block; /* Always show mic button */
+  outline: none;
+  cursor: pointer;
+  font-size: 1.3rem;
+  color: #40826D;
+  background: rgb(217 245 227);
+  border-radius: 50%;
+  transition: 0.2s ease;
+}
+
+.chatbot-container .chat-form .mic-btn.listening {
+  color: #fff;
+  background: #ff4d4d;
+}
+
+.chatbot-container .chat-form .send-btn {
   height: 35px;
   width: 35px;
   border: none;
@@ -218,16 +267,15 @@
   font-size: 1.15rem;
   color: #fff;
   flex-shrink: 0;
-  margin-right: 6px;
   border-radius: 50%;
   background: #40826D;
   transition: 0.2s ease;
 }
 
-.chatbot-container .chat-form button:hover {
+.chatbot-container .chat-form .send-btn:hover {
   background: #1fae8b;
 }
 
-.chatbot-container .chat-form .message-input:valid ~ button {
-  display: block;
-}
+ .chatbot-container .chat-form .message-input:valid ~ .form-buttons .send-btn {
+   display: block;
+ }

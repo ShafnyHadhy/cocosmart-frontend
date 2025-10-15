@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaRegEdit } from "react-icons/fa";
 import { RiDeleteBin5Fill } from "react-icons/ri";
+import toast from "react-hot-toast";
 
 function Plantation({ plantation }) {
   const { plotID, name, location, size, noOfTrees, irrigationSchedules, harvest } = plantation;
@@ -13,11 +14,11 @@ function Plantation({ plantation }) {
     if (confirmDelete) {
       try {
         await axios.delete(`http://localhost:5000/api/plots/${plotID}`);
-        window.alert("Plantation deleted successfully!");
+        toast.success("Plantation deleted successfully!");
         navigate("/plant/plantations");
       } catch (err) {
         console.error(err);
-        window.alert("Failed to delete plantation. Try again.");
+        toast.error("Failed to delete plantation. Try again.");
       }
     }
   };

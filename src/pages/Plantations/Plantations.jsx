@@ -14,33 +14,33 @@ const fetchHandler = async () => {
 };
 
 function Plantations() {
-  const [plantations, setPlantations] = useState([]);
+  const [filteredPlantations, setFilteredPlantations] = useState([]);
+  const [allPlantations, setAllPlantations] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [noResults, setNoResults] = useState(false);
 
   useEffect(() => {
-    fetchHandler().then((data) => setPlantations(data));
+    fetchHandler().then((data) => {
+      setAllPlantations(data);
+      setFilteredPlantations(data);
+    });
   }, []);
 
-  const handleSearch = () => {
+  useEffect(() => {
     if (searchQuery.trim() === "") {
-      fetchHandler().then((data) => {
-        setPlantations(data);
-        setNoResults(false);
-      });
+      setFilteredPlantations(allPlantations);
+      setNoResults(false);
       return;
     }
 
-    fetchHandler().then((data) => {
-      const filtered = data.filter((plantation) =>
-        Object.values(plantation).some((field) =>
-          field?.toString().toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      );
-      setPlantations(filtered);
-      setNoResults(filtered.length === 0);
-    });
-  };
+    const filtered = allPlantations.filter((plantation) =>
+      Object.values(plantation).some((field) =>
+        field?.toString().toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    );
+    setFilteredPlantations(filtered);
+    setNoResults(filtered.length === 0);
+  }, [searchQuery, allPlantations]);
 
   const handleSendReport = () => {
     const phoneNumber = "+94701520421";
@@ -56,7 +56,7 @@ function Plantations() {
   ).slice(-2)}${("0" + new Date().getDate()).slice(-2)}-001`;
 
   const handleDownloadPDF = () => {
-    if (!plantations || plantations.length === 0) return;
+    if (!filteredPlantations || filteredPlantations.length === 0) return;
 
     const doc = new jsPDF();
     const logoImg = new Image();
@@ -94,7 +94,7 @@ function Plantations() {
       doc.text(`Report ID: ${reportId}`, 15, 64, { align: "left" });
 
       // --- Table Data ---
-      const tableData = plantations.map((p) => [
+      const tableData = filteredPlantations.map((p) => [
         p.plotID,
         p.name,
         p.location,
@@ -123,8 +123,8 @@ function Plantations() {
       });
 
       // --- Totals ---
-      const totalPlots = plantations.length;
-      const totalHarvest = plantations.reduce((sum, p) => sum + (Number(p.harvest) || 0), 0);
+      const totalPlots = filteredPlantations.length;
+      const totalHarvest = filteredPlantations.reduce((sum, p) => sum + (Number(p.harvest) || 0), 0);
 
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
@@ -149,27 +149,23 @@ function Plantations() {
     <div className="pgs-plantations-page">
       {/* Search Bar */}
       <div className="pgs-search-bar flex justify-center">
-        <div className="pgs-search-wrapper relative w-full max-w-md">
+        <div className="pgs-search-wrapper relative w-full max-w-md mt-8">
           <IoIosSearch className="pgs-search-icon" />
           <input
             type="text"
             placeholder="Search Plantation Details"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             className="pgs-search-input"
           />
         </div>
-        <button className="pgs-search-btn ml-2" onClick={handleSearch}>
-          Search
-        </button>
       </div>
 
       {noResults ? (
         <p className="pgs-no-results">No results found for "{searchQuery}"</p>
       ) : (
         <div className="pgs-plantations-container">
-          {plantations.length > 0 ? (
+          {filteredPlantations.length > 0 ? (
             <table className="pgs-plantation-table">
               <thead>
                 <tr>
@@ -184,7 +180,7 @@ function Plantations() {
                 </tr>
               </thead>
               <tbody>
-                {plantations.map((p, i) => (
+                {filteredPlantations.map((p, i) => (
                   <Plantation key={i} plantation={p} />
                 ))}
               </tbody>
