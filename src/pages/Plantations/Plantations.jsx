@@ -33,10 +33,12 @@ function Plantations() {
       return;
     }
 
-    const filtered = allPlantations.filter((plantation) =>
-      Object.values(plantation).some((field) =>
-        field?.toString().toLowerCase().includes(searchQuery.toLowerCase())
-      )
+    const lowercasedFilter = searchQuery.toLowerCase();
+    const filtered = allPlantations.filter(
+      (p) =>
+        p.name.toLowerCase().startsWith(lowercasedFilter) ||
+        p.location.toLowerCase().startsWith(lowercasedFilter) ||
+        p.plotID.toLowerCase().startsWith(lowercasedFilter)
     );
     setFilteredPlantations(filtered);
     setNoResults(filtered.length === 0);

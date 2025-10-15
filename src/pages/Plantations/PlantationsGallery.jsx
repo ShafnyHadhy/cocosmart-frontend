@@ -27,19 +27,13 @@ function PlantationsGallery() {
       setFiltered(allPlantations);
       return;
     }
-    const q = query.toLowerCase();
+    const lowercasedFilter = query.toLowerCase();
     setFiltered(
-      allPlantations.filter((p) =>
-        [
-          p.plotID,
-          p.name,
-          p.location,
-          p.size,
-          p.noOfTrees,
-          p.irrigationSchedules,
-        ]
-          .map((v) => (v ?? "").toString().toLowerCase())
-          .some((txt) => txt.includes(q))
+      allPlantations.filter(
+        (p) =>
+          p.name.toLowerCase().startsWith(lowercasedFilter) ||
+          p.location.toLowerCase().startsWith(lowercasedFilter) ||
+          p.plotID.toLowerCase().startsWith(lowercasedFilter)
       )
     );
   }, [query, allPlantations]);
