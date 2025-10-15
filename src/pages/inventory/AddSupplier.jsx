@@ -201,7 +201,7 @@ export default function AddSupplier() {
                   name="sup_id"
                   value={inputs.sup_id}
                   onChange={handleChange}
-                  placeholder="Enter unique supplier identifier (e.g., SUP001)"
+                  placeholder="sup001"
                   required
                   className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
                   style={{ 
@@ -249,7 +249,7 @@ export default function AddSupplier() {
                       setInputs((prev) => ({ ...prev, sup_name: newVal }));
                     }
                   }}
-                  placeholder="Enter supplier company name"
+                  placeholder="Company name"
                   className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
                   style={{ 
                     borderColor: submitted && fieldErrors.sup_name ? '#ef4444' : '#e7e9e9',
@@ -330,7 +330,7 @@ export default function AddSupplier() {
                     const msg = validateContact(e.target.value);
                     setFieldErrors((p) => ({ ...p, contact: msg }));
                   }}
-                  placeholder="0771234567 (10 digits)"
+                  placeholder="0771234567"
                   required
                   inputMode="numeric"
                   pattern="\d{10}"
@@ -373,7 +373,7 @@ export default function AddSupplier() {
                     const msg = validateAddress(e.target.value);
                     setFieldErrors((p) => ({ ...p, address: msg }));
                   }}
-                  placeholder="Complete supplier address including street, city, and province"
+                  // placeholder="Complete supplier address including street, city, and province"
                   required
                   className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors resize-none"
                   style={{ 

@@ -222,7 +222,7 @@ const minDate = toYMD(new Date(todayLocal.getFullYear(), todayLocal.getMonth(), 
                     setFieldErrors((p) => ({ ...p, stock_id: msg }));
                     if (!msg) checkStockIdUnique(e.target.value.trim());
                   }}
-                  placeholder="e.g., STK-2025-0001"
+                  placeholder="STK001"
                   required
                   className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
                   style={{
@@ -386,7 +386,7 @@ const minDate = toYMD(new Date(todayLocal.getFullYear(), todayLocal.getMonth(), 
                   onChange={handleChange}
                   value={inputs.tot_value}
                   readOnly
-                  placeholder="Enter total value"
+                  // placeholder="Enter total value"
                   required
                   className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:outline-none transition-colors"
                   style={{ borderColor: "#e7e9e9", backgroundColor: "#f5f3f1" }}

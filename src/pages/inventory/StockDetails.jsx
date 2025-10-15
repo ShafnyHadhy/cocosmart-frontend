@@ -35,16 +35,21 @@ function getFilenameFromDisposition(disposition) {
 
 async function handleDownloadStockPdf() {
   try {
-    const url = `${API_BASE}/api/stocks/report/pdf`;
+    // same last-30-days window used on the dashboard
+    const pad = (n) => String(n).padStart(2, "0");
+    const fmt = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const today = new Date();
+    const ago = new Date();
+    ago.setDate(today.getDate() - 30);
+    const start = fmt(ago);
+    const end = fmt(today);
+
+    const url = `${API_BASE}/api/stocks/report/pdf?start=${start}&end=${end}`;
     const res = await axios.get(url, { responseType: "blob" });
 
     const blob = new Blob([res.data], { type: "application/pdf" });
-    const suggested = getFilenameFromDisposition(
-      res.headers["content-disposition"]
-    );
-    const fallback = `stocks-report-${new Date()
-      .toISOString()
-      .slice(0, 10)}.pdf`;
+    const suggested = getFilenameFromDisposition(res.headers["content-disposition"]);
+    const fallback = `stocks-report-${new Date().toISOString().slice(0, 10)}.pdf`;
     const fileName = suggested || fallback;
 
     const link = document.createElement("a");
@@ -59,6 +64,9 @@ async function handleDownloadStockPdf() {
     alert("Sorry, could not download the Stock report.");
   }
 }
+
+
+
 
 // ===== Row component =====
 function DisplayStock({ stock, onDelete, onEdit }) {

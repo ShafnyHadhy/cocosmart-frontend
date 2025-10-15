@@ -33,6 +33,12 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+const API_BASE =
+  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_URL) ||
+  (typeof process !== "undefined" && process.env && process.env.VITE_API_URL) ||
+  "http://localhost:5000";
+
+
 // Mock data for the dashboard
 const revenueData = [
   { month: "Jan", revenue: 45000, expenses: 32000 },
@@ -99,13 +105,13 @@ const MetricCard = ({
       </div>
       <div className="relative">
         <div
-          className="w-18 h-18 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110"
+          className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110"
           style={{
             background: `linear-gradient(135deg, ${color}, ${color}CC)`,
             boxShadow: `0 8px 32px ${color}40`,
           }}
         >
-          <Icon className="w-9 h-9 text-white" />
+          <Icon className="w-7 h-7 text-white" />
         </div>
         {/* Pulse animation */}
         <div
@@ -178,14 +184,14 @@ export default function CoconutInventoryDashboard() {
   const initialOrderNotifications = [
     {
       id: "REQ-001",
-      productId: "P-CO-500",
-      name: "Coconut Oil 500ml",
+      productId: "COCO001",
+      name: "Virgin Coconut Oil 500ml",
       qty: 120,
     },
     {
       id: "REQ-002",
-      productId: "P-CW-1000",
-      name: "Coconut Water 1L",
+      productId: "COCO006",
+      name: "Coconut Sugar 1kg",
       qty: 80,
     },
   ];
@@ -204,6 +210,59 @@ export default function CoconutInventoryDashboard() {
     }
     setNotifOpen((s) => !s);
   };
+
+  // format YYYY-MM-DD
+const fmtDate = (d) => {
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+
+// Example: last 30 days period
+const today = new Date();
+const thirtyDaysAgo = new Date();
+thirtyDaysAgo.setDate(today.getDate() - 30);
+const defaultStart = fmtDate(thirtyDaysAgo);
+const defaultEnd = fmtDate(today);
+
+// If your frontend and backend share the same origin, this path is enough.
+// If not, put your API base URL here, e.g. const API = "http://localhost:5000";
+const API = API_BASE;
+
+
+const handleExportReport = async (start = defaultStart, end = defaultEnd) => {
+  try {
+   const url = `${API_BASE}/api/stocks/report/pdf`;
+
+    const res = await fetch(url, {
+      method: "GET",
+      // if you need cookies for auth:
+      // credentials: "include",
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || `Failed to download report (${res.status})`);
+    }
+
+    const blob = await res.blob();
+    const cd = res.headers.get("Content-Disposition") || "";
+    const m = cd.match(/filename="?([^"]+)"?/i);
+    const filename = m?.[1] || "stock-movements-summary.pdf";
+
+    const link = document.createElement("a");
+    const objectUrl = URL.createObjectURL(blob);
+    link.href = objectUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(objectUrl);
+  } catch (e) {
+    console.error(e);
+    alert("Could not export the report. Check console for details.");
+  }
+};
+
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#f7f9f9" }}>
@@ -351,6 +410,7 @@ export default function CoconutInventoryDashboard() {
                   background: "linear-gradient(135deg, #2a5540, #1e3a2e)",
                   boxShadow: "0 4px 20px rgba(42, 85, 64, 0.4)",
                 }}
+                onClick={() => handleExportReport()} 
               >
                 Export Report
               </button>
@@ -363,9 +423,9 @@ export default function CoconutInventoryDashboard() {
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <MetricCard
-            title="Total Coconut Products"
-            value="1,247"
-            change="+12.3%"
+            title="Coconut Products"
+            value="10"
+            change="+9.9%"
             changeType="increase"
             icon={Package}
             color="#2a5540"
@@ -373,7 +433,7 @@ export default function CoconutInventoryDashboard() {
           />
           <MetricCard
             title="Purchased Items"
-            value="423"
+            value="9"
             change="+8.7%"
             changeType="increase"
             icon={ShoppingCart}
@@ -382,7 +442,7 @@ export default function CoconutInventoryDashboard() {
           />
           <MetricCard
             title="Active Suppliers"
-            value="24"
+            value="4"
             change="+2"
             changeType="increase"
             icon={Truck}
@@ -391,7 +451,7 @@ export default function CoconutInventoryDashboard() {
           />
           <MetricCard
             title="Inventory Value"
-            value="LKR 2.4M"
+            value="LKR 1M"
             change="+15.2%"
             changeType="increase"
             icon={DollarSign}
@@ -407,16 +467,16 @@ export default function CoconutInventoryDashboard() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <AlertCard
-              title="Low Stock - Coco Products"
-              count="18"
+              title="Low-Products"
+              count="3"
               icon={AlertTriangle}
               color="#ef4444"
               bgColor="rgba(239, 68, 68, 0.1)"
               description="Products need restocking"
             />
             <AlertCard
-              title="Low Stock - Purchased Items"
-              count="12"
+              title="Low-Purchases"
+              count="2"
               icon={Box}
               color="#f59e0b"
               bgColor="rgba(245, 158, 11, 0.1)"
@@ -424,7 +484,7 @@ export default function CoconutInventoryDashboard() {
             />
             <AlertCard
               title="Expiring Soon"
-              count="7"
+              count="4"
               icon={Clock}
               color="#8b5cf6"
               bgColor="rgba(139, 92, 246, 0.1)"
@@ -432,7 +492,7 @@ export default function CoconutInventoryDashboard() {
             />
             <AlertCard
               title="Expired Items"
-              count="3"
+              count="1"
               icon={AlertTriangle}
               color="#ef4444"
               bgColor="rgba(239, 68, 68, 0.1)"
