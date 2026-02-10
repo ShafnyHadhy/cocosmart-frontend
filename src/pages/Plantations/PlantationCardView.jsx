@@ -5,7 +5,7 @@ import "./PlantationCardView.css";
 import coconutImage from "../../assets/coconut.jpg";
 import bananaImage from "../../assets/banana.jpg";
 import coco1Image from "../../assets/coco1.jpg";
-import teaImage from "../../assets/tea.jpg";
+import teaImage from "../../assets/tea.JPG";
 import coco2Image from "../../assets/coco2.jpg";
 import coco3Image from "../../assets/coco3.jpg";
 import coco4Image from "../../assets/coco5.jpg";
